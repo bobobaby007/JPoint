@@ -14,11 +14,11 @@ protocol PicItemDelegate:NSObjectProtocol{
     func _clicked()
 }
 
-
 class PicItem: UIView {
     var _imageV:UIImageView?
     var _tapG:UITapGestureRecognizer?
     var _delegate:PicItemDelegate?
+    var _clickSign:ClickSign?
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -26,22 +26,38 @@ class PicItem: UIView {
         
         _imageV = UIImageView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.width))
         _imageV!.layer.masksToBounds=true
-        _imageV!.layer.cornerRadius = 40
+        _imageV!.layer.cornerRadius = 20
+        self.layer.shadowColor = UIColor.blackColor().CGColor
+        self.layer.shadowOpacity = 0.3
+        self.layer.shadowOffset = CGSize(width: 0, height: 0)
+        self.layer.shadowRadius = 5
         _imageV?.contentMode = UIViewContentMode.ScaleAspectFill
         
-        _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))
-        
-        self.addGestureRecognizer(_tapG!)
-        
+        _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        
         addSubview(_imageV!)
     }
-
-    func tapHander(__sender:UITapGestureRecognizer){
     
+    func _ready(){
+        self.addGestureRecognizer(_tapG!)
+    }
+    
+    func tapHander(__sender:UITapGestureRecognizer){
+        
         let _location:CGPoint = __sender.locationInView(_imageV)
         if _location.y > _imageV?.frame.height{
             return
         }
+        
+        let _point:CGPoint = __sender.locationInView(self)
+        
+        
+        
+        _clickSign = ClickSign(frame: CGRect(x: _point.x, y: _point.y, width: 0, height: 0))
+        addSubview(_clickSign!)
+        _clickSign?._show()
+        
+        self.removeGestureRecognizer(_tapG!)
+        
         _delegate?._clicked()
         
     }
