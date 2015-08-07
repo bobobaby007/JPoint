@@ -19,6 +19,7 @@ class PicItem: UIView {
     var _tapG:UITapGestureRecognizer?
     var _delegate:PicItemDelegate?
     var _clickSign:ClickSign?
+    var _cornerRadius:CGFloat = 20
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -26,7 +27,7 @@ class PicItem: UIView {
         
         _imageV = UIImageView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.width))
         _imageV!.layer.masksToBounds=true
-        _imageV!.layer.cornerRadius = 20
+        _imageV!.layer.cornerRadius = _cornerRadius
         self.layer.shadowColor = UIColor.blackColor().CGColor
         self.layer.shadowOpacity = 0.3
         self.layer.shadowOffset = CGSize(width: 0, height: 0)

@@ -26,6 +26,18 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     var _bottomOut:CGFloat = 40
     var _picItemW:CGFloat = 300
     
+    
+    //--
+    var _center_currentPicItem:CGPoint = CGPoint()
+    var _center_infoPanel:CGPoint = CGPoint()
+    var _center_nextPicItem:CGPoint = CGPoint()
+    var _center_profilePanel:CGPoint = CGPoint()
+    var _center_btn_list:CGPoint = CGPoint()
+    var _center_btn_plus:CGPoint = CGPoint()
+    var _center_btn_love:CGPoint = CGPoint()
+    var _editingViewCY:CGFloat = 0
+    
+    //
     var _currentIndex:Int = 0
     
     var _infoPanel:InfoPanel?
@@ -42,6 +54,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     
     var _profilePanel:ProfilePanel?
     var _profielH:CGFloat = 80
+    
+    var _editingViewC:EditingView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,6 +80,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         self.view.addSubview(_bgView!)
         
         
+        _editingViewC = EditingView()
+        self.addChildViewController(_editingViewC!)
+        _editingViewC?.view.frame=CGRect(x: 0, y: -self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
+        self.view.addSubview(_editingViewC!.view)
+        _editingViewC?.didMoveToParentViewController(self)
         
         _btn_list = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_list?.center = CGPoint(x: 50, y: -_btnW)
@@ -75,6 +94,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         _btn_list?.layer.shadowColor = UIColor.blackColor().CGColor
         _btn_list?.layer.shadowOpacity = 0.2
         _btn_list?.layer.shadowRadius = 5
+        _btn_list?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_plus = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -_btnW)
@@ -84,6 +104,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         _btn_plus?.layer.shadowColor = UIColor.blackColor().CGColor
         _btn_plus?.layer.shadowOpacity = 0.2
         _btn_plus?.layer.shadowRadius = 5
+        _btn_plus?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_love = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_love?.backgroundColor = UIColor(red: 255/255, green: 222/255, blue: 42/255, alpha: 1)
@@ -93,6 +114,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         _btn_love?.layer.shadowColor = UIColor.blackColor().CGColor
         _btn_love?.layer.shadowOpacity = 0.2
         _btn_love?.layer.shadowRadius = 5
+        _btn_love?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
        
         var _img:UIImage = UIImage(named: "icon_list.png")!
         UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
@@ -135,7 +157,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     func _viewUser() {
         
     }
-    
+    //----下一张
     func _next(){
         _btnsIn = false
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
@@ -152,11 +174,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             self.didMoveStop()
         }
     }
-    //---移动完成
+    //---向上移动完成
     func didMoveStop(){
         ++_currentIndex
         _showIndex(_currentIndex)
     }
+    
     //-----展示当前用户和图片
     func _showIndex(__index:Int){
         _currentIndex = __index
@@ -206,97 +229,117 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             }) { (finished) -> Void in
                 
         }
-        
-        
         self.view.addSubview(_nextPicItem!)
-
-        
-        
     }
-    
+    //----载入图片
     func _picInAtIndex(__index:Int)->PicItem{
         var _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
         _item._setPic("image_"+String(__index%3+1)+".jpg")
         _item._delegate = self
         return _item
     }
-    
+    //--------滑动代理
     func panHander(__gesture:UIPanGestureRecognizer){
         let _offset:CGPoint = __gesture.translationInView(self.view)
+        
+        
+        
         switch __gesture.state{
+        case UIGestureRecognizerState.Began:
+            _center_currentPicItem = _currentPicItem!.center
+            _center_infoPanel = _infoPanel!.center
+            _center_nextPicItem = _nextPicItem!.center
+            _center_profilePanel = _profilePanel!.center
+            _center_btn_list = _btn_list!.center
+            _center_btn_plus = _btn_plus!.center
+            _center_btn_love = _btn_love!.center
+            _editingViewCY = _editingViewC!.view.frame.origin.y
+            return
         case UIGestureRecognizerState.Changed:
-            var _toY:CGFloat = _CentralY+_offset.y
-            var _btnToY_1:CGFloat = -_btnW + _offset.y*0.3
-            var _btnToY_2:CGFloat = -_btnW + _offset.y*0.4
-            var _btnToY_3:CGFloat = -_btnW + _offset.y*0.3
-            
-            var _bottomToY:CGFloat = _bottomY-_bottomOut+_offset.y*1.4
-            if _btnsIn{
-                _btnToY_1 = _btnY + _offset.y*0.6
-                _btnToY_2 = _btnY + _offset.y*0.7
-                _btnToY_3 = _btnY + _offset.y*0.6
-                _toY = _CentralY+_offset.y+2*_btnW
-                _bottomToY = _bottomY
-            }
             
             
             UIView.beginAnimations("go", context: nil)
-            _currentPicItem?.center = CGPoint(x: _currentPicItem!.center.x, y: _toY)
-            _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_toY + _picItemW/2 + _gap + _infoH/2)
+            _currentPicItem?.center = CGPoint(x: _currentPicItem!.center.x, y: _center_currentPicItem.y+_offset.y)
+            _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_center_infoPanel.y+_offset.y*0.9)
             _infoPanel?.alpha = 1+_offset.y*0.006
-            _nextPicItem?.center = CGPoint(x: _nextPicItem!.center.x, y: _bottomToY)
-            
+            _nextPicItem?.center = CGPoint(x: _nextPicItem!.center.x, y: _center_nextPicItem.y+_offset.y*0.7)
             _profilePanel?.alpha = 1+_offset.y*0.006
-            
-            _btn_list?.center = CGPoint(x: 50, y: _btnToY_1)
-            _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY_2)
-            _btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY_3)
-            
-            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH+_offset.y*0.3)
+            _btn_list?.center = CGPoint(x: 50, y: _center_btn_list.y+_offset.y*0.7)
+            _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _center_btn_plus.y+_offset.y*0.8)
+            _btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _center_btn_love.y+_offset.y*0.7)
+            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: _center_profilePanel.y+_offset.y*0.8)
+            self._editingViewC?.view.frame = CGRect(x: 0, y: _editingViewCY+_offset.y*0.6, width: self.view.frame.width, height: self.view.frame.height)
             
             UIView.commitAnimations()
             return
         case UIGestureRecognizerState.Ended:
+            
             if _offset.y < -120{
-                _next()
-                return
+                if _btnsIn{
+                    
+                }else{
+                    _next()
+                    return
+                }
+                
             }
-            
             if _offset.y > 120{
-                showBtns()
+                if _btnsIn{
+                    _showEdtingPage()
+                }else{
+                    showBtns()
+                }
                 return
             }
-            _btnsIn = false
-            UIView.beginAnimations("go", context: nil)
-            _currentPicItem?.center = CGPoint(x: _currentPicItem!.center.x, y: _CentralY)
-            _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_CentralY + _picItemW/2 + _gap + _infoH/2)
-            _infoPanel?.alpha = 1
-            _nextPicItem?.center = CGPoint(x: _nextPicItem!.center.x, y: _bottomY-_bottomOut)
-            _btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -_btnW)
-            _btn_list?.center = CGPoint(x: 50, y: -_btnW)
-            _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -_btnW)
-            _profilePanel?.alpha = 1
-            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
             
-            UIView.commitAnimations()
-            return
+            _showMainPage()
         default:
             return
         }
         
         
     }
-    
+    //-----恢复到开始的查看page
+    func _showMainPage(){
+        _btnsIn = false
+        
+        self._editingViewC?._reset()
+        
+        UIView.animateWithDuration(0.4, animations: { () -> Void in
+            self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._CentralY)
+            self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:self._CentralY + self._picItemW/2 + self._gap + self._infoH/2)
+            self._infoPanel?.alpha = 1
+            self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY-self._bottomOut)
+            self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -self._btnW)
+            self._btn_list?.center = CGPoint(x: 50, y: -self._btnW)
+            self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -self._btnW)
+            self._profilePanel?.alpha = 1
+            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
+            self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
+        }) { (complete) -> Void in
+            //self._removeEditePage()
+            
+        }
+        
+        
+        
+    }
+    //－－－－－出现按钮--按钮在顶端
     func showBtns(){
         var _btnToY:CGFloat = _btnY
         var _toY:CGFloat = _CentralY+2*_btnW
-        
         _btnsIn=true
+        
+        
+        
+        
+        
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
             self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
+            self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         }) { (array) -> Void in
             
         }
@@ -311,9 +354,65 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             }) { (array) -> Void in
                 
         }
-       
+    }
+    func buttonHander(sender:UIButton){
+        switch sender{
+        case _btn_plus!:
+            _showEdtingPage()
+            break
+        case _btn_love!:
+            
+            break
+        case _btn_list!:
+            
+            break
+        default:
+            break
+        }
+    }
+    
+    //-----清除制作页面
+    func _removeEditePage(){
+        _editingViewC?.removeFromParentViewController()
+        _editingViewC!.view.removeFromSuperview()
+    }
+    
+    //-------展示制作页面
+    func _showEdtingPage(){
+        var _btnToY:CGFloat = _bottomY-_picItemW/2-_btnY+_gap
+        var _toY:CGFloat = _bottomY+_profielH + 2*_gap
+        _btnsIn=true
         
         
+        self._editingViewC?._btnsShow()
+
+        
+        
+        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
+            self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
+            self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
+            self._editingViewC?.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+            
+            }) { (array) -> Void in
+                
+        }
+        
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            
+            
+            self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY)
+            self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:_toY + self._picItemW/2 + self._gap + self._infoH/2)
+            self._infoPanel?.alpha = 0
+            self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY+self._picItemW)
+            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY-self._picItemW/2-self._profielH)
+            
+            
+            
+            
+            }) { (array) -> Void in
+                
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
