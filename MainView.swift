@@ -57,6 +57,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     
     var _editingViewC:EditingView?
     
+    var _bingoController = BingoView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -152,10 +154,20 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     //----图片点击代理
     func _clicked() {
         //_next()
+        _showBingo()
     }
+    
     //---头像点击代理
     func _viewUser() {
         
+    }
+    
+    
+    //----
+    func _showBingo(){
+        self.presentViewController(_bingoController, animated: true) { () -> Void in
+            self._bingoController._show()
+        }
     }
     //----下一张
     func _next(){
