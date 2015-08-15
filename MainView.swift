@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
+class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_delegate,EditingView_delegate{
     let _gap:CGFloat = 10
     var _bgView:UIImageView?
     var _setuped:Bool = false
@@ -59,6 +59,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     
     var _bingoController = BingoView()
     
+    var _currentStatus:String = "mainView"// editingPage // showingBtns
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -83,7 +84,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         
         
         _editingViewC = EditingView()
+        
         self.addChildViewController(_editingViewC!)
+        _editingViewC!._delagate = self
         _editingViewC?.view.frame=CGRect(x: 0, y: -self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         self.view.addSubview(_editingViewC!.view)
         _editingViewC?.didMoveToParentViewController(self)
@@ -101,6 +104,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         _btn_plus = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -_btnW)
         _btn_plus?.backgroundColor = UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
+        _btn_plus?.contentMode=UIViewContentMode.Center
         //_btn_plus?.layer.masksToBounds = true
         _btn_plus?.layer.cornerRadius = _btnW/2
         _btn_plus?.layer.shadowColor = UIColor.blackColor().CGColor
@@ -125,8 +129,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         UIGraphicsEndImageContext()
        
         _img = UIImage(named: "icon_plus.png")!
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
-        _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*8, height: _btnW*8), false, 1)
+        _img.drawInRect(CGRect(x: _btnW*2, y: _btnW*2, width: _btnW*4, height: _btnW*4))
         _btn_plus?.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
         UIGraphicsEndImageContext()
         
@@ -145,33 +149,60 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         _profilePanel = ProfilePanel(frame: CGRect(x: _gap, y: 60, width: self.view.frame.width-2*_gap, height: 30))
         
         self.view.addSubview(_profilePanel!)
+        
+        
+        self.addChildViewController(_bingoController)
+        _bingoController._delagate=self
+        
        
         _showIndex(0)
         
         _setuped = true
         
     }
+    
+    //----编辑页面代理
+    func _edingImageIn() {
+        self.view.removeGestureRecognizer(_panGesture!)
+    }
+    //----bingo页面代理
+    func _bingoViewOut() {
+        _next()
+        self.view.addGestureRecognizer(_panGesture!)
+    }
+    func _talkNow() {
+        self.view.addGestureRecognizer(_panGesture!)
+    }
+    
     //----图片点击代理
     func _clicked() {
         //_next()
         _showBingo()
     }
-    
+    func _bingoFailed(){
+        
+    }
+    func _bingo(){
+        
+    }
     //---头像点击代理
     func _viewUser() {
         
     }
-    
-    
     //----
     func _showBingo(){
-        self.presentViewController(_bingoController, animated: true) { () -> Void in
-            self._bingoController._show()
-        }
+        self.view.removeGestureRecognizer(_panGesture!)
+        self.view.addSubview(_bingoController.view)
+//        _bingoController._setMyImage(NSDictionary(objects: ["image_3.jpg","file"], forKeys: ["url","type"]))
+        _bingoController._setBingoName("小甜甜")
+        _bingoController._setBingoImage(NSDictionary(objects: ["image_2.jpg","file"], forKeys: ["url","type"]))
+        _bingoController._show()
     }
     //----下一张
     func _next(){
         _btnsIn = false
+        self._infoPanel?.alpha=0
+        self._profilePanel?.alpha=0
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: -100)
             self._currentPicItem?.alpha = 0
@@ -180,6 +211,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -self._btnW)
             self._btn_list?.center = CGPoint(x: 50, y: -self._btnW)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -self._btnW)
+            
+            
             
             //self._thirdPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY-self._bottomOut)
         }) { (finished) -> Void in
@@ -218,17 +251,18 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
         _thirdPicItem?.center = CGPoint(x: self.view.frame.width/2, y: _bottomY)
         
         _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_currentPicItem!.center.y + _picItemW/2 + _gap + _infoH)
-        
+        _infoPanel?.alpha = 0
         _infoPanel?._setTime("3分钟前")
         _infoPanel?._setClick(_currentIndex*3)
         _infoPanel?._setLike(_currentIndex)
         
         self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH)
-        
+        self._profilePanel?.alpha = 0
         
         _profilePanel?._setPic("profile.png")
         _profilePanel?._setName("千年等一回，等一会啊啊啊啊")
         _profilePanel?._setSay("我喜欢这里的一本书，你猜猜哪个是，")
+        self._profilePanel?.alpha = 0
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._nextPicItem?.center = CGPoint(x: self.view.frame.width/2, y: self._bottomY-self._bottomOut)
             self._currentPicItem?.alpha = 1
@@ -286,25 +320,52 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             return
         case UIGestureRecognizerState.Ended:
             
-            if _offset.y < -120{
-                if _btnsIn{
-                    
-                }else{
+            if _offset.y < -120{ //向上拉
+                switch _currentStatus{
+                case "mainView":
                     _next()
-                    return
-                }
-                
-            }
-            if _offset.y > 120{
-                if _btnsIn{
-                    _showEdtingPage()
-                }else{
-                    showBtns()
+                case "editingPage":
+                    _showMainPage()
+                case "showingBtns":
+                    _showMainPage()
+                default:
+                    break
                 }
                 return
             }
             
-            _showMainPage()
+            if _offset.y > 250{
+                if _currentStatus == "mainView"{
+                    _showEdtingPage()
+                    return
+                }
+            }
+            
+            
+            if _offset.y > 120{//像下拉
+                switch _currentStatus{
+                case "mainView":
+                   showBtns()
+                case "editingPage":
+                    _showEdtingPage()
+                case "showingBtns":
+                    _showEdtingPage()
+                default:
+                    break
+                }
+                return
+            }
+            switch _currentStatus{
+                case "mainView":
+                _showMainPage()
+                case "editingPage":
+                _showEdtingPage()
+                case "showingBtns":
+                    showBtns()
+            default:
+                break
+            }
+            
         default:
             return
         }
@@ -313,6 +374,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     }
     //-----恢复到开始的查看page
     func _showMainPage(){
+        _currentStatus = "mainView"
         _btnsIn = false
         
         self._editingViewC?._reset()
@@ -325,27 +387,28 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -self._btnW)
             self._btn_list?.center = CGPoint(x: 50, y: -self._btnW)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -self._btnW)
+            
+            
+            self._btn_love?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
+            self._btn_list?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
+            self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
+            self._btn_plus?.backgroundColor =  UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
+            
+            
             self._profilePanel?.alpha = 1
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
             self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         }) { (complete) -> Void in
             //self._removeEditePage()
-            
+            self.view.addGestureRecognizer(self._panGesture!)
         }
-        
-        
-        
     }
     //－－－－－出现按钮--按钮在顶端
     func showBtns(){
+        _currentStatus = "showingBtns"
         var _btnToY:CGFloat = _btnY
         var _toY:CGFloat = _CentralY+2*_btnW
         _btnsIn=true
-        
-        
-        
-        
-        
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
@@ -362,7 +425,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
             self._infoPanel?.alpha = 0
             self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY)
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
-            
+            self._profilePanel?.alpha=1
             }) { (array) -> Void in
                 
         }
@@ -370,18 +433,31 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     func buttonHander(sender:UIButton){
         switch sender{
         case _btn_plus!:
-            _showEdtingPage()
+            
+            switch _currentStatus{
+                case "mainView":
+                 _showEdtingPage()
+                case "editingPage":
+                    
+                    if _editingViewC!._shouldBeClosed(){
+                        _showMainPage()
+                    }                
+                case "showingBtns":
+                _showEdtingPage()
+            default:
+               
+                break
+            }            
             break
         case _btn_love!:
-            
             break
         case _btn_list!:
-            
             break
         default:
             break
         }
     }
+    
     
     //-----清除制作页面
     func _removeEditePage(){
@@ -391,36 +467,44 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate{
     
     //-------展示制作页面
     func _showEdtingPage(){
+        _currentStatus = "editingPage"
+        
         var _btnToY:CGFloat = _bottomY-_picItemW/2-_btnY+_gap
         var _toY:CGFloat = _bottomY+_profielH + 2*_gap
         _btnsIn=true
         
-        
-        self._editingViewC?._btnsShow()
+        self._editingViewC?._show()
 
-        
-        
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
             self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
             self._editingViewC?.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-            
             }) { (array) -> Void in
-                
+        }
+        UIView.animateWithDuration(1, delay: 0.6, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0.25*3.14)
+            self._btn_plus?.backgroundColor = UIColor.redColor()
+            
+            self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0.25*3.14)
+                        //self._btn_plus?.layer.transform = CATransform3DMakeRotation(0, 45, 45, 45)
+            }) { (array) -> Void in
+        }
+        UIView.animateWithDuration(1, delay: 1, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            
+            self._btn_love?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0, 0), 0)
+            self._btn_list?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0, 0), 0)
+            //self._btn_plus?.layer.transform = CATransform3DMakeRotation(0, 45, 45, 45)
+            }) { (array) -> Void in
         }
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            
             
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY)
             self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:_toY + self._picItemW/2 + self._gap + self._infoH/2)
             self._infoPanel?.alpha = 0
             self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY+self._picItemW)
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY-self._picItemW/2-self._profielH)
-            
-            
-            
             
             }) { (array) -> Void in
                 

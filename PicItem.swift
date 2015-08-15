@@ -12,6 +12,8 @@ import UIKit
 
 protocol PicItemDelegate:NSObjectProtocol{
     func _clicked()
+    func _bingo()
+    func _bingoFailed()
 }
 
 class PicItem: UIView {
@@ -43,24 +45,19 @@ class PicItem: UIView {
     }
     
     func tapHander(__sender:UITapGestureRecognizer){
-        
         let _location:CGPoint = __sender.locationInView(_imageV)
         if _location.y > _imageV?.frame.height{
             return
         }
-        
         let _point:CGPoint = __sender.locationInView(self)
-        
-        
-        
         _clickSign = ClickSign(frame: CGRect(x: _point.x, y: _point.y, width: 0, height: 0))
         addSubview(_clickSign!)
         _clickSign?._show()
-        
+        _testIt()
+    }
+    func _testIt(){
         self.removeGestureRecognizer(_tapG!)
-        
         _delegate?._clicked()
-        
     }
     
     func _setPic(__set:String){
