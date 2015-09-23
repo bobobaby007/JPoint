@@ -254,7 +254,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
         didImageIn()
     }
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
+    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
        // var _alassetsl:ALAssetsLibrary = ALAssetsLibrary()
         let image:UIImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
         _bgImageV.image = image

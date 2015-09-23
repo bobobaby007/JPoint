@@ -60,6 +60,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _bingoController = BingoView()
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
+    
+    
+    
+    var _shouldReceivePan:Bool = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -77,11 +82,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _picItemW = self.view.frame.width-2*_gap
         _bottomY = self.view.frame.height+_picItemW/2
 
-        _panGesture = UIPanGestureRecognizer(target: self, action: Selector("panHander:"))
+        //_panGesture = UIPanGestureRecognizer(target: self, action: Selector("panHander:"))
         
-        self.view.addGestureRecognizer(_panGesture!)
+       // self.view.addGestureRecognizer(_panGesture!)
         self.view.addSubview(_bgView!)
-        
         
         _editingViewC = EditingView()
         
@@ -163,15 +167,18 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     //----编辑页面代理
     func _edingImageIn() {
-        self.view.removeGestureRecognizer(_panGesture!)
+       // self.view.removeGestureRecognizer(_panGesture!)
+        _shouldReceivePan = false
     }
     //----bingo页面代理
     func _bingoViewOut() {
         _next()
-        self.view.addGestureRecognizer(_panGesture!)
+        //self.view.addGestureRecognizer(_panGesture!)
+        _shouldReceivePan = true
     }
     func _talkNow() {
-        self.view.addGestureRecognizer(_panGesture!)
+       // self.view.addGestureRecognizer(_panGesture!)
+        _shouldReceivePan = true
     }
     
     //----图片点击代理
@@ -191,7 +198,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //----
     func _showBingo(){
-        self.view.removeGestureRecognizer(_panGesture!)
+       // self.view.removeGestureRecognizer(_panGesture!)
+        _shouldReceivePan = false
         self.view.addSubview(_bingoController.view)
 //        _bingoController._setMyImage(NSDictionary(objects: ["image_3.jpg","file"], forKeys: ["url","type"]))
         _bingoController._setBingoName("小甜甜")
@@ -279,19 +287,25 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //----载入图片
     func _picInAtIndex(__index:Int)->PicItem{
-        var _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
+        let _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
         _item._setPic("image_"+String(__index%3+1)+".jpg")
         _item._delegate = self
         return _item
     }
     //--------滑动代理
     func panHander(__gesture:UIPanGestureRecognizer){
+        if _shouldReceivePan == false{
+            return
+        }
+        
         let _offset:CGPoint = __gesture.translationInView(self.view)
         
         
         
         switch __gesture.state{
         case UIGestureRecognizerState.Began:
+            
+            
             _center_currentPicItem = _currentPicItem!.center
             _center_infoPanel = _infoPanel!.center
             _center_nextPicItem = _nextPicItem!.center
@@ -304,6 +318,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         case UIGestureRecognizerState.Changed:
             
             
+            
+    
             UIView.beginAnimations("go", context: nil)
             _currentPicItem?.center = CGPoint(x: _currentPicItem!.center.x, y: _center_currentPicItem.y+_offset.y)
             _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_center_infoPanel.y+_offset.y*0.9)
@@ -319,6 +335,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             UIView.commitAnimations()
             return
         case UIGestureRecognizerState.Ended:
+            
+            
+            
+            
+            
             
             if _offset.y < -120{ //向上拉
                 switch _currentStatus{
@@ -400,14 +421,15 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         }) { (complete) -> Void in
             //self._removeEditePage()
-            self.view.addGestureRecognizer(self._panGesture!)
+           // self.view.addGestureRecognizer(self._panGesture!)
+            self._shouldReceivePan = true
         }
     }
     //－－－－－出现按钮--按钮在顶端
     func showBtns(){
         _currentStatus = "showingBtns"
-        var _btnToY:CGFloat = _btnY
-        var _toY:CGFloat = _CentralY+2*_btnW
+        let _btnToY:CGFloat = _btnY
+        let _toY:CGFloat = _CentralY+2*_btnW
         _btnsIn=true
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
@@ -452,6 +474,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         case _btn_love!:
             break
         case _btn_list!:
+            ViewController._self?._showLeft()
             break
         default:
             break
@@ -469,8 +492,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func _showEdtingPage(){
         _currentStatus = "editingPage"
         
-        var _btnToY:CGFloat = _bottomY-_picItemW/2-_btnY+_gap
-        var _toY:CGFloat = _bottomY+_profielH + 2*_gap
+        let _btnToY:CGFloat = _bottomY-_picItemW/2-_btnY+_gap
+        let _toY:CGFloat = _bottomY+_profielH + 2*_gap
         _btnsIn=true
         
         self._editingViewC?._show()

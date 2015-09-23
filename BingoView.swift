@@ -211,7 +211,7 @@ class BingoView:UIViewController {
             
             
             let _w:CGFloat = CGFloat(random()%5)
-            var _v:UIView = UIView(frame: CGRect(x: 0, y: 0, width: _w, height: _w))
+            let _v:UIView = UIView(frame: CGRect(x: 0, y: 0, width: _w, height: _w))
             _v.center = CGPoint(x: self.view.bounds.width/2, y: self.view.bounds.height/2-200)
             _v.layer.cornerRadius = _w/2
             _colorsV.addSubview(_v)
@@ -225,7 +225,7 @@ class BingoView:UIViewController {
                 let _length:CGFloat = -_width/2+CGFloat(random()%Int(_width))
                 let _lengthY:CGFloat = -100+CGFloat(random()%200)
                 
-                let _scale:CGFloat = 0.3-abs(_length)*0.01
+                
                 
                 _v.transform = CGAffineTransformMakeScale(2, 2)
                 _v.center = CGPoint(x: self.view.bounds.width/2+_length, y: self.view.bounds.height/2+_lengthY-200)
@@ -238,7 +238,7 @@ class BingoView:UIViewController {
         
     }
     func _clearColors(){
-        for subview in _colorsV.subviews as! [UIView]{
+        for subview in _colorsV.subviews {
             subview.removeFromSuperview()
         }
     }

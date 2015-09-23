@@ -72,7 +72,7 @@ class DrawingBoard:UIViewController {
         
     }
     func _addPointAt(__p:CGPoint){
-        var _v:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let _v:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         
         _v.layer.cornerRadius = 50
         _v.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 1)

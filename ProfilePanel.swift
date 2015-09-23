@@ -97,7 +97,7 @@ class ProfilePanel:UIView {
     func _setSay(__set:String){
         _sayText?.text = __set
         
-        var _size:CGSize = _sayText!.sizeThatFits(CGSize(width: _sayW, height: CGFloat.max))
+        let _size:CGSize = _sayText!.sizeThatFits(CGSize(width: _sayW, height: CGFloat.max))
         //_sayText?.alpha = 0
         UIView.animateWithDuration(0.4, animations: { () -> Void in
             self._boxV?.frame = CGRect(x: 0, y: 0, width: self._sayW+10, height: _size.height+10)
@@ -109,7 +109,7 @@ class ProfilePanel:UIView {
         
         
     }
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
