@@ -9,11 +9,27 @@
 import UIKit
 
 class RightPanel: UIViewController {
-
+    var _setuped:Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor.yellowColor()
+        
+        
+       
         // Do any additional setup after loading the view.
+        setup()
+    }
+    
+    func setup(){
+        if _setuped{
+            return
+        }
+        self.view.backgroundColor = UIColor.whiteColor()
+        //self.view.clipsToBounds = false
+        self.view.layer.shadowColor = UIColor.blackColor().CGColor
+        self.view.layer.shadowOpacity = 0.5
+        self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+        self.view.layer.shadowRadius = 15
     }
 
     override func didReceiveMemoryWarning() {

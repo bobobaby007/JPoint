@@ -14,6 +14,7 @@ class LeftPanel: UIViewController {
     var _blurV:UIVisualEffectView?
     var _profileImg:PicView?
     var _label_edit:UILabel?
+    var _btn_imgList:UIButton?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -41,6 +42,7 @@ class LeftPanel: UIViewController {
         
         _profileImg = PicView()
         _profileImg!.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+        
         _profileImg?.center = CGPoint(x: self.view.frame.width/2, y: 80)
         _profileImg!._setPic(NSDictionary(objects: ["profile.png","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
         })
@@ -60,14 +62,20 @@ class LeftPanel: UIViewController {
         
         self.view.addSubview(_profileImg!)
         
-        _label_edit = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 20))
-        _label_edit?.center = CGPoint(x: self.view.frame.width/2, y: 100)
-        _label_edit?.text = "home"
+        _label_edit = UILabel(frame: CGRect(x: 0, y: 0, width: 160, height: 20))
+        _label_edit?.textAlignment = NSTextAlignment.Center
+        _label_edit?.center = CGPoint(x: self.view.frame.width/2, y: 150)
+        _label_edit?.font = UIFont.systemFontOfSize(12)
+        _label_edit?.text = "编辑头像"
         _label_edit?.textColor = UIColor.darkGrayColor()
         
         self.view.addSubview(_label_edit!)
         
-        
+        _btn_imgList = UIButton(frame: CGRect(x: 0, y: 0, width: 300, height: 30))
+        _btn_imgList?.center = CGPoint(x: self.view.frame.width/2, y: 250)
+        _btn_imgList?.setTitle("我的图列", forState: UIControlState.Normal)
+        _btn_imgList?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.view.addSubview(_btn_imgList!)
         
         
         //self.view.addSubview(_uiV)
@@ -87,6 +95,19 @@ class LeftPanel: UIViewController {
         }
     }
     
+    func btnHander(sender:UIButton){
+        switch sender{
+        case _btn_imgList!:
+            let _viewC:MyImageList = MyImageList()
+            self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+                
+            })
+            break
+        default:
+            break
+        }
+        
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

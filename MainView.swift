@@ -74,6 +74,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         if _setuped{
             return
         }
+        
+        self.view.layer.shadowColor = UIColor.blackColor().CGColor
+        self.view.layer.shadowOpacity = 0.5
+        self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+        self.view.layer.shadowRadius = 15
+        
         _bgView = UIImageView(image: UIImage(named: "bg.jpg"))
         _bgView?.contentMode = UIViewContentMode.ScaleToFill
         _bgView?.frame = self.view.bounds
@@ -472,6 +478,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }            
             break
         case _btn_love!:
+            ViewController._self?._showRight()
             break
         case _btn_list!:
             ViewController._self?._showLeft()

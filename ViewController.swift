@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     var _touchPoint:CGPoint?
     var _isChanging:Bool = false
     var _startTransOfMainView:CGAffineTransform?
+    var _startTransOfRightView:CGAffineTransform?
     
     var _distanceToSwape:CGFloat = 60
     
@@ -41,9 +42,7 @@ class ViewController: UIViewController {
         
         ViewController._self = self
         
-        _rightPanel = RightPanel()
-        self.addChildViewController(_rightPanel!)
-        self.view.addSubview(_rightPanel!.view)
+        
         
         _leftPanel = LeftPanel()
         self.addChildViewController(_leftPanel!)
@@ -54,7 +53,11 @@ class ViewController: UIViewController {
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
         
+        _rightPanel = RightPanel()
+        self.addChildViewController(_rightPanel!)
+        _rightPanel?.view.frame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
         
+        self.view.addSubview(_rightPanel!.view)
         
         
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
@@ -76,48 +79,55 @@ class ViewController: UIViewController {
             _touchPoint = sender.locationInView(self.view)
             _startTransOfMainView = _mainView?.view.transform
             
+            _startTransOfRightView = _rightPanel?.view.transform
+            
             if (_touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0)||(_touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0){//----左向右滑动
                 _isChanging = true
                 return
             }
-            
-            
             if _currentPage=="mainView"{
                 _mainView?.panHander(sender)
             }
             
-            
             break
         case UIGestureRecognizerState.Changed:
-            
-            
-            
             if _isChanging{
-                var _toTranMain:CGAffineTransform? = CGAffineTransform()
+                var _toTranMain:CGAffineTransform? = _startTransOfMainView
+                var _toTranRight:CGAffineTransform? = _startTransOfRightView
                 if _touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0{//----左向右滑动
                     if _currentPage=="mainView"{
                         _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
-                        
                     }
                     if _currentPage=="rightPanel"{
                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
+                        _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offset.x, 0)
                     }
-                    
-                    
+                    if _currentPage == "leftPanel"{
+                        return
+                    }
                     //return
                 }
                 if _touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0{//----右向左滑动
                     if _currentPage=="mainView"{
                         _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
+                        var _offRight:CGFloat = _offset.x*1.5-50
+                        if _offRight < -self.view.frame.width-50{
+                            _offRight = -self.view.frame.width-50
+                        }
+                       _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offRight, 0)
                     }
                     if _currentPage=="leftPanel"{
                         _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
+                    }
+                    if _currentPage == "rightPanel"{
+                        return
                     }
                     //return
                 }
                 
                 UIView.animateWithDuration(0.05) { () -> Void in
-                    _mainView?.view.transform = _toTranMain!
+                    self._mainView?.view.transform = _toTranMain!
+                    self._rightPanel?.view.transform = _toTranRight!
                 }
                 
             }else{
@@ -202,8 +212,8 @@ class ViewController: UIViewController {
         _currentPage = "rightPanel"
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._mainView?.view.transform = CGAffineTransformMakeTranslation(_distanceToSwape/2-self.view.frame.width, 0)
-            
+            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
+            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
             }) { (array) -> Void in
         }
     }
@@ -213,6 +223,7 @@ class ViewController: UIViewController {
         self._mainView?.view.userInteractionEnabled = true
         UIView.animateWithDuration(0.2) { () -> Void in
            self._mainView?.view.transform = CGAffineTransformMakeTranslation(0, 0)
+           self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)
         }
        
         
