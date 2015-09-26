@@ -21,7 +21,7 @@ class PicItem: UIView {
     var _tapG:UITapGestureRecognizer?
     var _delegate:PicItemDelegate?
     var _clickSign:ClickSign?
-    var _cornerRadius:CGFloat = 20
+    var _cornerRadius:CGFloat = 10
     override init(frame: CGRect) {
         super.init(frame: frame)
         
