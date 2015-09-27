@@ -18,6 +18,7 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
     var _height:CGFloat = 10
     var _points:NSMutableArray?
     var _pointsView:UIView?
+    var _signer:ClickSign?
     func initWidthFrame(__frame:CGRect){
         if inited{
             
@@ -69,6 +70,14 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
         }
         
         _points = NSMutableArray()
+        for _:Int in 0...12{
+            
+            let __p:NSDictionary = NSDictionary(objects: [CGFloat(random()%100),CGFloat(random()%100)], forKeys: ["x","y"])
+            _points?.addObject(__p)
+            
+            
+        }
+        
         
         for _index:Int in 0...3{
             _addPointAt(CGFloat(random()%100),__y: CGFloat(random()%100),__tag:_index)
@@ -144,6 +153,25 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
         })
         _pointsView!.addSubview(_v)
     }
+    func _showPoint(__dict:NSDictionary){
+        
+        
+        let __p:CGPoint = CGPoint(x: 5 + (__dict.objectForKey("x") as! CGFloat)*(_rect!.width-10)/100, y: 5+(__dict.objectForKey("y") as! CGFloat)*(_rect!.width-10)/100)
+        
+        if _signer != nil{
+            
+        }else{
+            _signer = ClickSign()
+        }
+        _signer!.center = __p
+        
+        self.addSubview(_signer!)
+        _signer!._show()
+        
+        
+    }
+    
+    
     //---table delegates
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -158,6 +186,15 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
         
         return _cell
     }
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let __dict:NSDictionary = _points!.objectAtIndex(indexPath.row) as! NSDictionary
+        print(__dict)
+        _showPoint(__dict)
+        
+    }
+    
+    
+    
     func _tableIn(){
         if _tableIned{
             return
@@ -185,6 +222,9 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
         }
         if _pointsView != nil{
             _pointsView?.removeFromSuperview()
+        }
+        if _signer != nil{
+            _signer?.removeFromSuperview()
         }
     }
     

@@ -67,7 +67,7 @@ class ClickSign: UIView{
     
     func _startBreath(){
         ++_breathTime
-        if _breathTime>1{
+        if _breathTime>2{
             _out()
          return
         }
