@@ -47,7 +47,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _btn_plus:UIButton?
     var _btn_love:UIButton?
     
-    var _btnY:CGFloat = 60
+    var _btnY:CGFloat = 80
     var _btnW:CGFloat = 60
 
     var _btnsIn:Bool = false
@@ -57,7 +57,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _editingViewC:EditingView?
     
-    var _bingoController = BingoView()
+    var _bingoController:BingoView = BingoView()
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
@@ -435,7 +435,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func showBtns(){
         _currentStatus = "showingBtns"
         let _btnToY:CGFloat = _btnY
-        let _toY:CGFloat = _CentralY+2*_btnW
+        let _toY:CGFloat = _CentralY+1.5*_btnW
         _btnsIn=true
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in

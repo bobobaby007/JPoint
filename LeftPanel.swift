@@ -23,6 +23,7 @@ class LeftPanel: UIViewController {
         if _setuped{
             return
         }
+        
         self.view.backgroundColor = UIColor.blueColor()
         _bgImg = PicView()
         _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)

@@ -18,7 +18,7 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
     var _height:CGFloat = 10
     var _points:NSMutableArray?
     var _pointsView:UIView?
-    var _signer:ClickSign?
+    var _signer:UserSign?
     func initWidthFrame(__frame:CGRect){
         if inited{
             
@@ -144,7 +144,7 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
         
         
         
-        UIView.animateWithDuration(0.4, delay:Double(0.01*CGFloat(random()%200)), options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay:Double(0.01*CGFloat(random()%100)), options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             
             _v.transform = CGAffineTransformMakeScale(1, 1)
             _v.alpha = 0.6
@@ -161,7 +161,7 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
         if _signer != nil{
             
         }else{
-            _signer = ClickSign()
+            _signer = UserSign()
         }
         _signer!.center = __p
         
@@ -188,7 +188,7 @@ class ImageListItem: UITableViewCell, UITableViewDataSource, UITableViewDelegate
     }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let __dict:NSDictionary = _points!.objectAtIndex(indexPath.row) as! NSDictionary
-        print(__dict)
+        //print(__dict)
         _showPoint(__dict)
         
     }

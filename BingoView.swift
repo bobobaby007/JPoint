@@ -207,7 +207,7 @@ class BingoView:UIViewController {
         
         let _width:CGFloat = self.view.bounds.width
         
-        for index in 0...100{
+        for _ in 0...100{
             
             
             let _w:CGFloat = CGFloat(random()%5)
@@ -288,5 +288,9 @@ class BingoView:UIViewController {
     func _out(){
         
     }
-    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        _colorsV.removeFromSuperview()
+        
+    }
 }

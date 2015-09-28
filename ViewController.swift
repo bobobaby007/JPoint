@@ -100,6 +100,8 @@ class ViewController: UIViewController {
                     }
                     if _currentPage=="rightPanel"{
                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
+                       
+                        
                         _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offset.x, 0)
                     }
                     if _currentPage == "leftPanel"{
@@ -212,9 +214,10 @@ class ViewController: UIViewController {
         _currentPage = "rightPanel"
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
-            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
-            }) { (array) -> Void in
+            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape, 0)
+            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
+            }) { (complete) -> Void in
+            self._rightPanel?._getDatas()
         }
     }
     
