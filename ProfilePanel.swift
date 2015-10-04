@@ -17,7 +17,7 @@ class ProfilePanel:UIView {
     var _userImg:PicView?
     var _imageH:CGFloat = 60
     
-    var _delegate:profilePanelDelegate?
+    weak var _delegate:profilePanelDelegate?
     var _dialogBoxView:UIView?
     var _boxV:UIView?
     var _arrowV:UIView?
@@ -39,6 +39,11 @@ class ProfilePanel:UIView {
         _userImg?.maximumZoomScale = 1
         _userImg?.minimumZoomScale = 1
         _userImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+        _userImg?.layer.shadowRadius = 5
+        _userImg?.layer.shadowColor = UIColor.blackColor().CGColor
+        _userImg?.layer.shadowOpacity = 0.2
+        _userImg?.layer.borderColor = UIColor.whiteColor().CGColor
+        _userImg?.layer.borderWidth = 1
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))
         
@@ -104,10 +109,6 @@ class ProfilePanel:UIView {
             self._sayText?.frame = CGRect(x: 5, y: 5, width: self._sayW, height: _size.height)
           //  self._sayText?.alpha = 1
         })
-        
-        
-        
-        
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

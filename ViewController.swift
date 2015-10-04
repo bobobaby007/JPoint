@@ -47,6 +47,7 @@ class ViewController: UIViewController {
         _leftPanel = LeftPanel()
         self.addChildViewController(_leftPanel!)
         self.view.addSubview(_leftPanel!.view)
+        _leftPanel?._parentView = self
         
         
         _mainView = MainView()
@@ -54,6 +55,7 @@ class ViewController: UIViewController {
         self.view.addSubview(_mainView!.view)
         
         _rightPanel = RightPanel()
+        _rightPanel?._parentView = self
         self.addChildViewController(_rightPanel!)
         _rightPanel?.view.frame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
         
@@ -214,9 +216,12 @@ class ViewController: UIViewController {
         _currentPage = "rightPanel"
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape, 0)
-            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
+            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
+            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
             }) { (complete) -> Void in
+            //self._leftPanel?.view.removeFromSuperview()
+            //self._leftPanel?.removeFromParentViewController()
+            
             self._rightPanel?._getDatas()
         }
     }

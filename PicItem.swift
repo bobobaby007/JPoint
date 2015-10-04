@@ -19,9 +19,9 @@ protocol PicItemDelegate:NSObjectProtocol{
 class PicItem: UIView {
     var _imageV:UIImageView?
     var _tapG:UITapGestureRecognizer?
-    var _delegate:PicItemDelegate?
+    weak var _delegate:PicItemDelegate?
     var _clickSign:ClickSign?
-    var _cornerRadius:CGFloat = 10
+    let _cornerRadius:CGFloat = 10
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -58,8 +58,24 @@ class PicItem: UIView {
     func _testIt(){
         self.removeGestureRecognizer(_tapG!)
         _delegate?._clicked()
+        if random()%2 == 1{
+            _delegate?._bingo()
+        }else{
+            _delegate?._bingoFailed()
+        }
+        
+        
+        
     }
-    
+    func _delloc(){
+    _imageV?.removeFromSuperview()
+    _imageV = nil
+        _clickSign?._out()
+    _clickSign?.removeFromSuperview()
+    _clickSign = nil
+    _tapG = nil
+    _delegate = nil
+    }
     func _setPic(__set:String){
         _imageV?.image = UIImage(named: __set)
         

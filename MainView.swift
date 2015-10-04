@@ -57,7 +57,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _editingViewC:EditingView?
     
-    var _bingoController:BingoView = BingoView()
+    var _bingoController:BingoView?
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
@@ -161,8 +161,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self.view.addSubview(_profilePanel!)
         
         
-        self.addChildViewController(_bingoController)
-        _bingoController._delagate=self
+        
         
        
         _showIndex(0)
@@ -178,25 +177,37 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //----bingo页面代理
     func _bingoViewOut() {
+        _bingoController?.view.removeFromSuperview()
+        _bingoController?.removeFromParentViewController()
+        _bingoController = nil
         _next()
         //self.view.addGestureRecognizer(_panGesture!)
         _shouldReceivePan = true
     }
     func _talkNow() {
        // self.view.addGestureRecognizer(_panGesture!)
+        _bingoController?.view.removeFromSuperview()
+        _bingoController?.removeFromParentViewController()
+        _bingoController = nil
         _shouldReceivePan = true
+        
+        let _messageWindow:MessageWindow = MessageWindow()
+        
+        self.presentViewController(_messageWindow, animated: true) { (complete) -> Void in
+            _messageWindow._getDatas()
+        }
     }
     
     //----图片点击代理
     func _clicked() {
         //_next()
-        _showBingo()
+        
     }
     func _bingoFailed(){
-        
+       // _next()
     }
     func _bingo(){
-        
+        _showBingo()
     }
     //---头像点击代理
     func _viewUser() {
@@ -205,19 +216,27 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----
     func _showBingo(){
        // self.view.removeGestureRecognizer(_panGesture!)
+        
+        
+        
         _shouldReceivePan = false
-        self.view.addSubview(_bingoController.view)
+        if _bingoController == nil{
+            _bingoController = BingoView()
+            _bingoController?._delagate=self
+        }
+        self.addChildViewController(_bingoController!)
+        self.view.addSubview(_bingoController!.view)
 //        _bingoController._setMyImage(NSDictionary(objects: ["image_3.jpg","file"], forKeys: ["url","type"]))
-        _bingoController._setBingoName("小甜甜")
-        _bingoController._setBingoImage(NSDictionary(objects: ["image_2.jpg","file"], forKeys: ["url","type"]))
-        _bingoController._show()
+        _bingoController?._setBingoName("小甜甜")
+        _bingoController?._setBingoImage(NSDictionary(objects: ["image_2.jpg","file"], forKeys: ["url","type"]))
+        _bingoController?._show()
     }
     //----下一张
     func _next(){
         _btnsIn = false
         self._infoPanel?.alpha=0
         self._profilePanel?.alpha=0
-        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: -100)
             self._currentPicItem?.alpha = 0
             self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._CentralY)
@@ -254,6 +273,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self.view.addSubview(_infoPanel!)
         }else{
             _currentPicItem?.removeFromSuperview()
+            _currentPicItem?._delloc()
+            _currentPicItem = nil
             
         }
         _currentPicItem = _nextPicItem!
@@ -277,7 +298,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _profilePanel?._setName("千年等一回，等一会啊啊啊啊")
         _profilePanel?._setSay("我喜欢这里的一本书，你猜猜哪个是，")
         self._profilePanel?.alpha = 0
-        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._nextPicItem?.center = CGPoint(x: self.view.frame.width/2, y: self._bottomY-self._bottomOut)
             self._currentPicItem?.alpha = 1
             self._nextPicItem?.alpha = 1
@@ -438,7 +459,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         let _toY:CGFloat = _CentralY+1.5*_btnW
         _btnsIn=true
         
-        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
             self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
@@ -447,7 +468,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
         }
         
-        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY)
             self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:_toY + self._picItemW/2 + self._gap + self._infoH/2)
             self._infoPanel?.alpha = 0
@@ -491,8 +512,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     //-----清除制作页面
     func _removeEditePage(){
-        _editingViewC?.removeFromParentViewController()
         _editingViewC!.view.removeFromSuperview()
+        _editingViewC?.removeFromParentViewController()
+        
     }
     
     //-------展示制作页面
@@ -505,7 +527,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         self._editingViewC?._show()
 
-        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
             self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
@@ -528,7 +550,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }) { (array) -> Void in
         }
         
-        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY)
             self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:_toY + self._picItemW/2 + self._gap + self._infoH/2)

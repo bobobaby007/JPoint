@@ -10,13 +10,29 @@ import Foundation
 import UIKit
 
 
-class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate{
+class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,BingoUserItemAtMyList_delegate{
     var _setuped:Bool = false
     var _tableView:UITableView?
     var _btn_back:UIButton?
     let _cellHeight:CGFloat = 140
     var _selectedIndex:NSIndexPath?
-    var _headerView:UIView?
+    var _messages:NSMutableArray? = NSMutableArray()
+    var _bgImg:PicView!
+    var _blurV:UIVisualEffectView?
+    
+    var _users:NSMutableArray?
+    var _datained:Bool = false
+    var _topView:UIView?
+    weak var _parentView:ViewController?
+    
+    var _inputer:Inputer?
+    var _nameLabel:UILabel?
+    
+    var _latestTime:NSTimeInterval?
+    let _barH:CGFloat = 80
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -27,32 +43,52 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate{
             return
         }
         self.automaticallyAdjustsScrollViewInsets = false
-
-        _tableView = UITableView(frame: CGRect(x: 0, y: 50, width: self.view.frame.width, height: self.view.frame.height-50))
-        _tableView?.tableFooterView = UIView()
+        _bgImg = PicView()
+        _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        _bgImg._setPic(NSDictionary(objects: ["bg.jpg","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
+        })
+        _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+        _bgImg._refreshView()
+        //var _uiV:UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
+        
+        self.view.addSubview(_bgImg)
+        
+        _tableView = UITableView(frame: CGRect(x: 0, y: _barH, width: self.view.frame.width, height: self.view.frame.height-_barH))
+        _tableView?.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 5))
         _tableView?.registerClass(ImageListItem.self, forCellReuseIdentifier: "ImageListItem")
         _tableView?.delegate = self
         _tableView?.dataSource = self
+        _tableView?.backgroundColor = UIColor.clearColor()
+        _tableView!.separatorColor=UIColor.clearColor()
         
         self.view.addSubview(_tableView!)
         
-        _headerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
+        _topView = UIView(frame:  CGRect(x: 0, y: 0, width: self.view.frame.width, height: _barH))
+        _topView?.backgroundColor = UIColor.clearColor()
+        _blurV = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Dark))
+        //_blurV?.alpha = 0.5
+        _blurV?.frame = _topView!.bounds
+        _topView?.addSubview(_blurV!)
         
-        _btn_back = UIButton(frame: CGRect(x: 5, y: 5, width: 50, height: 50))
-        
-        _btn_back?.setTitle("完成", forState: UIControlState.Normal)
-        _btn_back?.titleLabel?.textAlignment = NSTextAlignment.Left
-        _btn_back?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 40, height: 40))
+        _btn_back?.center = CGPoint(x: 30, y: 50)
+        _btn_back?.setImage(UIImage(named: "icon_back"), forState: UIControlState.Normal)
+        _btn_back?.transform = CGAffineTransformRotate((_btn_back?.transform)!, -3.14*0.5)
         _btn_back?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
-        _headerView!.addSubview(_btn_back!)
+        _topView?.addSubview(_btn_back!)
         
-       _headerView!.backgroundColor=UIColor.darkGrayColor()
-        self.view.addSubview(_headerView!)
+        _nameLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 30))
+        _nameLabel?.textAlignment = NSTextAlignment.Center
+        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: 55)
+        _nameLabel?.font = UIFont.boldSystemFontOfSize(20)
+        _nameLabel?.textColor = UIColor.whiteColor()
+        _nameLabel?.text = "图列"
         
-        //self.tableView.tableHeaderView = _headerView
-        //self.view.backgroundColor = UIColor.redColor()
+        _topView?.addSubview(_nameLabel!)
+        // _tableView?.tableHeaderView = _topView
+        self.view.addSubview(_topView!)
         
-        _tableView!.separatorColor=UIColor.clearColor()
+        
         
         _setuped=true
     }
@@ -75,6 +111,9 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate{
         let _cell:ImageListItem = _tableView?.dequeueReusableCellWithIdentifier("ImageListItem") as! ImageListItem
         
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: _cellHeight))
+        _cell._setInfos("3小时前", __clickNum: 3*indexPath.row, __bingoNum: indexPath.row)
+        _cell._setText("快来猜")
+        _cell._parentDelegate = self
         if indexPath .isEqual(_selectedIndex){
             _cell._changeToHeight(self.view.frame.height)
             _cell._open()
@@ -88,6 +127,17 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate{
         
         return _cell
     }
+    
+    //---代理
+    func _needToTalk(__id: String) {
+        let _message:MessageWindow = MessageWindow()
+        self.presentViewController(_message, animated: true) { (comp) -> Void in
+            _message._getDatas()
+        }
+    }
+    func _showUser(__index: Int) {
+        
+    }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath .isEqual(_selectedIndex){ //---恢复
            _selectedIndex = nil
@@ -97,8 +147,8 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate{
             UIApplication.sharedApplication().statusBarHidden=false
             
             UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-                self._tableView?.frame = CGRect(x: 0, y: 50, width: self.view.frame.width, height: self.view.frame.height-50)
-                self._headerView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50)
+                self._tableView?.frame = CGRect(x: 0, y: self._barH, width: self.view.frame.width, height: self.view.frame.height-self._barH)
+                self._topView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self._barH)
                 }, completion: { (complete) -> Void in
                 
             })
@@ -109,7 +159,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate{
             UIApplication.sharedApplication().statusBarHidden=true
             UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 self._tableView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-                self._headerView?.frame = CGRect(x: 0, y: -50, width: self.view.frame.width, height: 50)
+                self._topView?.frame = CGRect(x: 0, y: -self._barH, width: self.view.frame.width, height: self._barH)
                 }, completion: { (complete) -> Void in
                     
             })

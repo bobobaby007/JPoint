@@ -10,15 +10,18 @@ import UIKit
 
 class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
     var _setuped:Bool = false
+    var _bgImg:PicView!
+    var _blurV:UIVisualEffectView?
     var _tableView:UITableView?
     var _users:NSMutableArray?
+    var _datained:Bool = false
+    var _topView:UIView?
+    var _btn_back:UIButton?
+    weak var _parentView:ViewController?
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setup()
-        
-        
-        
     }
     
     func setup(){
@@ -32,14 +35,70 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
         self.view.layer.shadowRadius = 15
         
+        _bgImg = PicView()
+        _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        _bgImg._setPic(NSDictionary(objects: ["bg.jpg","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
+        })
+        _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+        _bgImg._refreshView()
+        //var _uiV:UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
+        
+        self.view.addSubview(_bgImg)
+        
+        
+        
+        
         _users = NSMutableArray()
         
-        _tableView = UITableView(frame: CGRect(x: 0, y: 20, width: self.view.frame.width, height: self.view.frame.height))
+        _tableView = UITableView(frame: CGRect(x: 0, y: 80, width: self.view.frame.width, height: self.view.frame.height-80))
+        _tableView?.clipsToBounds = false
         _tableView?.registerClass(ChatCell.self, forCellReuseIdentifier: "ChatCell")
         _tableView?.dataSource = self
         _tableView?.delegate = self
-        
+        _tableView?.tableFooterView = UIView()
+        //_tableView?.separatorStyle = UITableViewCellSeparatorStyle.None
+        _tableView?.separatorColor = UIColor.whiteColor()
+        _tableView?.separatorInset = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 50)
+        _tableView?.backgroundColor = UIColor.clearColor()
         self.view.addSubview(_tableView!)
+        
+        
+        _topView = UIView(frame:  CGRect(x: 0, y: 0, width: self.view.frame.width, height: 80))
+        _topView?.backgroundColor = UIColor.clearColor()
+        _blurV = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Dark))
+        //_blurV?.alpha = 0.5
+        _blurV?.frame = _topView!.bounds
+        _topView?.addSubview(_blurV!)
+        
+        
+        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 40, height: 40))
+        _btn_back?.center = CGPoint(x: 30, y: 50)
+        _btn_back?.setImage(UIImage(named: "icon_backToBingo"), forState: UIControlState.Normal)
+        _btn_back?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+        _topView?.addSubview(_btn_back!)
+        
+        
+        
+        
+        let _titleButton:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: (self.view.frame.width-90)/2, height: 30))
+        _titleButton.center = CGPoint(x: self.view.frame.width/2, y: 50)
+        _titleButton.setImage(UIImage(named: "icon_bingoList"), forState: UIControlState.Normal)
+    
+        _titleButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18)
+        _titleButton.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
+        _titleButton.setTitle("Bingos", forState: UIControlState.Normal)
+        
+        //_titleButton.enabled = false
+        _topView?.addSubview(_titleButton)
+        
+        
+       // _tableView?.tableHeaderView = _topView
+        self.view.addSubview(_topView!)
+        
+        
+        
+        
+        _setuped=true
     }
     
     override func didReceiveMemoryWarning() {
@@ -48,33 +107,63 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         // Dispose of any resources that can be recreated.
     }
     func _getDatas(){
+        if _datained{
+            return
+        }
+        
         _users = NSMutableArray()
         
         for _ in 0...12{
-            _users?.addObject(NSDictionary(objects: ["profile",""], forKeys: ["image","type"]))
+            _users?.addObject(NSDictionary(objects: ["profile","我是的得给","[match]已于 9/12 bingo"], forKeys: ["image","userName","content"]))
         }
         
         
         _tableView?.reloadData()
+        
+        _datained = true
+        
     }
-    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return _users!.count
     }
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 70
+        return 90
     }
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let _cell:ChatCell = _tableView?.dequeueReusableCellWithIdentifier("ChatCell") as! ChatCell
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60))
+        
+        let _dict:NSDictionary = _users?.objectAtIndex(indexPath.row) as! NSDictionary
+        
+        _cell._setPic(_dict.objectForKey("image") as! String)
+        _cell._setName(_dict.objectForKey("userName") as! String)
+        _cell._setContent(_dict.objectForKey("content") as! String)
         return _cell
     }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        //_tableView?.cellForRowAtIndexPath(indexPath)?.didMoveToSuperview()
+        _tableView?.deselectRowAtIndexPath(indexPath, animated: false)
         let _messageWindow:MessageWindow = MessageWindow()
-        self.presentViewController(_messageWindow, animated: true) { () -> Void in
-            
+        
+        
+        UIApplication.sharedApplication().keyWindow!.rootViewController!.presentViewController(_messageWindow, animated: true) { (complete) -> Void in
+            _messageWindow._getDatas()
+        }
+//        let _viewC:MyImageList = MyImageList()
+//        self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+//            
+//        })
+    }
+    func btnHander(__sender:UIButton){
+        switch __sender{
+        case _btn_back!:
+            _parentView?._showMainView()
+            break
+        default:
+            break
         }
     }
+    
     /*
     // MARK: - Navigation
 

@@ -17,7 +17,7 @@ class ClickSign: UIView{
     var _heart:UIImageView?
     var _circle_big:UIImageView?
     var _circle_small:UIImageView?
-    var _delegate:ClickSign_delegate?
+    weak var _delegate:ClickSign_delegate?
     
     var _timer:NSTimer?
     var _isBreathOut:Bool = false
@@ -67,9 +67,15 @@ class ClickSign: UIView{
     
     func _startBreath(){
         ++_breathTime
+        //print(_breathTime)
+
         if _breathTime>2{
             _out()
-         return
+        // return
+        }
+        
+        if self.superview == nil{
+            return
         }
         
        // _timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("_timerHander:"), userInfo: nil, repeats: true)

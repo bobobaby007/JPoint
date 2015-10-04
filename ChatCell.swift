@@ -11,27 +11,69 @@ import UIKit
 
 class ChatCell: UITableViewCell {
     var inited:Bool = false
-    var _bgImg:PicView?
+    var _profileImg:PicView?
+    var _bgColorV:UIView?
+    var _nameLabel:UILabel?
+    var _contentLabel:UILabel?
+    
     
     func initWidthFrame(__frame:CGRect){
         if inited{
             
             
         }else{
-            self.clipsToBounds = true
-            _bgImg = PicView(frame:CGRect(x: 5, y: 5, width: 60, height: 60))
-            _bgImg?.layer.cornerRadius = 30
-            _bgImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-            addSubview(_bgImg!)
             
-            _setPic("profile")
+            
+            self.backgroundColor = UIColor.clearColor()
+            self.clipsToBounds = true
+            
+//            _bgColorV = UIView(frame: CGRect(x: 5, y: 5, width: __frame.width-10, height: 60))
+//            _bgColorV?.backgroundColor = UIColor(white: 0, alpha: 0.2)
+//            _bgColorV?.layer.cornerRadius = 30
+            self.selectedBackgroundView?.backgroundColor = UIColor.clearColor()
+            
+            //addSubview(_bgColorV!)
+            
+            _profileImg = PicView(frame:CGRect(x: 10, y: 10, width: 70, height: 70))
+            _profileImg?.layer.cornerRadius = 35
+            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
+            _profileImg?.layer.borderWidth = 1.5
+            _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+            
+            addSubview(_profileImg!)
+            
+            _nameLabel = UILabel(frame: CGRect(x: 90, y: 30, width: __frame.width, height: 22))
+            _nameLabel?.textColor = UIColor.whiteColor()
+            _nameLabel?.font = UIFont.boldSystemFontOfSize(16)
+            
+            addSubview(_nameLabel!)
+            
+            _contentLabel = UILabel(frame: CGRect(x: 90, y: 60, width: __frame.width, height: 20))
+            _contentLabel?.textColor = UIColor.whiteColor()
+            _contentLabel?.font = UIFont.systemFontOfSize(13)
+            addSubview(_contentLabel!)
+            //_setPic("profile")
             inited = true
         }
     }
+    
+//    override func setSelected(selected: Bool, animated: Bool) {
+//       
+//    }
+    
+    func _setName(__name:String){
+        _nameLabel?.text = __name
+    }
+    func _setContent(__str:String){
+        _contentLabel?.text = __str
+    }
     func _setPic(__picUrl:String){
         
-        _bgImg?._setImage(__picUrl)
-        _bgImg?._refreshView()
+        _profileImg?._setImage(__picUrl)
+        _profileImg?._refreshView()
     }
+//    override func setHighlighted(highlighted: Bool, animated: Bool) {
+//        
+//    }
     
 }

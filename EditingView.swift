@@ -34,7 +34,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     var _drawingBoard:DrawingBoard?
     
-    var _delagate:EditingView_delegate?
+    weak var _delagate:EditingView_delegate?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()

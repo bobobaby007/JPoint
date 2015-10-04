@@ -57,7 +57,9 @@ class UserSign: UIView{
            // _out()
            // return
         }
-        
+        if self.superview == nil{
+            return
+        }
         // _timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("_timerHander:"), userInfo: nil, repeats: true)
         var _alpha:CGFloat
         var _scale:CGFloat
