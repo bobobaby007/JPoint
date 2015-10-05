@@ -23,6 +23,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     var _usersScroller:UIScrollView?
     var _usersIned:Bool = false
     var _textBubble:TextBubble?
+    var _overShadow:UIImageView?
     weak var _parentDelegate:BingoUserItemAtMyList_delegate?
     
     func initWidthFrame(__frame:CGRect){
@@ -56,6 +57,15 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             _pointsView?.clipsToBounds = true
             addSubview(_pointsView!)
             _pointsView?.userInteractionEnabled = false
+            
+            _overShadow = UIImageView(image: UIImage(named: "shadowOver"))
+            
+            let _w:CGFloat = _rect!.width-2*_imageInset
+            let _h:CGFloat = 84*_w/577
+            _overShadow?.frame = CGRect(x: _imageInset, y: _rect!.height-_h, width: _w, height: _h)
+            _overShadow?.layer.cornerRadius = _cornerRadius
+            _overShadow?.clipsToBounds = true
+            addSubview(_overShadow!)
             
             _infoPanel = InfoPanel(frame: CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30))
             _infoPanel?.userInteractionEnabled = false
@@ -251,7 +261,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     
     
     func _open(){
-        
+        _overShadow?.hidden=true
         _textBubble!.frame = CGRect(x: _imageInset, y: _bgImg!.frame.height+_imageInset+15, width: _rect!.width-2*_imageInset, height: _textBubble!.frame.height)
         addSubview(_textBubble!)
         //print(_textBubble!._mySize)
@@ -260,6 +270,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         _getUsers()
     }
     func _close(){
+        _overShadow?.hidden = false
         if _usersScroller != nil{
           _usersScroller?.removeFromSuperview()
           _usersScroller = nil

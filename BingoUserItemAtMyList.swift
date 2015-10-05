@@ -47,7 +47,7 @@ class BingoUserItemAtMyList: UIView {
             
             _nameLabel = UILabel(frame: CGRect(x: 0, y: __frame.width, width: __frame.width, height: __frame.height-__frame.width))
             _nameLabel?.textColor = UIColor.whiteColor()
-            _nameLabel?.font = UIFont.systemFontOfSize(16)
+            _nameLabel?.font = UIFont.systemFontOfSize(12)
             _nameLabel?.textAlignment = NSTextAlignment.Center
             
             addSubview(_nameLabel!)
