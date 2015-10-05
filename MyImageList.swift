@@ -112,7 +112,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: _cellHeight))
         _cell._setInfos("3小时前", __clickNum: 3*indexPath.row, __bingoNum: indexPath.row)
-        _cell._setText("快来猜")
+        _cell._setText("快来猜的收购额无奈的说过多少个呢但是难过的很@＃％……％¥……¥＃％@＃")
         _cell._parentDelegate = self
         if indexPath .isEqual(_selectedIndex){
             _cell._changeToHeight(self.view.frame.height)

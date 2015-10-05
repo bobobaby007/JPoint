@@ -52,11 +52,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             _bgImg?.userInteractionEnabled = false
             
             
-            _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: __frame.width-2*_imageInset, height: __frame.height-_imageInset))
-            _pointsView?.layer.cornerRadius = _cornerRadius
-            _pointsView?.clipsToBounds = true
-            addSubview(_pointsView!)
-            _pointsView?.userInteractionEnabled = false
+            
             
             _overShadow = UIImageView(image: UIImage(named: "shadowOver"))
             
@@ -90,9 +86,12 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     
     func _changeToHeight(__height:CGFloat){
         _height = __height
+        
+        
+        
         if __height>=_bgImg!.frame.width{
             _bgImg?.frame = CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset)
-            _pointsView?.frame = CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset)
+            
             
         }else{
             _bgImg?.frame = CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: __height-_imageInset)
@@ -105,89 +104,52 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     }
     func _getPoints(){
         
+        if _pointsView == nil{
+            _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
+            _pointsView?.layer.cornerRadius = _cornerRadius
+            _pointsView?.clipsToBounds = true
+            _pointsView?.userInteractionEnabled = false
+        }
+        addSubview(_pointsView!)
+        
+        
         for subview in _pointsView!.subviews{
             subview.removeFromSuperview()
         }
         
         _points = NSMutableArray()
         for _:Int in 0...12{
-            
             let __p:NSDictionary = NSDictionary(objects: [CGFloat(random()%100),CGFloat(random()%100)], forKeys: ["x","y"])
             _points?.addObject(__p)
-            
-            
         }
-        
         for _index:Int in 0...3{
             _addPointAt(CGFloat(random()%100),__y: CGFloat(random()%100),__tag:_index)
             
         }
         
-        addSubview(_pointsView!)
+        
+       
     }
     
     func _addPointAt(__x:CGFloat,__y:CGFloat,__tag:Int){
         let __p:CGPoint = CGPoint(x: _imageInset+__x*(_rect!.width-2*_imageInset)/100, y: _imageInset+__y*(_rect!.width-2*_imageInset)/100)
         let _r:CGFloat = 5 + CGFloat(random()%50)
-        let _v:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 2*_r, height: 2*_r))
-        _v.tag = __tag
         
-        if _r > 30{
-            
-            let _lable:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: 150, height: 50))
-            _lable.textAlignment = NSTextAlignment.Center
-            _lable.center = CGPoint(x: 25, y: 15)
-            _lable.textColor = UIColor.orangeColor()
-            //_lable.alpha = 0.5
-            _lable.text = "♡1.3万"
-            _lable.font = UIFont.boldSystemFontOfSize(13)
-            
-            
-            let _rectView:UIView = UIView(frame: CGRect(x:0, y: 0, width: 50, height: 30))
-            _rectView.layer.cornerRadius = 2
-            _rectView.backgroundColor = UIColor.yellowColor()
-            //_rectView.alpha = 0.7
-            //let _rectPoint:CGPoint = CGPoint(x: __p.x - _r - 40 - 5, y: __p.y - 15)
-            let _rectPoint:CGPoint = CGPoint(x:  -50 - 0.5, y:  _r-15)
-            _rectView.frame.origin = _rectPoint
-            _rectView.addSubview(_lable)
-            
-            let _circleV:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 5))
-            _circleV.center = CGPoint(x:0.5, y: _r)
-            _circleV.layer.cornerRadius = 2.5
-            _circleV.backgroundColor = UIColor.yellowColor()
-            //_circleV.alpha = 0.7
-            
-            _v.addSubview(_rectView)
-            _v.addSubview(_circleV)
-            
-        }
+        let _item:PointItem = PointItem()
+        _item._setupWidthFrame(CGRect(x: 0, y: 0, width: 2*_r, height: 2*_r), __number: 30,__r:_r)
         
-        
-        
-        
-        _v.layer.cornerRadius = _r
-        _v.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0)
-        _v.center = __p
-        _v.layer.borderColor = UIColor.whiteColor().CGColor
-        _v.layer.borderWidth = 1
-        _v.transform = CGAffineTransformMakeScale(2, 2)
-        _v.alpha = 0
-        //            _v.layer.shadowColor = UIColor.blackColor().CGColor
-        //            _v.layer.shadowOffset = CGSizeMake(20, 20)
-        //            _v.layer.shadowRadius = 20
-        //            _v.layer.shadowOpacity = 0.4
-        
-        
+        _item.transform = CGAffineTransformMakeScale(2, 2)
+        _item.alpha = 0
+        _item.center = __p
         
         UIView.animateWithDuration(0.4, delay:Double(0.01*CGFloat(random()%100)), options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             
-            _v.transform = CGAffineTransformMakeScale(1, 1)
-            _v.alpha = 0.6
+            _item.transform = CGAffineTransformMakeScale(1, 1)
+            _item.alpha = 0.6
             }, completion: { (stop) -> Void in
                 
         })
-        _pointsView!.addSubview(_v)
+        _pointsView!.addSubview(_item)
     }
     func _showPoint(__dict:NSDictionary){
         
@@ -270,7 +232,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         _getUsers()
     }
     func _close(){
+        
         _overShadow?.hidden = false
+        
         if _usersScroller != nil{
           _usersScroller?.removeFromSuperview()
           _usersScroller = nil
@@ -278,14 +242,17 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         
         if _pointsView != nil{
             _pointsView?.removeFromSuperview()
+            _pointsView = nil
         }
         if _signer != nil{
             _signer?.removeFromSuperview()
+            _signer = nil
         }
         if _textBubble != nil{
             
            // _textBubble?.transform = CGAffineTransformMakeScale(0, 0)
             _textBubble?.removeFromSuperview()
+            
         }
         
         _infoPanel!.frame = CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30)

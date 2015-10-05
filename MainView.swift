@@ -111,12 +111,14 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _btn_list?.layer.shadowRadius = 5
         _btn_list?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_plus = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        _btn_plus = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW*1, height: _btnW*1))
         _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -_btnW)
         _btn_plus?.backgroundColor = UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
         _btn_plus?.contentMode=UIViewContentMode.Center
         //_btn_plus?.layer.masksToBounds = true
-        _btn_plus?.layer.cornerRadius = _btnW/2
+        //_btn_plus?.layer.borderColor = UIColor.whiteColor().CGColor
+        //_btn_plus?.layer.borderWidth = 2
+        _btn_plus?.layer.cornerRadius = 1*_btnW/2
         _btn_plus?.layer.shadowColor = UIColor.blackColor().CGColor
         _btn_plus?.layer.shadowOpacity = 0.2
         _btn_plus?.layer.shadowRadius = 5
@@ -176,6 +178,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _shouldReceivePan = false
     }
     //----bingo页面代理
+    
     func _bingoViewOut() {
         _bingoController?.view.removeFromSuperview()
         _bingoController?.removeFromParentViewController()
@@ -190,7 +193,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _bingoController?.removeFromParentViewController()
         _bingoController = nil
         _shouldReceivePan = true
-        
         let _messageWindow:MessageWindow = MessageWindow()
         
         self.presentViewController(_messageWindow, animated: true) { (complete) -> Void in

@@ -21,7 +21,8 @@ class ViewController: UIViewController {
     var _startTransOfMainView:CGAffineTransform?
     var _startTransOfRightView:CGAffineTransform?
     
-    var _distanceToSwape:CGFloat = 60
+    let _distanceToSwape:CGFloat = 60
+    var _backButton:UIButton?
     
     static var _self:ViewController?
     override func viewDidLoad() {
@@ -58,15 +59,26 @@ class ViewController: UIViewController {
         _rightPanel?._parentView = self
         self.addChildViewController(_rightPanel!)
         _rightPanel?.view.frame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        _rightPanel?.view.layer.shadowColor = UIColor.blackColor().CGColor
+        _rightPanel?.view.layer.shadowOpacity = 0.7
+        _rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+        _rightPanel?.view.layer.shadowRadius = 15
+        
+        
         
         self.view.addSubview(_rightPanel!.view)
         
         
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
         self.view.addGestureRecognizer(_panG!)
+        
+        _backButton = UIButton(frame: CGRect(x: 0, y: 0, width: _distanceToSwape/2, height: self.view.frame.height))
+        _backButton?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _setuped=true
     }
-    
+    func btnHander(sender:UIButton){
+        _showMainView()
+    }
     
     func panHander(sender:UIPanGestureRecognizer){
 
@@ -102,7 +114,8 @@ class ViewController: UIViewController {
                     }
                     if _currentPage=="rightPanel"{
                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
-                       
+                        
+                       _rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape+_offset.x/6, height: 0)
                         
                         _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offset.x, 0)
                     }
@@ -118,6 +131,10 @@ class ViewController: UIViewController {
                         if _offRight < -self.view.frame.width-50{
                             _offRight = -self.view.frame.width-50
                         }
+                        
+                        _rightPanel?.view.layer.shadowOffset = CGSize(width: _offset.x/10, height: 0)
+                        
+                        
                        _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offRight, 0)
                     }
                     if _currentPage=="leftPanel"{
@@ -209,19 +226,28 @@ class ViewController: UIViewController {
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._mainView?.view.transform = CGAffineTransformMakeTranslation(self.view.frame.width-_distanceToSwape/2, 0)
 
-            }) { (array) -> Void in
+            }) { (comp) -> Void in
+                self._backButton!.frame = CGRect(x:  self.view.frame.width - self._distanceToSwape/2, y: 0, width: self._distanceToSwape/2, height: self.view.frame.height)
+                self.view.addSubview(self._backButton!)
         }
     }
     func _showRight(){
         _currentPage = "rightPanel"
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
-            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width, 0)
+            self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape, 0)
+            
+            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
+            self._rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape, height: 0)
+            
             }) { (complete) -> Void in
             //self._leftPanel?.view.removeFromSuperview()
             //self._leftPanel?.removeFromParentViewController()
             
+            self._backButton!.frame = CGRect(x: 0, y: 0, width: self._distanceToSwape/2, height: self.view.frame.height)
+            self.view.addSubview(self._backButton!)
+
+                
             self._rightPanel?._getDatas()
         }
     }
@@ -232,8 +258,9 @@ class ViewController: UIViewController {
         UIView.animateWithDuration(0.2) { () -> Void in
            self._mainView?.view.transform = CGAffineTransformMakeTranslation(0, 0)
            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)
+            self._rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
         }
-       
+       self._backButton?.removeFromSuperview()
         
         
     }

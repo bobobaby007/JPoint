@@ -37,7 +37,7 @@ class ChatCell: UITableViewCell {
             _profileImg = PicView(frame:CGRect(x: 10, y: 10, width: 70, height: 70))
             _profileImg?.layer.cornerRadius = 35
             _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-            _profileImg?.layer.borderWidth = 1.5
+            _profileImg?.layer.borderWidth = 2
             _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
             
             addSubview(_profileImg!)

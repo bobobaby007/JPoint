@@ -30,10 +30,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         }
         self.view.backgroundColor = UIColor.whiteColor()
         //self.view.clipsToBounds = false
-        self.view.layer.shadowColor = UIColor.blackColor().CGColor
-        self.view.layer.shadowOpacity = 0.5
-        self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
-        self.view.layer.shadowRadius = 15
+        
         
         _bgImg = PicView()
         _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)

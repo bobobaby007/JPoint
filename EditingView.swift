@@ -17,18 +17,18 @@ protocol EditingView_delegate:NSObjectProtocol{
 
 class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate{
     let _gap:CGFloat = 10
-    let _btnW:CGFloat = 100
+    let _btnW:CGFloat = 60
     var _setuped:Bool = false
     var _cornerRadius:CGFloat = 20
-    var _btn_camera:UIButton = UIButton()
-    var _btn_photo:UIButton = UIButton()
-    var _btn_reset:UIButton = UIButton()
-    var _btn_send:UIButton = UIButton()
+    var _btn_camera:UIButton?
+    var _btn_photo:UIButton?
+    var _btn_reset:UIButton?
+    var _btn_send:UIButton?
     var _imagePicker:UIImagePickerController?
     
-    var _imageContainer:UIView = UIView()
+    var _imageContainer:UIView?
     var _imageW:CGFloat = 0
-    var _bgImageV:UIImageView = UIImageView()
+    var _bgImageV:UIImageView?
     
     var _hasImg:Bool = false
     
@@ -45,101 +45,110 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             return
         }
         self.view.backgroundColor = UIColor.clearColor()
-        _btn_camera.frame = CGRect(x: 0, y: 0, width: _btnW, height: _btnW)
-        _btn_camera.layer.borderWidth = 1
-        _btn_camera.layer.borderColor = UIColor.whiteColor().CGColor
-        _btn_camera.layer.cornerRadius = _btnW/2
-        _btn_camera.backgroundColor = UIColor(white: 0, alpha: 0.3)
-        _btn_camera.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
-        _btn_camera.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        _btn_camera = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         
-        _btn_photo.frame = CGRect(x: 0, y: 0, width: _btnW, height: _btnW)
-        _btn_photo.layer.borderWidth = 1
-        _btn_photo.layer.borderColor = UIColor.whiteColor().CGColor
-        _btn_photo.layer.cornerRadius = _btnW/2
-        _btn_photo.backgroundColor = UIColor(white: 0, alpha: 0.3)
-        _btn_photo.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
-        _btn_photo.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        _btn_camera?.layer.borderWidth = 2
+        _btn_camera?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_camera?.layer.cornerRadius = _btnW/2
+        _btn_camera?.backgroundColor = UIColor(red: 255/255, green: 204/255, blue: 116/255, alpha: 1)
+        _btn_camera?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+        _btn_camera?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_reset.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        _btn_reset.setImage(UIImage(named: "resetIt"), forState: UIControlState.Normal)
-        _btn_reset.center = CGPoint(x: 100, y: self.view.frame.height-50)
-        _btn_reset.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        _btn_photo = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        _btn_photo?.layer.borderWidth = 2
+        _btn_photo?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_photo?.layer.cornerRadius = _btnW/2
+        _btn_photo?.backgroundColor = UIColor(red: 198/255, green: 87/255, blue: 255/255, alpha: 1)
+        _btn_photo?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+        _btn_photo?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_send.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        _btn_send.center = CGPoint(x: self.view.frame.width-100, y: self.view.frame.height-50)
-        _btn_send.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
-        _btn_send.setImage(UIImage(named: "okgo"), forState: UIControlState.Normal)
+        _btn_reset = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        //_btn_reset?.setImage(UIImage(named: "resetIt"), forState: UIControlState.Normal)
+        _btn_reset?.layer.cornerRadius = _btnW/2
+        _btn_reset?.backgroundColor = UIColor.yellowColor()
+        _btn_reset?.center = CGPoint(x: 100, y: self.view.frame.height-100)
+        _btn_reset?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        self._btn_reset.transform = CGAffineTransformMakeScale(0, 0)
-        self._btn_send.transform = CGAffineTransformMakeScale(0, 0)
+        _btn_send = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        _btn_send?.center = CGPoint(x: self.view.frame.width-100, y: self.view.frame.height-100)
+        _btn_send?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        _btn_send?.setImage(UIImage(named: "okgo"), forState: UIControlState.Normal)
         
-        _btn_camera.alpha=0
-        _btn_photo.alpha=0
-        _btn_reset.alpha=0
-        _btn_send.alpha=0
+        self._btn_reset!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
+        
+        _btn_camera!.alpha=0
+        _btn_photo!.alpha=0
+        _btn_reset!.alpha=0
+        _btn_send!.alpha=0
         
         var _img:UIImage = UIImage(named: "carera_icon.png")!
         UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
         _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
-        _btn_camera.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
+        _btn_camera!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
         UIGraphicsEndImageContext()
         
         _img = UIImage(named: "photo_icon.png")!
         UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
         _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
-        _btn_photo.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
+        _btn_photo!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
         UIGraphicsEndImageContext()
         
         
+        _img = UIImage(named: "resetIt")!
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
+        _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
+        _btn_reset!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
+        UIGraphicsEndImageContext()
+        
         
         _imageW = self.view.frame.width-2*_gap
-        _imageContainer.frame = CGRect(x: 0, y: 0, width: _imageW, height: _imageW)
-        _imageContainer.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+        _imageContainer = UIView(frame:CGRect(x: 0, y: 0, width: _imageW, height: _imageW))
+        _imageContainer?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
         
         
         _drawingBoard = DrawingBoard()
         self.addChildViewController(_drawingBoard!)
-        _drawingBoard!.view.frame = _imageContainer.frame
-        _drawingBoard!.view.center = _imageContainer.center
+        _drawingBoard!.view.frame = _imageContainer!.frame
+        _drawingBoard!.view.center = _imageContainer!.center
         
         
         
         
         //_imageContainer.layer.masksToBounds = true
-        _imageContainer.backgroundColor = UIColor(white: 1, alpha: 0)
-        _imageContainer.layer.cornerRadius = _cornerRadius
+        _imageContainer!.backgroundColor = UIColor(white: 1, alpha: 0)
+        _imageContainer!.layer.cornerRadius = _cornerRadius
         //_imageContainer.clipsToBounds=true
-        _imageContainer.layer.shadowColor = UIColor.blackColor().CGColor
-        _imageContainer.layer.shadowOpacity = 0.3
-        _imageContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
-        _imageContainer.layer.shadowRadius = 5
+        _imageContainer!.layer.shadowColor = UIColor.blackColor().CGColor
+        _imageContainer!.layer.shadowOpacity = 0.3
+        _imageContainer!.layer.shadowOffset = CGSize(width: 0, height: 0)
+        _imageContainer!.layer.shadowRadius = 5
         
-        _bgImageV.frame = CGRect(x: 0, y: 0, width: _imageW, height: _imageW)
-        _bgImageV.contentMode = UIViewContentMode.ScaleAspectFill
-        _bgImageV.layer.masksToBounds=true
-        _bgImageV.layer.cornerRadius = _cornerRadius
-        _bgImageV.backgroundColor = UIColor(white: 1, alpha: 0.3)
+        _bgImageV = UIImageView(frame:CGRect(x: 0, y: 0, width: _imageW, height: _imageW))
+        _bgImageV?.contentMode = UIViewContentMode.ScaleAspectFill
+        _bgImageV?.layer.masksToBounds=true
+        _bgImageV?.layer.cornerRadius = _cornerRadius
+        _bgImageV?.backgroundColor = UIColor(white: 1, alpha: 0.3)
         
-        _imageContainer.addSubview(_bgImageV)
+        _imageContainer!.addSubview(_bgImageV!)
         
         
         
         
     
-        self.view.addSubview(_imageContainer)
+        self.view.addSubview(_imageContainer!)
         self.view.addSubview(_drawingBoard!.view)
-        self.view.addSubview(_btn_camera)
-        self.view.addSubview(_btn_photo)
-        self.view.addSubview(_btn_send)
-        self.view.addSubview(_btn_reset)
+        self.view.addSubview(_btn_camera!)
+        self.view.addSubview(_btn_photo!)
+        self.view.addSubview(_btn_send!)
+        self.view.addSubview(_btn_reset!)
 
         
     }
     
     func buttonAction(__sender:UIButton){
         switch __sender{
-        case _btn_camera:
+        case _btn_camera!:
             _imagePicker = UIImagePickerController()
            // _imagePicker!.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.Camera)!
             
@@ -148,7 +157,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _imagePicker!.sourceType = UIImagePickerControllerSourceType.Camera
             UIApplication.sharedApplication().keyWindow?.rootViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
             break
-        case _btn_photo:
+        case _btn_photo!:
             _imagePicker = UIImagePickerController()
             
             //_imagePicker!.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.SavedPhotosAlbum)!
@@ -157,10 +166,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _imagePicker!.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
             UIApplication.sharedApplication().keyWindow?.rootViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
             break
-        case _btn_reset:
+        case _btn_reset!:
             _drawingBoard?._clear()
             break
-        case _btn_send:
+        case _btn_send!:
             
             break
         default:
@@ -175,22 +184,22 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     
     func _bottomBtnsIn(){
-        self._btn_reset.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-        self._btn_send.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-        self._btn_reset.transform = CGAffineTransformMakeScale(1, 1)
-        self._btn_send.transform = CGAffineTransformMakeScale(0, 0)
-        self._btn_reset.alpha=0
-        self._btn_send.alpha=0
+        self._btn_reset!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
+        self._btn_send!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
+        self._btn_reset!.transform = CGAffineTransformMakeScale(1, 1)
+        self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_reset!.alpha=0
+        self._btn_send!.alpha=0
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_reset.center = CGPoint(x: 60, y: self.view.frame.height-50)
-            self._btn_send.center = CGPoint(x: self.view.frame.width-60, y: self.view.frame.height-50)
+            self._btn_reset!.center = CGPoint(x: 60, y: self.view.frame.height-100)
+            self._btn_send!.center = CGPoint(x: self.view.frame.width-60, y: self.view.frame.height-100)
             
-             self._btn_reset.transform = CGAffineTransformMakeRotation(2*3.14)
-            self._btn_reset.transform = CGAffineTransformMakeScale(1, 1)
-            self._btn_send.transform = CGAffineTransformMakeScale(1, 1)
-            self._btn_reset.alpha=1
-            self._btn_send.alpha=1
+             self._btn_reset!.transform = CGAffineTransformMakeRotation(2*3.14)
+            self._btn_reset!.transform = CGAffineTransformMakeScale(1, 1)
+            self._btn_send!.transform = CGAffineTransformMakeScale(1, 1)
+            self._btn_reset!.alpha=1
+            self._btn_send!.alpha=1
             }) { (stoped) -> Void in
                 
         }
@@ -198,12 +207,12 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func _bottomBtnsOut(){
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_reset.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-            self._btn_send.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-            self._btn_reset.transform = CGAffineTransformMakeScale(0, 0)
-            self._btn_send.transform = CGAffineTransformMakeScale(0, 0)
-            self._btn_reset.alpha=0
-            self._btn_send.alpha=0
+            self._btn_reset!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
+            self._btn_send!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
+            self._btn_reset!.transform = CGAffineTransformMakeScale(0, 0)
+            self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
+            self._btn_reset!.alpha=0
+            self._btn_send!.alpha=0
             }) { (stoped) -> Void in
                 
         }
@@ -211,10 +220,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     //---按钮弹出
     func _btnsShow(){
         UIView.animateWithDuration(0.6, delay: 0.4, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_camera.center = CGPoint(x: self.view.frame.width/2-self._btnW/2-10, y: self.view.frame.height/2)
-            self._btn_photo.center = CGPoint(x: self.view.frame.width/2+self._btnW/2+10, y: self.view.frame.height/2)
-            self._btn_camera.alpha=1
-            self._btn_photo.alpha=1
+            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2-self._btnW/2-15, y: self.view.frame.height/2)
+            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2+self._btnW/2+15, y: self.view.frame.height/2)
+            self._btn_camera!.alpha=1
+            self._btn_photo!.alpha=1
         }) { (stoped) -> Void in
             
         }
@@ -222,10 +231,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     func _btnsHide(){
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_camera.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
-            self._btn_photo.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
-            self._btn_camera.alpha=0
-            self._btn_photo.alpha=0
+            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+            self._btn_camera!.alpha=0
+            self._btn_photo!.alpha=0
             }) { (stoped) -> Void in
                 
         }
@@ -238,7 +247,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     func _shouldBeClosed()->Bool{
         if _hasImg{
-            _bgImageV.image = UIImage()
+            _bgImageV!.image = UIImage()
             _hasImg = false
             _bottomBtnsOut()
             _btnsShow()
@@ -250,14 +259,14 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     //---picker代理
     func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
-        _bgImageV.image = image
+        _bgImageV!.image = image
         _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
         didImageIn()
     }
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
        // var _alassetsl:ALAssetsLibrary = ALAssetsLibrary()
         let image:UIImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
-        _bgImageV.image = image
+        _bgImageV!.image = image
         _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
         didImageIn()
     }

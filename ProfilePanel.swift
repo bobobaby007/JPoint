@@ -35,15 +35,17 @@ class ProfilePanel:UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         _userImg = PicView(frame: CGRect(x: 0, y: 0, width: _imageH, height: _imageH))
-        _userImg?.layer.cornerRadius = _imageH/2
+        _userImg?._imgView?.layer.cornerRadius = _imageH/2
+        _userImg?.clipsToBounds = false
+        _userImg?._imgView?.clipsToBounds = true
         _userImg?.maximumZoomScale = 1
         _userImg?.minimumZoomScale = 1
         _userImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
         _userImg?.layer.shadowRadius = 5
         _userImg?.layer.shadowColor = UIColor.blackColor().CGColor
         _userImg?.layer.shadowOpacity = 0.2
-        _userImg?.layer.borderColor = UIColor.whiteColor().CGColor
-        _userImg?.layer.borderWidth = 1
+        _userImg?._imgView?.layer.borderColor = UIColor.whiteColor().CGColor
+        _userImg?._imgView?.layer.borderWidth = 2
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))
         
