@@ -12,8 +12,8 @@ import UIKit
 class MainAction {
     
     static var _token:String = "c4b44a6e-06d0-4c4a-88dd-b840b3311dda"
-    static let _BasicDomain:String = "http://bingome.giccoo.com/v1/"
-    
+    static let _BasicDomain:String = "http://bingome.giccoo.com"
+    static let _Version:String = "v1"
     static let _URL_PostBingo:String = "bingo/send/"
     static let _URL_BingoList:String = "bingo/list/"
     
@@ -24,7 +24,7 @@ class MainAction {
     
     //-----获取首页列表
     static func _getBingoList(__block:(NSArray)->Void){
-        let request = NSMutableURLRequest(URL: NSURL(string:_BasicDomain + _URL_BingoList)!)
+        let request = NSMutableURLRequest(URL: NSURL(string:_BasicDomain + "/" + _Version + "/" + _URL_BingoList)!)
         request.HTTPMethod = "POST"
         let postString : String = "token=" + _token
         request.HTTPBody = postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
@@ -45,7 +45,7 @@ class MainAction {
         })
         task.resume()
     }
-    
+    //---提交新的图片
     static func _postNewBingo(__image:UIImage,__question:String,__answer:UIImage,__type:String){
         //let imageData = UIImagePNGRepresentation(UIImage(named: "test.png")!)
         let imageData = UIImageJPEGRepresentation(__image, 0.7)
@@ -53,7 +53,7 @@ class MainAction {
         // let imageData_jpg = UIImagePNGRepresentation(UIImage(named: "image_1.jpg")!)
         
         if imageData != nil{
-            let request = NSMutableURLRequest(URL: NSURL(string:_BasicDomain + _URL_PostBingo)!)
+            let request = NSMutableURLRequest(URL: NSURL(string:_BasicDomain + "/" + _Version + "/" +  _URL_PostBingo)!)
             request.HTTPMethod = "POST"
             var string:String = (imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn))!
             //let data = imageData?.base64EncodedDataWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithLineFeed)
@@ -79,8 +79,13 @@ class MainAction {
             task.resume()
         }
     }
+    //-----获取图片完整url
     
-    
+    static func _imageUrl(__str:String)->String{
+        let _url:String = _BasicDomain + "/uploadDir/" + __str
+        
+        return _url
+    }
     
 }
 

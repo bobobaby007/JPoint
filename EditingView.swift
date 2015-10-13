@@ -278,6 +278,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
                 
         }
     }
+    //---底部两个按钮移出
     func _bottomBtnsOut(){
         
         if _label_clear != nil{
@@ -348,6 +349,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func _reset(){
         _btnsHide()
         _bottomBtnsOut()
+        self._label_cancel?.alpha = 0
     }
     func _shouldBeClosed()->Bool{
         if _hasImg{

@@ -92,7 +92,6 @@ class ProfilePanel:UIView {
     }
     
     
-    
     func tapHander(__sender:UITapGestureRecognizer){
         _delegate?._viewUser()
     }
@@ -104,8 +103,8 @@ class ProfilePanel:UIView {
         _nameLabel?.text = __set
     }
     func _setSay(__set:String){
-        _sayText?.text = __set
-        
+        //print(_sayText)
+       self._sayText!.text = __set
         let _size:CGSize = _sayText!.sizeThatFits(CGSize(width: _sayW, height: CGFloat.max))
         //_sayText?.alpha = 0
         UIView.animateWithDuration(0.4, animations: { () -> Void in
