@@ -16,22 +16,26 @@ class DrawingBoard:UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setup()
+        //setup()
     }
     func setup(){
         if _setuped{
             return
         }
-        
         self.view.backgroundColor = UIColor.clearColor()
         self.view.clipsToBounds=true
         _containerView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-        _containerView.alpha = 0.6
-        _containerView.layer.shadowColor = UIColor.blackColor().CGColor
-        _containerView.layer.shadowOffset = CGSizeMake(20, 20)
-        _containerView.layer.shadowRadius = 20
-        _containerView.layer.shadowOpacity = 0.4
-        _containerView.clipsToBounds=true
+        
+        //_containerView.clipsToBounds = true
+        //_containerView.backgroundColor = UIColor.greenColor()
+        //_containerView.alpha = 0.6
+        //_containerView.layer.shadowColor = UIColor.blackColor().CGColor
+        //_containerView.layer.shadowOffset = CGSizeMake(20, 20)
+        //_containerView.layer.shadowRadius = 20
+        //_containerView.layer.shadowOpacity = 0.4
+//        _containerView.layer.borderColor = UIColor.whiteColor().CGColor
+//        _containerView.layer.borderWidth = 1
+        //_containerView.clipsToBounds=true
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
         _tapG = UITapGestureRecognizer(target: self, action: "tapHander:")
         
@@ -91,7 +95,14 @@ class DrawingBoard:UIViewController {
         })
         _containerView.addSubview(_v)
     }
-    
+    func _captureImage()->UIImage{
+        
+        UIGraphicsBeginImageContextWithOptions(view!.bounds.size, false, 0.0);
+        _containerView.layer.renderInContext(UIGraphicsGetCurrentContext()!)
+        let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return img;
+    }
     func _clear(){
         for view in _containerView.subviews{
             view.removeFromSuperview()

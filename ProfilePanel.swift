@@ -22,7 +22,7 @@ class ProfilePanel:UIView {
     var _boxV:UIView?
     var _arrowV:UIView?
     var _nameLabel:UILabel?
-    var _tapG:UITapGestureRecognizer?
+    //var _tapG:UITapGestureRecognizer?
     
     var _sayText:UITextView?
     var _sayW:CGFloat = 20
@@ -47,7 +47,7 @@ class ProfilePanel:UIView {
         _userImg?._imgView?.layer.borderColor = UIColor.whiteColor().CGColor
         _userImg?._imgView?.layer.borderWidth = 2
         
-        _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))
+        //_tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))
         
         
         _nameLabel = UILabel(frame: CGRect(x: _imageH+12, y: 0, width: frame.width-_imageH-12, height: 20))
@@ -90,7 +90,9 @@ class ProfilePanel:UIView {
         addSubview(_nameLabel!)
         
     }
-
+    
+    
+    
     func tapHander(__sender:UITapGestureRecognizer){
         _delegate?._viewUser()
     }

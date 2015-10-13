@@ -65,16 +65,16 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _shouldReceivePan:Bool = true
     
+    var _imageUrls:Array = ["http://bingome.giccoo.com/uploadDir/image-1444735073490-9972.jpg"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
     }
-    
     func setup(){
         if _setuped{
             return
         }
-        
         self.view.layer.shadowColor = UIColor.blackColor().CGColor
         self.view.layer.shadowOpacity = 0.5
         self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
@@ -162,15 +162,22 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         self.view.addSubview(_profilePanel!)
         
-        
+        _setuped = true
         
         
        
-        _showIndex(0)
+        //_showIndex(0)
         
-        _setuped = true
+        
         
     }
+    func _loadBingoList(){
+        MainAction._getBingoList { (array) -> Void in
+            // print(MainAction._BingoList.objectAtIndex(3))
+            self._showIndex(self._currentIndex)
+        }
+    }
+    
     
     //----编辑页面代理
     func _edingImageIn() {
@@ -262,6 +269,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     //-----展示当前用户和图片
     func _showIndex(__index:Int){
+        //return
+        if __index >= MainAction._BingoList.count{
+            return
+        }
         _currentIndex = __index
         if _currentIndex == 0{
             _nextPicItem = _picInAtIndex(_currentIndex)
@@ -317,7 +328,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----载入图片
     func _picInAtIndex(__index:Int)->PicItem{
         let _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
-        _item._setPic("image_"+String(__index%3+1)+".jpg")
+        _item._setPic(_imageUrls[0])
         _item._delegate = self
         return _item
     }
@@ -527,6 +538,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         let _toY:CGFloat = _bottomY+_profielH + 2*_gap
         _btnsIn=true
         
+        
+        self._editingViewC?._btn_closeH = _btnToY
         self._editingViewC?._show()
 
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in

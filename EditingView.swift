@@ -22,8 +22,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     var _cornerRadius:CGFloat = 20
     var _btn_camera:UIButton?
     var _btn_photo:UIButton?
-    var _btn_reset:UIButton?
+    var _btn_clear:UIButton?
     var _btn_send:UIButton?
+    var _btn_closeH:CGFloat?
     var _imagePicker:UIImagePickerController?
     
     var _imageContainer:UIView?
@@ -34,7 +35,13 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     var _drawingBoard:DrawingBoard?
     
+    var _label_clear:UILabel?
+    var _label_sent:UILabel?
+    var _label_cancel:UILabel?
+    
     weak var _delagate:EditingView_delegate?
+    
+    var _infoForImage:InfoForImage?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -62,24 +69,26 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btn_photo?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
         _btn_photo?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_reset = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
-        //_btn_reset?.setImage(UIImage(named: "resetIt"), forState: UIControlState.Normal)
-        _btn_reset?.layer.cornerRadius = _btnW/2
-        _btn_reset?.backgroundColor = UIColor.yellowColor()
-        _btn_reset?.center = CGPoint(x: 100, y: self.view.frame.height-100)
-        _btn_reset?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        _btn_clear = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        //_btn_clear?.setImage(UIImage(named: "resetIt"), forState: UIControlState.Normal)
+        _btn_clear?.layer.cornerRadius = _btnW/2
+        _btn_clear?.backgroundColor = UIColor(red: 95/255, green: 166/255, blue: 202/255, alpha: 1)
+        _btn_clear?.center = CGPoint(x: 100, y: self.view.frame.height-100)
+        _btn_clear?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_send = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_send?.center = CGPoint(x: self.view.frame.width-100, y: self.view.frame.height-100)
+        _btn_send?.layer.cornerRadius = _btnW/2
+        _btn_send?.backgroundColor = UIColor(red: 198/255, green: 87/255, blue: 255/255, alpha: 1)
         _btn_send?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
-        _btn_send?.setImage(UIImage(named: "okgo"), forState: UIControlState.Normal)
         
-        self._btn_reset!.transform = CGAffineTransformMakeScale(0, 0)
+        
+        self._btn_clear!.transform = CGAffineTransformMakeScale(0, 0)
         self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
         
         _btn_camera!.alpha=0
         _btn_photo!.alpha=0
-        _btn_reset!.alpha=0
+        _btn_clear!.alpha=0
         _btn_send!.alpha=0
         
         var _img:UIImage = UIImage(named: "carera_icon.png")!
@@ -95,22 +104,33 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         UIGraphicsEndImageContext()
         
         
+        _img = UIImage(named: "okgo")!
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
+        _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
+        _btn_send!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
+        UIGraphicsEndImageContext()
+        
         _img = UIImage(named: "resetIt")!
         UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
         _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
-        _btn_reset!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
+        _btn_clear!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
         UIGraphicsEndImageContext()
         
         
         _imageW = self.view.frame.width-2*_gap
         _imageContainer = UIView(frame:CGRect(x: 0, y: 0, width: _imageW, height: _imageW))
-        _imageContainer?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+        _imageContainer?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
         
         
         _drawingBoard = DrawingBoard()
+        _drawingBoard?.view.layer.cornerRadius = _cornerRadius
+        _drawingBoard?.view.clipsToBounds = true
+        
         self.addChildViewController(_drawingBoard!)
         _drawingBoard!.view.frame = _imageContainer!.frame
+        _drawingBoard?.setup()
         _drawingBoard!.view.center = _imageContainer!.center
+        _drawingBoard?.view.alpha = 0.6
         
         
         
@@ -118,20 +138,22 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         //_imageContainer.layer.masksToBounds = true
         _imageContainer!.backgroundColor = UIColor(white: 1, alpha: 0)
         _imageContainer!.layer.cornerRadius = _cornerRadius
-        //_imageContainer.clipsToBounds=true
-        _imageContainer!.layer.shadowColor = UIColor.blackColor().CGColor
-        _imageContainer!.layer.shadowOpacity = 0.3
-        _imageContainer!.layer.shadowOffset = CGSize(width: 0, height: 0)
-        _imageContainer!.layer.shadowRadius = 5
+        _imageContainer!.clipsToBounds=true
+//        _imageContainer!.layer.shadowColor = UIColor.blackColor().CGColor
+//        _imageContainer!.layer.shadowOpacity = 0.3
+//        _imageContainer!.layer.shadowOffset = CGSize(width: 0, height: 0)
+//        _imageContainer!.layer.shadowRadius = 5
         
         _bgImageV = UIImageView(frame:CGRect(x: 0, y: 0, width: _imageW, height: _imageW))
         _bgImageV?.contentMode = UIViewContentMode.ScaleAspectFill
         _bgImageV?.layer.masksToBounds=true
-        _bgImageV?.layer.cornerRadius = _cornerRadius
+        //_bgImageV?.layer.cornerRadius = _cornerRadius
         _bgImageV?.backgroundColor = UIColor(white: 1, alpha: 0.3)
         
         _imageContainer!.addSubview(_bgImageV!)
         
+        _infoForImage = InfoForImage(frame: CGRect(x: 10, y: 0, width: _imageW, height: 110))
+        _infoForImage?.center = CGPoint(x: self.view.frame.width/2, y: (self.view.frame.height-_imageW)/4+_infoForImage!.frame.height/2)
         
         
         
@@ -141,9 +163,14 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self.view.addSubview(_btn_camera!)
         self.view.addSubview(_btn_photo!)
         self.view.addSubview(_btn_send!)
-        self.view.addSubview(_btn_reset!)
-
+        self.view.addSubview(_btn_clear!)
+        self.view.addSubview(_infoForImage!)
         
+        self.view.layer.shadowColor = UIColor.blackColor().CGColor
+        self.view.layer.shadowOpacity = 0.2
+        self.view.layer.shadowRadius = 5
+
+        _setProfilePic("profile")
     }
     
     func buttonAction(__sender:UIButton){
@@ -166,16 +193,24 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _imagePicker!.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
             UIApplication.sharedApplication().keyWindow?.rootViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
             break
-        case _btn_reset!:
+        case _btn_clear!:
             _drawingBoard?._clear()
             break
         case _btn_send!:
-            
+            let _img:UIImage = _captureBgImage()
+            let _answerImg:UIImage = _drawingBoard!._captureImage()
+            MainAction._postNewBingo(_img, __question: "山东省", __answer: _answerImg, __type: MainAction._Post_Type_Media)
+           // CoreAction._uploadImage()
             break
         default:
             break
         }
     }
+    
+    func _setProfilePic(__str:String){
+        _infoForImage?._setPic(__str)
+    }
+    
     
     //---——展示
     
@@ -184,21 +219,60 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     
     func _bottomBtnsIn(){
-        self._btn_reset!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-        self._btn_send!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-        self._btn_reset!.transform = CGAffineTransformMakeScale(1, 1)
+        self._btn_clear!.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!)
+        self._btn_send!.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!)
+        self._btn_clear!.transform = CGAffineTransformMakeScale(1, 1)
         self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
-        self._btn_reset!.alpha=0
+        self._btn_clear!.alpha=0
         self._btn_send!.alpha=0
         
+        
+        if _label_clear == nil{
+            _label_clear = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: self.view.frame.height - self._btn_closeH! - self._btnW/2))
+            _label_clear?.center = CGPoint(x: 60, y: self.view.frame.height)
+            _label_clear?.text = "清除"
+            _label_clear?.textAlignment = NSTextAlignment.Center
+            _label_clear?.font = UIFont.systemFontOfSize(12)
+            _label_clear?.textColor = UIColor.whiteColor()
+        }
+        
+        self.view.addSubview(_label_clear!)
+        
+        if _label_sent == nil{
+            _label_sent = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: self.view.frame.height - self._btn_closeH! - self._btnW/2))
+            _label_sent?.center = CGPoint(x: self.view.frame.width-60, y: self.view.frame.height)
+            _label_sent?.text = "立即发布"
+            _label_sent?.textAlignment = NSTextAlignment.Center
+            _label_sent?.font = UIFont.systemFontOfSize(12)
+            _label_sent?.textColor = UIColor.whiteColor()
+        }
+        self.view.addSubview(_label_sent!)
+        
+        
+        self._label_clear?.center = CGPoint(x: 60, y: self._btn_closeH!+self._btnW)
+        _label_clear?.alpha = 0
+        
+        _label_cancel?.text = "取消"
+        self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW)
+        self._label_cancel?.alpha = 0
+        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_reset!.center = CGPoint(x: 60, y: self.view.frame.height-100)
-            self._btn_send!.center = CGPoint(x: self.view.frame.width-60, y: self.view.frame.height-100)
+            self._btn_clear!.center = CGPoint(x: 60, y: self._btn_closeH!)
+            self._btn_send!.center = CGPoint(x: self.view.frame.width-60, y: self._btn_closeH!)
             
-             self._btn_reset!.transform = CGAffineTransformMakeRotation(2*3.14)
-            self._btn_reset!.transform = CGAffineTransformMakeScale(1, 1)
+            
+            self._label_clear?.center = CGPoint(x: 60, y: self._btn_closeH!+self._btnW/2+15)
+            self._label_clear?.alpha = 1
+            
+            self._label_sent?.center = CGPoint(x: self.view.frame.width-60, y: self._btn_closeH!+self._btnW/2+15)
+            self._label_sent?.alpha = 1
+            
+            self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW/2+15)
+            self._label_cancel?.alpha = 1
+             self._btn_clear!.transform = CGAffineTransformMakeRotation(2*3.14)
+            self._btn_clear!.transform = CGAffineTransformMakeScale(1, 1)
             self._btn_send!.transform = CGAffineTransformMakeScale(1, 1)
-            self._btn_reset!.alpha=1
+            self._btn_clear!.alpha=1
             self._btn_send!.alpha=1
             }) { (stoped) -> Void in
                 
@@ -206,24 +280,54 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     func _bottomBtnsOut(){
         
+        if _label_clear != nil{
+            _label_clear!.removeFromSuperview()
+            _label_clear = nil
+        }
+        if _label_sent != nil{
+            _label_sent!.removeFromSuperview()
+            _label_sent = nil
+        }
+        
+        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_reset!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
+            self._btn_clear!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
             self._btn_send!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-50)
-            self._btn_reset!.transform = CGAffineTransformMakeScale(0, 0)
+            self._btn_clear!.transform = CGAffineTransformMakeScale(0, 0)
             self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
-            self._btn_reset!.alpha=0
+            self._btn_clear!.alpha=0
             self._btn_send!.alpha=0
+            
             }) { (stoped) -> Void in
+                
+
                 
         }
     }
     //---按钮弹出
     func _btnsShow(){
+        if _label_cancel == nil{
+            _label_cancel = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: self.view.frame.height - self._btn_closeH! - self._btnW/2))
+            _label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height)
+            
+            _label_cancel?.textAlignment = NSTextAlignment.Center
+            _label_cancel?.font = UIFont.systemFontOfSize(12)
+            _label_cancel?.textColor = UIColor.whiteColor()
+        }
+        self.view.addSubview(_label_cancel!)
+        
+        _label_cancel?.text = "返回"
+        self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW)
+        self._label_cancel?.alpha = 0
+        
         UIView.animateWithDuration(0.6, delay: 0.4, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_camera!.center = CGPoint(x: self.view.frame.width/2-self._btnW/2-15, y: self.view.frame.height/2)
             self._btn_photo!.center = CGPoint(x: self.view.frame.width/2+self._btnW/2+15, y: self.view.frame.height/2)
             self._btn_camera!.alpha=1
             self._btn_photo!.alpha=1
+            
+            self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW/2+15)
+            self._label_cancel?.alpha = 1
         }) { (stoped) -> Void in
             
         }
@@ -257,6 +361,16 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         }
         return true
     }
+    //---截取背景图
+    func _captureBgImage()->UIImage{
+        UIGraphicsBeginImageContextWithOptions(_bgImageV!.bounds.size, view.opaque, 0.0);
+        _bgImageV!.layer.renderInContext(UIGraphicsGetCurrentContext()!)
+        let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return img;
+    }
+    
+    
     //---picker代理
     func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
         _bgImageV!.image = image

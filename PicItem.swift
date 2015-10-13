@@ -17,7 +17,7 @@ protocol PicItemDelegate:NSObjectProtocol{
 }
 
 class PicItem: UIView {
-    var _imageV:UIImageView?
+    var _imageV:PicView?
     var _tapG:UITapGestureRecognizer?
     weak var _delegate:PicItemDelegate?
     var _clickSign:ClickSign?
@@ -27,14 +27,18 @@ class PicItem: UIView {
         
         //self.clipsToBounds = true
         
-        _imageV = UIImageView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.width))
-        _imageV!.layer.masksToBounds=true
-        _imageV!.layer.cornerRadius = _cornerRadius
+        _imageV = PicView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.width))
+        _imageV?.maximumZoomScale = 1
+        _imageV?.minimumZoomScale = 1
+        _imageV?._imgView!.layer.masksToBounds=true
+        _imageV?._imgView!.layer.masksToBounds=true
+        _imageV?._imgView!.contentMode = UIViewContentMode.ScaleAspectFill
+        _imageV?._imgView!.layer.cornerRadius = _cornerRadius
         self.layer.shadowColor = UIColor.blackColor().CGColor
         self.layer.shadowOpacity = 0.3
         self.layer.shadowOffset = CGSize(width: 0, height: 0)
         self.layer.shadowRadius = 5
-        _imageV?.contentMode = UIViewContentMode.ScaleAspectFill
+        
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        
         addSubview(_imageV!)
@@ -56,6 +60,7 @@ class PicItem: UIView {
         _testIt()
     }
     func _testIt(){
+        
         self.removeGestureRecognizer(_tapG!)
         _delegate?._clicked()
         if random()%2 == 1{
@@ -77,7 +82,10 @@ class PicItem: UIView {
     _delegate = nil
     }
     func _setPic(__set:String){
-        _imageV?.image = UIImage(named: __set)
+        _imageV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict) -> Void in
+            
+        })
+       
         
     }
     required init?(coder aDecoder: NSCoder) {

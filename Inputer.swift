@@ -255,6 +255,7 @@ class Inputer: UIView,UITextViewDelegate {
     
     
     func _close(){
+        
         _inputText?.resignFirstResponder()
         _refresshView()
         
