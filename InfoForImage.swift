@@ -150,6 +150,13 @@ class InfoForImage:UIView,UITextViewDelegate{
         _sayText?.text = __set
         _refreshIt()
     }
+    func _getQuestion()->String{
+        let _str:String = _sayText!.text
+        if _str == _placeHold{
+            return ""
+        }
+        return _str
+    }
     func _refreshIt(){
         let _size:CGSize = _sayText!.sizeThatFits(CGSize(width: _sayW, height: CGFloat.max))
         //_sayText?.alpha = 0

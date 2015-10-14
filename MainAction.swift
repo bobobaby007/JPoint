@@ -63,7 +63,7 @@ class MainAction {
             _answerString = _answerString.stringByReplacingOccurrencesOfString("+", withString: "%2B")
             
             var postString : String = "token=" + _token
-            postString = postString.stringByAppendingFormat("&image=%@&question=%@&answer=%@&type=%@&lng=%d&lat=%d",string,"问题",_answerString,__type,7,7)
+            postString = postString.stringByAppendingFormat("&image=%@&question=%@&answer=%@&type=%@&lng=%d&lat=%d",string,__question,_answerString,__type,7,7)
             request.HTTPBody = postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
             
             let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
@@ -86,7 +86,7 @@ class MainAction {
         
         return _url
     }
-    
+        
 }
 
 

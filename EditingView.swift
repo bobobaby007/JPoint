@@ -199,7 +199,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         case _btn_send!:
             let _img:UIImage = _captureBgImage()
             let _answerImg:UIImage = _drawingBoard!._captureImage()
-            MainAction._postNewBingo(_img, __question: "山东省", __answer: _answerImg, __type: MainAction._Post_Type_Media)
+            MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media)
            // CoreAction._uploadImage()
             break
         default:

@@ -16,6 +16,37 @@ class CoreAction {
     
         return timestamp
     }
+    
+    static func _getPixelColor(pos: CGPoint,__inView:UIView) -> UIColor {
+        let __inImage:UIImage = _captureImage(__inView)
+        let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
+        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
+        //print(data)
+        let pixelInfo: Int = ((Int(__inImage.size.width) * Int(pos.y)) + Int(pos.x)) * 4
+        let r = CGFloat(data[pixelInfo]) / CGFloat(255.0)
+        let g = CGFloat(data[pixelInfo+1]) / CGFloat(255.0)
+        let b = CGFloat(data[pixelInfo+2]) / CGFloat(255.0)
+        let a = CGFloat(data[pixelInfo+3]) / CGFloat(255.0)
+        return UIColor(red: r, green: g, blue: b, alpha: a)
+    }
+    static func _getPixelAlpha(pos: CGPoint,__inView:UIView) -> CGFloat {
+        let __inImage:UIImage = _captureImage(__inView)
+        let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
+        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
+        let pixelInfo: Int = ((Int(__inImage.size.width) * Int(pos.y)) + Int(pos.x)) * 4
+        let a = CGFloat(data[pixelInfo+3]) / CGFloat(255.0)
+        return a
+    }
+    static func _captureImage(__view:UIView)->UIImage{
+        UIGraphicsBeginImageContextWithOptions(__view.bounds.size, false, 0.0);
+        __view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
+        let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return img;
+    }
+    
+    
+    
     /*
     static func _uploadImage(){
         let imageData = UIImagePNGRepresentation(UIImage(named: "okgo.png")!)

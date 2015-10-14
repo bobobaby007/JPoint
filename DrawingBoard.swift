@@ -96,7 +96,6 @@ class DrawingBoard:UIViewController {
         _containerView.addSubview(_v)
     }
     func _captureImage()->UIImage{
-        
         UIGraphicsBeginImageContextWithOptions(view!.bounds.size, false, 0.0);
         _containerView.layer.renderInContext(UIGraphicsGetCurrentContext()!)
         let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();

@@ -39,7 +39,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     //
     var _currentIndex:Int = 0
-    var _firstIndex:Int = 14
+    var _firstIndex:Int = 25
     
     var _infoPanel:InfoPanel?
     var _infoH:CGFloat = 25
@@ -62,7 +62,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
-    
+    let _defaultQuestions:Array = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道"]
     
     var _shouldReceivePan:Bool = true
     
@@ -329,7 +329,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         _profilePanel?._setPic("profile.png")
         _profilePanel?._setName(_author.objectForKey("nickname") as! String)
-        _profilePanel?._setSay(_dict.objectForKey("question") as! String)
+        
+        
+        _profilePanel?._setSay(_getQuestionByString(_dict.objectForKey("question") as! String))
        
         self._profilePanel?.alpha = 0
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
@@ -346,12 +348,19 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }
         self.view.addSubview(_nextPicItem!)
     }
+    func _getQuestionByString(__str:String)->String{
+        if __str == ""||__str == "问题"{
+            return _defaultQuestions[random()%_defaultQuestions.count]
+        }
+        return __str
+    }
     //----载入图片
     func _picInAtIndex(__index:Int)->PicItem{
         let _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
         let _dict:NSDictionary = MainAction._BingoList[_currentIndex] as! NSDictionary
         
         _item._setPic(MainAction._imageUrl(_dict.objectForKey("image") as! String))
+        _item._setAnswer(MainAction._imageUrl(_dict.objectForKey("answer") as! String))
         _item._delegate = self
         return _item
     }
