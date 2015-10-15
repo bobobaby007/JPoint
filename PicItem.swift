@@ -54,9 +54,8 @@ class PicItem: UIView {
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        
         addSubview(_imageV!)
-        addSubview(_answerV!)
+       // addSubview(_answerV!)
     }
-    
     func _ready(){
         self.addGestureRecognizer(_tapG!)
     }
@@ -66,52 +65,38 @@ class PicItem: UIView {
         if _location.y > _imageV?.frame.height{
             return
         }
-        
-        
         _testIt(_location)
     }
     func _testIt(__p:CGPoint){
-//        _clickSign = ClickSign(frame: CGRect(x: __p.x, y: __p.y, width: 0, height: 0))
-//        addSubview(_clickSign!)
-//        _clickSign?._show()
-        //let _p:CGPoint = CGPoint(x: __p.x*(_answerV!._imgView!.image!.size.width/_answerV!.frame.width), y: __p.y*(_answerV!._imgView!.image!.size.height/_answerV!.frame.height))
-        //let _color:UIColor = CoreAction._getPixelColor(_p, __inImage: _answerV!._imgView!.image!)
-        let _alpha = CoreAction._getPixelAlpha(__p, __inView: _answerV!)
-       // let _color = CoreAction._getPixelColor(__p, __inView: _answerV!)
-        //let _image:UIImage = CoreAction._captureImage(_answerV!)
-       // print(_image.size,__p,_answerV!.frame.size)
-        //_imageV!._setImageByImage(_image)
-        //_answerV?.hidden=true
-        
+        _clickSign = ClickSign(frame: CGRect(x: __p.x, y: __p.y, width: 0, height: 0))
+        addSubview(_clickSign!)
+        _clickSign?._show()
+        let _p:CGPoint = CGPoint(x: __p.x*(_answerV!._imgView!.image!.size.width/_answerV!.frame.width), y: __p.y*(_answerV!._imgView!.image!.size.height/_answerV!.frame.height))
+        let _alpha:CGFloat = CoreAction._getPixelAlphaFromImage(_p, __inImage: _answerV!._imgView!.image!)
+       
         print(_alpha)
         
-        //print(_color)
-        
-        
-        
-        //self.removeGestureRecognizer(_tapG!)
-        
+        self.removeGestureRecognizer(_tapG!)
         _delegate?._clicked()
-        
-        
-        
-//        if random()%2 == 1{
-//            _delegate?._bingo()
-//        }else{
-//            _delegate?._bingoFailed()
-//        }
-        
-        
+        if _alpha == 1{
+            _delegate?._bingo()
+        }else{
+            _showFail()
+            _delegate?._bingoFailed()
+        }
         
     }
+    func _showFail(){
+        _imageV!._imgView!.image = CoreAction._converImageToGray(_imageV!._imgView!.image!)
+    }
     func _delloc(){
-    _imageV?.removeFromSuperview()
-    _imageV = nil
+        _imageV?.removeFromSuperview()
+        _imageV = nil
         _clickSign?._out()
-    _clickSign?.removeFromSuperview()
-    _clickSign = nil
-    _tapG = nil
-    _delegate = nil
+        _clickSign?.removeFromSuperview()
+        _clickSign = nil
+        _tapG = nil
+        _delegate = nil
     }
     func _setPic(__set:String){
         _imageV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict) -> Void in

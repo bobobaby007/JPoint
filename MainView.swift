@@ -39,7 +39,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     //
     var _currentIndex:Int = 0
-    var _firstIndex:Int = 25
+    var _firstIndex:Int = 40
     
     var _infoPanel:InfoPanel?
     var _infoH:CGFloat = 25
@@ -67,6 +67,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _shouldReceivePan:Bool = true
     
     var _imageUrls:Array = ["http://bingome.giccoo.com/uploadDir/image-1444735073490-9972.jpg"]
+    
+    var _failPanelV:UIView?
+    let _failPanelH:CGFloat = 40
+    var _failLabel:UILabel?
+    
+    var _waitingForNext:Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -159,10 +165,24 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self.view.addSubview(_btn_love!)
         
         
+        
+        
         _profilePanel = ProfilePanel(frame: CGRect(x: _gap, y: 60, width: self.view.frame.width-2*_gap, height: 30))
         _profilePanel?.alpha = 0
         
         self.view.addSubview(_profilePanel!)
+        
+        _failPanelV = UIView(frame: CGRect(x: 0, y: -_failPanelH-30, width: self.view.frame.width, height: _failPanelH+30))
+        _failPanelV?.backgroundColor = UIColor(white: 0, alpha: 0.4)
+        _failLabel = UILabel(frame: CGRect(x: 5, y: 5+30, width: _failPanelV!.frame.width-10, height: _failPanelH-10))
+        _failLabel?.textAlignment = NSTextAlignment.Center
+        _failLabel?.textColor = UIColor.whiteColor()
+        _failLabel?.font = UIFont.systemFontOfSize(12)
+        _failPanelV?.addSubview(_failLabel!)
+        
+        
+        
+        self.view.addSubview(_failPanelV!)
         
         
         _showBtns()
@@ -176,6 +196,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         
     }
+    //----第一次加载列表
     func _loadBingoList(){
         MainAction._getBingoList { (array) -> Void in
            // print(MainAction._BingoList.objectAtIndex(3))
@@ -219,16 +240,46 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----图片点击代理
     func _clicked() {
         //_next()
-        
     }
+    
     func _bingoFailed(){
-       // _next()
+        _showFailPanel()
     }
+    
     func _bingo(){
         _showBingo()
     }
     //---头像点击代理
     func _viewUser() {
+        
+    }
+    //---失败提示板出现
+    func _showFailPanel(){
+        _waitingForNext = true
+        _setFailtText("(>_<) 很遗憾！你没能猜中！")
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
+            }) { (comp) -> Void in
+            self._hideFailPanle()
+        }
+
+    }
+    //---失败提示板收回
+    func _hideFailPanle(){
+        UIView.animateWithDuration(0.2, delay: 0.5, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
+            }) { (comp) -> Void in
+                
+                if self._waitingForNext == true{
+                    self._next()
+                }
+        }
+        
+    }
+    //----提示语
+    func _setFailtText(__str:String){
+        _failLabel?.text = __str
         
     }
     //----
@@ -251,6 +302,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //----下一张
     func _next(){
+        
         _btnsIn = false
         self._infoPanel?.alpha=0
         self._profilePanel?.alpha=0
@@ -286,7 +338,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func _showIndex(__index:Int){
         //return
         if __index >= MainAction._BingoList.count{
-           // return
+            return
         }
         _currentIndex = __index
         
@@ -310,9 +362,15 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }
         _currentPicItem = _nextPicItem!
         _currentPicItem?._ready()
-        _nextPicItem = _thirdPicItem!
+        
+        if __index < MainAction._BingoList.count-1{
+            _nextPicItem = _thirdPicItem!
+            
+        }
+        
         
         _thirdPicItem = _picInAtIndex(_currentIndex+2)
+        
         _thirdPicItem?.alpha = 0
         _thirdPicItem?.center = CGPoint(x: self.view.frame.width/2, y: _bottomY)
         
@@ -355,10 +413,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         return __str
     }
     //----载入图片
-    func _picInAtIndex(__index:Int)->PicItem{
+    func _picInAtIndex(__index:Int)->PicItem?{
+        if __index >= MainAction._BingoList.count{
+             return nil
+        }
         let _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
         let _dict:NSDictionary = MainAction._BingoList[_currentIndex] as! NSDictionary
-        
         _item._setPic(MainAction._imageUrl(_dict.objectForKey("image") as! String))
         _item._setAnswer(MainAction._imageUrl(_dict.objectForKey("answer") as! String))
         _item._delegate = self
@@ -394,7 +454,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         case UIGestureRecognizerState.Changed:
             
             
-            
+            _waitingForNext = false
     
             UIView.beginAnimations("go", context: nil)
             

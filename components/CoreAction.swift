@@ -17,28 +17,36 @@ class CoreAction {
         return timestamp
     }
     
-    static func _getPixelColor(pos: CGPoint,__inView:UIView) -> UIColor {
-        let __inImage:UIImage = _captureImage(__inView)
-        let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
-        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
-        //print(data)
-        let pixelInfo: Int = ((Int(__inImage.size.width) * Int(pos.y)) + Int(pos.x)) * 4
-        let r = CGFloat(data[pixelInfo]) / CGFloat(255.0)
-        let g = CGFloat(data[pixelInfo+1]) / CGFloat(255.0)
-        let b = CGFloat(data[pixelInfo+2]) / CGFloat(255.0)
-        let a = CGFloat(data[pixelInfo+3]) / CGFloat(255.0)
-        return UIColor(red: r, green: g, blue: b, alpha: a)
+    static func _converImageToGray(__inImage:UIImage)->UIImage{
+        let _rect:CGRect = CGRectMake(0, 0, __inImage.size.width, __inImage.size.height)
+        let _colorSpace:CGColorSpaceRef = CGColorSpaceCreateDeviceGray()!
+        //let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.None.rawValue)
+        // Create bitmap content with current image size and grayscale colorspace
+        let _context:CGContextRef = CGBitmapContextCreate(nil, Int(__inImage.size.width), Int(__inImage.size.height), 8, 0, _colorSpace,CGImageAlphaInfo.None.rawValue)!
+        // Draw image into current context, with specified rectangle
+        // using previously defined context (with grayscale colorspace)
+        CGContextDrawImage(_context, _rect, __inImage.CGImage)
+        // Create bitmap image info from pixel data in current context
+        let _imageRef:CGImageRef = CGBitmapContextCreateImage(_context)!
+        
+        let img:UIImage = UIImage(CGImage: _imageRef)
+        
+        return img;
     }
-    static func _getPixelAlpha(pos: CGPoint,__inView:UIView) -> CGFloat {
-        let __inImage:UIImage = _captureImage(__inView)
+    static func _getPixelAlphaFromImage(pos: CGPoint,__inImage:UIImage) -> CGFloat {
+        
         let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
         let pixelInfo: Int = ((Int(__inImage.size.width) * Int(pos.y)) + Int(pos.x)) * 4
+//        let r = CGFloat(data[pixelInfo]) / CGFloat(255.0)
+//        let g = CGFloat(data[pixelInfo+1]) / CGFloat(255.0)
+//        let b = CGFloat(data[pixelInfo+2]) / CGFloat(255.0)
         let a = CGFloat(data[pixelInfo+3]) / CGFloat(255.0)
+       // print(UIScreen.mainScreen().scale,__inImage.size.width)
         return a
     }
     static func _captureImage(__view:UIView)->UIImage{
-        UIGraphicsBeginImageContextWithOptions(__view.bounds.size, false, 0.0);
+        UIGraphicsBeginImageContextWithOptions(__view.frame.size, false, 0.0);
         __view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
         let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
