@@ -29,7 +29,7 @@ class ClickSign: UIView{
         _circle_big?.center = CGPoint(x: 0, y: 0)
         _circle_big?.alpha = 0
         _circle_big!.layer.shadowColor = UIColor.blackColor().CGColor
-        _circle_big!.layer.shadowOpacity = 0.8
+        _circle_big!.layer.shadowOpacity = 0.2
         _circle_big?.layer.shadowRadius = 5
         addSubview(_circle_big!)
         
@@ -39,7 +39,7 @@ class ClickSign: UIView{
         _circle_small?.center = CGPoint(x: 0, y: 0)
         _circle_small?.alpha = 0
         _circle_small!.layer.shadowColor = UIColor.blackColor().CGColor
-        _circle_small!.layer.shadowOpacity = 0.8
+        _circle_small!.layer.shadowOpacity = 0.2
         _circle_small?.layer.shadowRadius = 5
         addSubview(_circle_small!)
         
@@ -48,7 +48,7 @@ class ClickSign: UIView{
         _heart?.center = CGPoint(x: 0, y: 0)
         _heart?.alpha = 0
         _heart!.layer.shadowColor = UIColor.blackColor().CGColor
-        _heart!.layer.shadowOpacity = 0.8
+        _heart!.layer.shadowOpacity = 0.2
         _heart?.layer.shadowRadius = 8
         addSubview(_heart!)
         
@@ -70,7 +70,7 @@ class ClickSign: UIView{
         //print(_breathTime)
 
         if _breathTime>2{
-            _out()
+            //_out()
         // return
         }
         

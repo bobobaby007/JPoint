@@ -26,7 +26,6 @@ class BingoView:UIViewController {
     weak var _delagate:BingoView_delegate?
     var _bingoLable:UILabel?
     
-   
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -139,21 +138,18 @@ class BingoView:UIViewController {
         _btn_notNow?.transform = CGAffineTransformMakeScale(0.1, 0.1)
         _btn_notNow?.alpha = 0
         
-        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_talkNow?.transform = CGAffineTransformMakeScale(1, 1)
             self._btn_talkNow?.alpha=1
-           
+            
             }) { (stop) -> Void in
-                
+        
         }
-        UIView.animateWithDuration(1.3, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-           
+        UIView.animateWithDuration(0.8, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_notNow?.transform = CGAffineTransformMakeScale(1, 1)
             self._btn_notNow?.alpha=1
             }) { (stop) -> Void in
-                
         }
-        
     }
     //－－－－－说明文字出现
     func _labelOut(){
@@ -161,7 +157,6 @@ class BingoView:UIViewController {
         UIView.animateWithDuration(1, delay: 0.4, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._bingoLable?.alpha=1
             }) { (stop) -> Void in
-                
         }
     }
     //---头像出现

@@ -49,6 +49,7 @@ class ViewController: UIViewController {
         _mainView = MainView()
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
+        
         _mainView?._loadBingoList()
         
         

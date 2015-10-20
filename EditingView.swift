@@ -201,6 +201,12 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             let _answerImg:UIImage = _drawingBoard!._captureImage()
             MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media)
            // CoreAction._uploadImage()
+            if _shouldBeClosed(){
+                
+            }else{
+                
+            }
+            
             break
         default:
             break

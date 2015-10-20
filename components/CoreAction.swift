@@ -13,7 +13,7 @@ class CoreAction {
     
     static func _timeStr(__timestamp:String)->String {
         let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
-    
+        print(timestamp)
         return timestamp
     }
     
@@ -36,6 +36,9 @@ class CoreAction {
     static func _getPixelAlphaFromImage(pos: CGPoint,__inImage:UIImage) -> CGFloat {
         
         let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
+        
+        
+        
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
         let pixelInfo: Int = ((Int(__inImage.size.width) * Int(pos.y)) + Int(pos.x)) * 4
 //        let r = CGFloat(data[pixelInfo]) / CGFloat(255.0)

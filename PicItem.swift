@@ -23,6 +23,7 @@ class PicItem: UIView {
     weak var _delegate:PicItemDelegate?
     var _clickSign:ClickSign?
     let _cornerRadius:CGFloat = 10
+    var _dict:NSDictionary?
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -71,10 +72,15 @@ class PicItem: UIView {
         _clickSign = ClickSign(frame: CGRect(x: __p.x, y: __p.y, width: 0, height: 0))
         addSubview(_clickSign!)
         _clickSign?._show()
+        if _answerV!._imgView!.image == nil{
+            self.removeGestureRecognizer(_tapG!)
+            _delegate?._bingoFailed()
+            return
+        }
         let _p:CGPoint = CGPoint(x: __p.x*(_answerV!._imgView!.image!.size.width/_answerV!.frame.width), y: __p.y*(_answerV!._imgView!.image!.size.height/_answerV!.frame.height))
         let _alpha:CGFloat = CoreAction._getPixelAlphaFromImage(_p, __inImage: _answerV!._imgView!.image!)
        
-        print(_alpha)
+       // print(_alpha)
         
         self.removeGestureRecognizer(_tapG!)
         _delegate?._clicked()
@@ -98,17 +104,35 @@ class PicItem: UIView {
         _tapG = nil
         _delegate = nil
     }
+    
+    //---设置成加载状态
+    func _setToLoading(){
+        _imageV!._imgView!.backgroundColor = UIColor(white: 1, alpha: 0.2)
+    }
+    //
+    func _setToNone(){
+        print("设为图片破裂")
+        _imageV!._imgView!.backgroundColor = UIColor(white: 0.8, alpha: 0.2)
+        
+//        _imageV?._setPic(NSDictionary(objects: ["image_1","file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
+//            
+//        })
+    }
     func _setPic(__set:String){
-        _imageV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict) -> Void in
-            
+        _imageV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict:NSDictionary) -> Void in
+            if dict.objectForKey("info") as! String == "failed"{
+                print("底图加载失败！")
+                self._setToNone()
+            }
         })
+        
     }
     func _setAnswer(__set:String){
         _answerV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict) -> Void in
-            
+            if dict.objectForKey("info") as! String == "failed"{
+                print("答案图加载失败")
+            }
         })
-        
-        
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

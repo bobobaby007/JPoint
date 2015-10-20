@@ -56,11 +56,16 @@ class PicView: UIScrollView,UIScrollViewDelegate{
             ImageLoader.sharedLoader.imageForUrl(__pic.objectForKey("url") as! String, completionHandler: { (image, url) -> () in
                // _setImage(image)
                 //println("")
+                if image==nil{
+                    //--加载失败
+                    print("图片加载失败:",__pic.objectForKey("url"))
+                    __block(NSDictionary(objects: ["failed"], forKeys: ["info"]))
+                    return
+                }
                 if self._imgView != nil{
                     //self._setImageByImage(image!)
                     self._imgView?.image=image
-                    __block(NSDictionary())
-                    
+                   __block(NSDictionary(objects: ["success"], forKeys: ["info"]))
                 }else{
                     print("out")
                 }

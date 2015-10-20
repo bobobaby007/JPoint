@@ -31,11 +31,12 @@ class MainAction {
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
             //let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
             //print(_str)
+            
             do{
                 let jsonResult:NSDictionary = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers) as! NSDictionary
                 
-               _BingoList = _BingoList.arrayByAddingObjectsFromArray(jsonResult.objectForKey("info") as! NSArray as [AnyObject]) as NSArray
-                
+               //_BingoList = _BingoList.arrayByAddingObjectsFromArray(jsonResult.objectForKey("info") as! NSArray as [AnyObject]) as NSArray
+                _BingoList = jsonResult.objectForKey("info") as! NSArray
                 __block(NSArray(array: jsonResult.objectForKey("info") as! NSArray))
                 
                // print(jsonResult.objectForKey("info"))
