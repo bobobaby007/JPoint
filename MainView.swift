@@ -73,7 +73,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _failLabel:UILabel?
     
     var _isFirstLoaded:Bool = true
-    var _waitingForNext:Bool = false
+    var _waitingForNext:Bool = false // －－－提示面板缩回后是否要展示下一张
+    var _listLoaded:Bool = false // 列表下载完毕
     
     var _loadingV:UIView?
     
@@ -208,13 +209,16 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             dispatch_async(dispatch_get_main_queue(), {
                 if self._isFirstLoaded{
                     self._showMainPage()
-                    self._showIndex(self._firstIndex)
+                    
                     self._isFirstLoaded=false
-                    self._currentIndex = self._firstIndex
+                    self._currentIndex = self._firstIndex-1
+                    self._showIndex(self._currentIndex)
+                    
                 }else{
                     self._currentIndex = self._firstIndex-1
+                    
                 }
-                
+                self._listLoaded = true
                 self._removeLoading()
                 
             })
@@ -345,9 +349,14 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----下一张
     func _next(){
         
+        
+        
         _btnsIn = false
         self._infoPanel?.alpha=0
         self._profilePanel?.alpha=0
+        
+        
+        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             if self._currentPicItem != nil{
                 self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: -100)
@@ -363,7 +372,14 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             //self._thirdPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY-self._bottomOut)
         }) { (finished) -> Void in
-            self.didMoveStop()
+            if self._listLoaded == true{
+                self._listLoaded = false
+                self._showIndex(self._currentIndex)
+                return
+            }else{
+                self.didMoveStop()
+            }
+            
         }
     }
     //---向上移动完成
@@ -415,7 +431,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //return
         
         _currentIndex = __index
-        
+        if _currentIndex < 0{
+            _currentIndex = 0
+        }
         
         _checkItems()
         
