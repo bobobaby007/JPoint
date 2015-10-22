@@ -11,10 +11,83 @@ import UIKit
 
 class CoreAction {
     
-    static func _timeStr(__timestamp:String)->String {
-        let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
-        print(timestamp)
+    static func _timeStr(__timeStr:String)->String {
+        //let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.timeZone = NSTimeZone.localTimeZone()
+        //let _date:NSDate = formatter.dateFromString(__timeStr)!
+        let timestamp = formatter.stringFromDate(NSDate())
+        //print(_date,__timeStr,timestamp,dateDiff(__timeStr))
         return timestamp
+    }
+    
+    static func _dateDiff(dateStr:String) -> String {
+        let f:NSDateFormatter = NSDateFormatter()
+        f.timeZone = NSTimeZone.localTimeZone()
+        f.dateFormat = "yyyy-M-dd'T'HH:mm:ss.SSSZZZ"
+        
+        let now = f.stringFromDate(NSDate())
+        let startDate = f.dateFromString(dateStr)
+        let endDate = f.dateFromString(now)
+        let calendar: NSCalendar = NSCalendar.currentCalendar()
+        
+        
+        
+        
+        //let calendarUnits =
+        
+        let dateComponents = calendar.components([NSCalendarUnit.WeekOfMonth,NSCalendarUnit.Day,NSCalendarUnit.Hour,NSCalendarUnit.Minute,NSCalendarUnit.Second], fromDate: startDate!, toDate: endDate!, options: NSCalendarOptions.init(rawValue: 0))
+        
+        let weeks = abs(dateComponents.weekOfMonth)
+        let days = abs(dateComponents.day)
+        let hours = abs(dateComponents.hour)
+        let min = abs(dateComponents.minute)
+        let sec = abs(dateComponents.second)
+        
+        var timeAgo = ""
+        
+        if (sec > 0){
+            if (sec > 1) {
+                timeAgo = "\(sec)秒前"// Seconds Ago"
+            } else {
+                timeAgo = "\(sec)秒前"// Seconds Ago"
+            }
+        }
+        
+        if (min > 0){
+            if (min > 1) {
+                timeAgo = "\(min)分钟前"// Minutes Ago"
+            } else {
+                timeAgo = "\(min)分钟前"// Minute Ago"
+            }
+        }
+        
+        if(hours > 0){
+            if (hours > 1) {
+                timeAgo = "\(hours)小时前"// Hours Ago"
+            } else {
+                timeAgo = "\(hours)小时前"// Hour Ago"
+            }
+        }
+        
+        if (days > 0) {
+            if (days > 1) {
+                timeAgo = "\(days)天前"// Days Ago"
+            } else {
+                timeAgo = "\(days)天前"// Day Ago"
+            }
+        }
+        
+        if(weeks > 0){
+            if (weeks > 1) {
+                timeAgo = "\(weeks)周前"// Weeks Ago"
+            } else {
+                timeAgo = "\(weeks)周前"// Week Ago"
+            }
+        }
+        
+        return timeAgo;
     }
     
     static func _converImageToGray(__inImage:UIImage)->UIImage{

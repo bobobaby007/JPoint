@@ -209,7 +209,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         let _h:CGFloat = _inputer!._getHeightOfBar()!
         
         UIView.animateWithDuration(0.35) { () -> Void in
-            _tableView?.transform = CGAffineTransformMakeTranslation(0,_inputer!._heightOfClosed-_h)
+            self._tableView?.transform = CGAffineTransformMakeTranslation(0,self._inputer!._heightOfClosed-_h)
         }
         
         
@@ -217,7 +217,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     
     func _inputer_closed() {
         UIView.animateWithDuration(0.35) { () -> Void in
-            _tableView?.transform = CGAffineTransformMakeTranslation(0,0)
+            self._tableView?.transform = CGAffineTransformMakeTranslation(0,0)
         }
         
         
@@ -225,7 +225,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     func _inputer_opened() {
         let _h:CGFloat = _inputer!._getHeightOfBar()!
         UIView.animateWithDuration(0.35) { () -> Void in
-            _tableView?.transform = CGAffineTransformMakeTranslation(0,_inputer!._heightOfClosed-_h)
+            self._tableView?.transform = CGAffineTransformMakeTranslation(0,self._inputer!._heightOfClosed-_h)
         }
         
     }

@@ -63,7 +63,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
-    let _defaultQuestions:Array = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道"]
+    let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道"]
     
     var _shouldReceivePan:Bool = true
     
@@ -212,7 +212,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     
                     self._isFirstLoaded=false
                     self._currentIndex = self._firstIndex-1
-                    self._showIndex(self._currentIndex)
+                    self._next()
+                    //self._showIndex(self._currentIndex)
                     
                 }else{
                     self._currentIndex = self._firstIndex-1
@@ -372,18 +373,19 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             //self._thirdPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY-self._bottomOut)
         }) { (finished) -> Void in
-            if self._listLoaded == true{
-                self._listLoaded = false
-                self._showIndex(self._currentIndex)
-                return
-            }else{
+            
                 self.didMoveStop()
-            }
+            
             
         }
     }
     //---向上移动完成
     func didMoveStop(){
+        if self._listLoaded == true{
+            self._listLoaded = false
+            self._showIndex(self._currentIndex)
+            return
+        }
         if _currentIndex >= MainAction._BingoList.count{
             return
         }
@@ -449,7 +451,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_currentPicItem!.center.y + _picItemW/2 + _gap + _infoH)
             _infoPanel?.alpha = 0
-            _infoPanel?._setTime(CoreAction._timeStr(_dict.objectForKey("create_at") as! String))
+            _infoPanel?._setTime(CoreAction._dateDiff(_dict.objectForKey("create_at") as! String))
             _infoPanel?._setClick(_dict.objectForKey("view") as! Int)
             _infoPanel?._setLike(_dict.objectForKey("over") as! Int)
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH)
@@ -474,7 +476,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }
         }
         
-        UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._CentralY)
             self._nextPicItem?.center = CGPoint(x: self.view.frame.width/2, y: self._bottomY-self._bottomOut)
             self._currentPicItem?.alpha = 1
@@ -489,7 +491,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     func _getQuestionByString(__str:String)->String{
         if __str == ""||__str == "问题"{
-            return _defaultQuestions[random()%_defaultQuestions.count]
+            //let _n:Int = _defaultQuestions.count
+            let _str:String =  _defaultQuestions[random()%_defaultQuestions.count] as! String
+            return    _str
         }
         return __str
     }
@@ -746,8 +750,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._editingViewC?.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             }) { (array) -> Void in
         }
-        UIView.animateWithDuration(1, delay: 0.6, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0.25*3.14)
+        self._btn_plus?.transform = CGAffineTransformMakeScale(1.2, 1.2)
+        UIView.animateWithDuration(0.4, delay: 0.6, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            
             self._btn_plus?.backgroundColor = UIColor.redColor()
             
             self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0.25*3.14)

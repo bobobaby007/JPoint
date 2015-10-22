@@ -245,7 +245,7 @@ class ViewController: UIViewController {
         _leftPanel?.setup()
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._mainView?.view.transform = CGAffineTransformMakeTranslation(self.view.frame.width-_distanceToSwape/2, 0)
+            self._mainView?.view.transform = CGAffineTransformMakeTranslation(self.view.frame.width-self._distanceToSwape/2, 0)
 
             }) { (comp) -> Void in
                 
