@@ -13,7 +13,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
     var _tableView:UITableView?
-    var _users:NSMutableArray?
+    var _chats:NSArray?
     var _datained:Bool = false
     var _topView:UIView?
     var _btn_back:UIButton?
@@ -45,7 +45,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         
         
         
-        _users = NSMutableArray()
+        _chats = NSArray()
         
         _tableView = UITableView(frame: CGRect(x: 0, y: 80, width: self.view.frame.width, height: self.view.frame.height-80))
         _tableView?.clipsToBounds = false
@@ -107,21 +107,16 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         if _datained{
             return
         }
-        
-        _users = NSMutableArray()
-        
-        for _ in 0...12{
-            _users?.addObject(NSDictionary(objects: ["profile","我是的得给","[match]已于 9/12 bingo"], forKeys: ["image","userName","content"]))
+        MainAction._getBingoChats { (array) -> Void in
+            self._chats = array
+            self._tableView?.reloadData()
+            self._datained = true
         }
         
         
-        _tableView?.reloadData()
-        
-        _datained = true
-        
     }
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _users!.count
+        return _chats!.count
     }
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 90
@@ -130,11 +125,12 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         let _cell:ChatCell = _tableView?.dequeueReusableCellWithIdentifier("ChatCell") as! ChatCell
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60))
         
-        let _dict:NSDictionary = _users?.objectAtIndex(indexPath.row) as! NSDictionary
+        let _dict:NSDictionary = _chats?.objectAtIndex(indexPath.row) as! NSDictionary
         
         _cell._setPic(_dict.objectForKey("image") as! String)
         _cell._setName(_dict.objectForKey("userName") as! String)
         _cell._setContent(_dict.objectForKey("content") as! String)
+        
         return _cell
     }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {

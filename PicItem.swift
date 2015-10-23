@@ -119,7 +119,7 @@ class PicItem: UIView {
 //        })
     }
     func _setPic(__set:String){
-        _imageV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict:NSDictionary) -> Void in
+        _imageV?._setPic(NSDictionary(objects: [__set,"file"], forKeys: ["url","type"]), __block: { (dict:NSDictionary) -> Void in
             if dict.objectForKey("info") as! String == "failed"{
                 print("底图加载失败！")
                 self._setToNone()
@@ -128,7 +128,7 @@ class PicItem: UIView {
         
     }
     func _setAnswer(__set:String){
-        _answerV?._setPic(NSDictionary(objects: [__set,"fromWeb"], forKeys: ["url","type"]), __block: { (dict) -> Void in
+        _answerV?._setPic(NSDictionary(objects: [__set,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             if dict.objectForKey("info") as! String == "failed"{
                 print("答案图加载失败")
             }

@@ -29,7 +29,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         setup()
-        
+        //print(CoreAction._version())
         _showMainView()
         
         // Do any additional setup after loading the view, typically from a nib.
@@ -41,19 +41,11 @@ class ViewController: UIViewController {
         
         ViewController._self = self
         
-        
-        
-        
-        
-        
         _mainView = MainView()
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
         
         _mainView?._loadBingoList()
-        
-        
-        
         
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
         self.view.addGestureRecognizer(_panG!)

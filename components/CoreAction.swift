@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 class CoreAction {
-    
+    //-----当前时间转换成字符串
     static func _timeStr(__timeStr:String)->String {
         //let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
         let formatter = NSDateFormatter()
@@ -21,7 +21,7 @@ class CoreAction {
         //print(_date,__timeStr,timestamp,dateDiff(__timeStr))
         return timestamp
     }
-    
+    //-----返回相距当前时间
     static func _dateDiff(dateStr:String) -> String {
         let f:NSDateFormatter = NSDateFormatter()
         f.timeZone = NSTimeZone.localTimeZone()
@@ -31,10 +31,6 @@ class CoreAction {
         let startDate = f.dateFromString(dateStr)
         let endDate = f.dateFromString(now)
         let calendar: NSCalendar = NSCalendar.currentCalendar()
-        
-        
-        
-        
         //let calendarUnits =
         
         let dateComponents = calendar.components([NSCalendarUnit.WeekOfMonth,NSCalendarUnit.Day,NSCalendarUnit.Hour,NSCalendarUnit.Minute,NSCalendarUnit.Second], fromDate: startDate!, toDate: endDate!, options: NSCalendarOptions.init(rawValue: 0))
@@ -89,7 +85,7 @@ class CoreAction {
         
         return timeAgo;
     }
-    
+    //－－－－－－－把图片变成灰色
     static func _converImageToGray(__inImage:UIImage)->UIImage{
         let _rect:CGRect = CGRectMake(0, 0, __inImage.size.width, __inImage.size.height)
         let _colorSpace:CGColorSpaceRef = CGColorSpaceCreateDeviceGray()!
@@ -106,6 +102,7 @@ class CoreAction {
         
         return img;
     }
+    //－－－－获取图片像素alpha值
     static func _getPixelAlphaFromImage(pos: CGPoint,__inImage:UIImage) -> CGFloat {
         
         let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
@@ -121,6 +118,7 @@ class CoreAction {
        // print(UIScreen.mainScreen().scale,__inImage.size.width)
         return a
     }
+    //------截图
     static func _captureImage(__view:UIView)->UIImage{
         UIGraphicsBeginImageContextWithOptions(__view.frame.size, false, 0.0);
         __view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
@@ -128,6 +126,99 @@ class CoreAction {
         UIGraphicsEndImageContext();
         return img;
     }
+    //-----获取版本号
+    static func _version() -> String {
+        let dictionary = NSBundle.mainBundle().infoDictionary!
+        let version = dictionary["CFBundleShortVersionString"] as! String
+        let build = dictionary["CFBundleVersion"] as! String
+        return "\(version) build \(build)"
+    }
+    
+    
+    
+    //-----保存字典到文件
+    static func _saveDictTo(__dict:NSDictionary,__fileName:String){
+        let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
+        let _documentDirectory = _paths.objectAtIndex(0) as! NSString
+        let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
+        __dict.writeToFile(_path, atomically: false)
+    }
+    //-----从文件获取字典
+    static func _getDict(__fileName:String)->NSDictionary?{
+        let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
+        let _documentDirectory = _paths.objectAtIndex(0) as! NSString
+        let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
+        if let _dict = NSDictionary(contentsOfFile: _path){
+            return _dict
+        }else{
+            return nil
+        }
+    }
+    //-----保存数组到文件
+    static func _saveArrayTo(__array:NSArray,__fileName:String){
+        let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
+        let _documentDirectory = _paths.objectAtIndex(0) as! NSString
+        let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
+        __array.writeToFile(_path, atomically: false)
+    }
+    //-----从文件获取数组
+    static func _getArray(__fileName:String)->NSArray?{
+        let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
+        let _documentDirectory = _paths.objectAtIndex(0) as! NSString
+        let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
+        if let _array = NSArray(contentsOfFile: _path){
+            return _array
+        }else{
+            return nil
+        }
+    }
+    //-----删除文件
+    static func _deleteFile(__fileName:String){
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true) as NSArray
+        let documentsDirectory = paths.objectAtIndex(0) as! NSString
+        let path = documentsDirectory.stringByAppendingPathComponent(__fileName)
+        let fileManager = NSFileManager.defaultManager()
+        do{
+            try fileManager.removeItemAtPath(path)
+        }catch{
+            print(error)
+        }
+    }
+    //----复制默认文件到
+    static func _copyDefaultFile(__fileName:String, __toFile:String){
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true) as NSArray
+        let documentsDirectory = paths.objectAtIndex(0) as! NSString
+        let path = documentsDirectory.stringByAppendingPathComponent(__fileName)
+        let fileManager = NSFileManager.defaultManager()
+        // If it doesn't, copy it from the default file in the Bundle
+        if let bundlePath = NSBundle.mainBundle().pathForResource(__fileName, ofType: "plist") {
+            
+            let resultDictionary = NSMutableDictionary(contentsOfFile: bundlePath)
+            print("Bundle \(__fileName).plist file is --> \(resultDictionary?.description)")
+            do{
+              try fileManager.copyItemAtPath(bundlePath, toPath: path)
+            }catch{
+                print(error)
+            }
+        } else {
+            print("GameData.plist not found. Please, make sure it is part of the bundle.")
+        }
+        
+    }
+    //----判断文件是否存在于文档文件夹中   
+    static func _fileExistAtDocument(__fileName:String)->Bool{
+        let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
+        let _documentDirectory = _paths.objectAtIndex(0) as! NSString
+        let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
+        let _fileManager = NSFileManager.defaultManager()
+        return _fileManager.fileExistsAtPath(_path)
+    }
+    
+    
+    
+    
+    
+    
     
     
     

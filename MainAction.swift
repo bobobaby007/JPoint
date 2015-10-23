@@ -21,7 +21,12 @@ class MainAction {
     static let _Post_Type_Camera:String = "Camera"
     static var _BingoList:NSArray = []   //首页列表
     
+    static var _userInfo:NSMutableDictionary?
     
+    static func _getToken()->String{
+        
+        return _token
+    }
     //-----获取首页列表
     static func _getBingoList(__block:(NSArray)->Void){
         let request = NSMutableURLRequest(URL: NSURL(string:_BasicDomain + "/" + _Version + "/" + _URL_BingoList)!)
@@ -80,6 +85,24 @@ class MainAction {
             task.resume()
         }
     }
+    
+    //------获取bingos列表
+    static func _getBingoChats(__block:(NSArray)->Void){
+        
+        //CoreAction._deleteFile("BingoChatsList")
+        
+        
+        if CoreAction._fileExistAtDocument("BingoChatsList"){
+            
+        }else{
+            CoreAction._copyDefaultFile("BingoChatsList", __toFile: "BingoChatsList")
+        }
+        let _array = CoreAction._getArray("BingoChatsList")
+        
+        __block(_array!)
+        
+    }
+    
     //-----获取图片完整url
     
     static func _imageUrl(__str:String)->String{
