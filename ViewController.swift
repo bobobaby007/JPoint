@@ -42,6 +42,7 @@ class ViewController: UIViewController {
         ViewController._self = self
         
         _mainView = MainView()
+        self.view.backgroundColor = UIColor.blackColor()
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
         
@@ -74,13 +75,19 @@ class ViewController: UIViewController {
             
             
             if (_touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0){//----左向右滑动
-                _leftIn()
+                if _currentPage=="mainView"{
+                 _leftIn()
+                }
+                _startTransOfRightView =  _rightPanel?.view.transform
                 _isChanging = true
                 return
             }
             if (_touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0){//----右向左滑动
-                _rightIn()
-                _startTransOfRightView = _rightPanel?.view.transform
+                if _currentPage=="mainView"{
+                    _rightIn()
+                }
+                _startTransOfRightView =  _rightPanel?.view.transform
+            
                 _isChanging = true
                 return
             }
@@ -95,14 +102,14 @@ class ViewController: UIViewController {
                 var _toTranRight:CGAffineTransform? = _startTransOfRightView
                 if _touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0{//----左向右滑动
                     if _currentPage=="mainView"{
-                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
+                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, min(_offset.x,self.view.frame.width), 0)
                     }
                     if _currentPage=="rightPanel"{
                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
                         
                        _rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape+_offset.x/6, height: 0)
                         
-                        _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offset.x, 0)
+                        _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, min(_offset.x*1.04,self.view.frame.width), 0)
                     }
                     if _currentPage == "leftPanel"{
                         return
@@ -112,9 +119,9 @@ class ViewController: UIViewController {
                 if _touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0{//----右向左滑动
                     if _currentPage=="mainView"{
                         _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
-                        var _offRight:CGFloat = _offset.x*1.5-50
-                        if _offRight < -self.view.frame.width-50{
-                            _offRight = -self.view.frame.width-50
+                        var _offRight:CGFloat = _offset.x*1.5+self._distanceToSwape/2
+                        if _offRight < -self.view.frame.width+self._distanceToSwape/2{
+                            _offRight = -self.view.frame.width+self._distanceToSwape/2
                         }
                         
                         _rightPanel?.view.layer.shadowOffset = CGSize(width: _offset.x/10, height: 0)
@@ -221,7 +228,7 @@ class ViewController: UIViewController {
             self.addChildViewController(_rightPanel!)
             _rightPanel?.view.frame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             _rightPanel?.view.layer.shadowColor = UIColor.blackColor().CGColor
-            _rightPanel?.view.layer.shadowOpacity = 0.7
+            _rightPanel?.view.layer.shadowOpacity = 0.4
             _rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
             _rightPanel?.view.layer.shadowRadius = 15
             self.view.addSubview(_rightPanel!.view)

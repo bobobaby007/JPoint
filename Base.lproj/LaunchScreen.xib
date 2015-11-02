@@ -15,12 +15,12 @@
                     <rect key="frame" x="0.0" y="0.0" width="480" height="480"/>
                     <animations/>
                 </imageView>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Bingome-logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="MMG-dc-YTl">
-                    <rect key="frame" x="210" y="210" width="60" height="60"/>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo_white.png" translatesAutoresizingMaskIntoConstraints="NO" id="MMG-dc-YTl">
+                    <rect key="frame" x="214" y="211" width="52" height="58"/>
                     <animations/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="60" id="6qn-3H-yu7"/>
-                        <constraint firstAttribute="height" constant="60" id="lcj-Nd-hyw"/>
+                        <constraint firstAttribute="width" constant="52" id="6qn-3H-yu7"/>
+                        <constraint firstAttribute="height" constant="58" id="lcj-Nd-hyw"/>
                     </constraints>
                 </imageView>
             </subviews>
@@ -40,7 +40,7 @@
         </view>
     </objects>
     <resources>
-        <image name="Bingome-logo.png" width="1024" height="1024"/>
         <image name="bg.jpg" width="640" height="1136"/>
+        <image name="logo_white.png" width="52" height="58"/>
     </resources>
 </document>

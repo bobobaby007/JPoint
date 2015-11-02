@@ -6,6 +6,9 @@
 //  Copyright © 2015年 4view. All rights reserved.
 //
 
+
+
+
 import Foundation
 import UIKit
 
@@ -13,6 +16,8 @@ protocol BingoUserItemAtMyList_delegate:NSObjectProtocol{
     func _needToTalk(__id:String)
     func _showUser(__index:Int)
 }
+
+//--------------在用户图列列表中的用户单元
 
 class BingoUserItemAtMyList: UIView {
     var inited:Bool = false

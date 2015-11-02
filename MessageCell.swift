@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+
+//-----------消息单元
 class MessageCell: UITableViewCell {
     var inited:Bool = false
     var _profileImg:PicView?
@@ -47,6 +49,8 @@ class MessageCell: UITableViewCell {
             
             switch _type!{
             case MessageCell._Type_Match:
+                
+                
                 _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
                 _profileImg?.layer.cornerRadius = 30
                 _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill

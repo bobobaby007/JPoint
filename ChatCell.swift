@@ -15,7 +15,7 @@ class ChatCell: UITableViewCell {
     var _bgColorV:UIView?
     var _nameLabel:UILabel?
     var _contentLabel:UILabel?
-    
+    var _uid:String?
     
     func initWidthFrame(__frame:CGRect){
         if inited{
@@ -60,7 +60,9 @@ class ChatCell: UITableViewCell {
 //    override func setSelected(selected: Bool, animated: Bool) {
 //       
 //    }
-    
+    func _setId(__id:String){
+        _uid = __id
+    }
     func _setName(__name:String){
         _nameLabel?.text = __name
     }
@@ -69,8 +71,10 @@ class ChatCell: UITableViewCell {
     }
     func _setPic(__picUrl:String){
         
-        _profileImg?._setImage(__picUrl)
-        _profileImg?._refreshView()
+        _profileImg?._setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
+            
+        })
+        
     }
 //    override func setHighlighted(highlighted: Bool, animated: Bool) {
 //        

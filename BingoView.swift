@@ -37,8 +37,8 @@ class BingoView:UIViewController {
 //            
 //        })
 //    }
-    func _setBingoImage(__pic:NSDictionary){
-        _bingoImg?._setPic(__pic, __block: { (dict) -> Void in
+    func _setBingoImage(__pic:String){
+        _bingoImg?._setPic(NSDictionary(objects: [__pic,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             
         })
     }
@@ -212,7 +212,6 @@ class BingoView:UIViewController {
                 let _lengthY:CGFloat = -100+CGFloat(random()%200)
                 
                 
-                
                 _v.transform = CGAffineTransformMakeScale(2, 2)
                 _v.center = CGPoint(x: self.view.bounds.width/2+_length, y: self.view.bounds.height/2+_lengthY-200)
             }, completion: { (stop) -> Void in
@@ -264,8 +263,7 @@ class BingoView:UIViewController {
     func _notNow(){
         _clearColors()
         
-            self._bingoImg?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2-50)
-            self._bingoImg?.alpha=0
+        
             self._bingoView?.alpha=0
             //self._blurV.alpha = 0
             
@@ -276,9 +274,17 @@ class BingoView:UIViewController {
             self._btn_notNow?.alpha=0
             
             self._bingoLable?.alpha = 0
-            
-        
+            self._blurV?.hidden = true
+            UIView.animateWithDuration(0.4, animations: { () -> Void in
+                self._bingoImg?.center = CGPoint(x: self.view.frame.width-30, y: 10)
+                self._bingoImg?.transform = CGAffineTransformMakeScale(0.3, 0.3)
+                //self._bingoImg?.alpha=0.6
+                }) { (com) -> Void in
+                    
+            }
             self._delagate?._bingoViewOut()
+        
+        
         
     }
     

@@ -15,6 +15,8 @@ class LeftPanel: UIViewController {
     var _profileImg:PicView?
     var _label_edit:UILabel?
     var _label_name:UILabel?
+    
+    var _btn_profile:UIButton?
     var _btn_gingoMe:UIButton?
     var _btn_bingoList:UIButton?
     var _btn_imgList:UIButton?
@@ -30,10 +32,7 @@ class LeftPanel: UIViewController {
         }
         
         self.view.backgroundColor = UIColor.blueColor()
-        _bgImg = PicView()
-        _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-        _bgImg._setPic(NSDictionary(objects: ["profile.png","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
-        })
+        _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
         _bgImg._refreshView()
         //var _uiV:UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
@@ -45,30 +44,30 @@ class LeftPanel: UIViewController {
         _blurV?.frame = self.view.bounds
         self.view.addSubview(_blurV!)
         
+        _btn_profile = UIButton(type: UIButtonType.Custom)
+        
+        _btn_profile!.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+        _btn_profile?.center = CGPoint(x: self.view.frame.width/2, y: 100)
+        _btn_profile?.clipsToBounds = true
+        _btn_profile!.layer.cornerRadius = 50
+        _btn_profile?.layer.borderWidth = 2
+        _btn_profile?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_profile!.imageView!.contentMode = UIViewContentMode.ScaleAspectFill
+        //_btn_profile?.backgroundColor = UIColor.clearColor()
+        _btn_profile?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+        
         
         _profileImg = PicView()
-        _profileImg!.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
         
-        _profileImg?.center = CGPoint(x: self.view.frame.width/2, y: 100)
-        _profileImg!._setPic(NSDictionary(objects: ["profile.png","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
-        })
-        _profileImg!._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-        _profileImg!.layer.cornerRadius = 50
-        _profileImg?.layer.borderWidth = 2
-        _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-        
-        _profileImg!.maximumZoomScale = 1
-        _profileImg!.minimumZoomScale = 1
+       
         
         
-        _profileImg!._refreshView()
+        //let _tapG:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "tapHander:")
+        //_profileImg?.addGestureRecognizer(_tapG)
         
         
-        let _tapG:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "tapHander:")
-        _profileImg?.addGestureRecognizer(_tapG)
-        
-        
-        self.view.addSubview(_profileImg!)
+        //self.view.addSubview(_profileImg!)
+        self.view.addSubview(_btn_profile!)
         
         _label_name = UILabel(frame: CGRect(x: 0, y: 0, width: 160, height: 25))
         _label_name?.textAlignment = NSTextAlignment.Center
@@ -82,7 +81,7 @@ class LeftPanel: UIViewController {
         _label_edit?.textAlignment = NSTextAlignment.Center
         _label_edit?.center = CGPoint(x: self.view.frame.width/2, y: 200)
         _label_edit?.font = UIFont.systemFontOfSize(16)
-        _label_edit?.text = "编辑头像"
+        _label_edit?.text = "点击编辑资料"
         _label_edit?.textColor = UIColor.darkGrayColor()
         
         self.view.addSubview(_label_edit!)
@@ -137,6 +136,14 @@ class LeftPanel: UIViewController {
         //self.view.addSubview(_uiV)
         _setuped = true
     }
+    func _setProfileImg(__str:String){
+        _profileImg!._setPic(NSDictionary(objects: [__str,"file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
+            self._btn_profile!.setImage(self._profileImg!._imgView!.image, forState: UIControlState.Normal)
+        })
+        _bgImg._setPic(NSDictionary(objects: [__str,"file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
+        })
+        
+    }
     func _setName(__str:String){
         _label_name?.text = __str
     }
@@ -149,6 +156,24 @@ class LeftPanel: UIViewController {
         print(sender, terminator: "")
         switch sender.state{
         case UIGestureRecognizerState.Began:
+            UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+                self._profileImg?.transform = CGAffineTransformMakeScale(1.1, 1.1)
+                }) { (stop) -> Void in
+                    
+            }
+
+            
+            break
+        case UIGestureRecognizerState.Ended:
+            UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+                self._profileImg?.transform = CGAffineTransformMakeScale(1, 1)
+                }) { (stop) -> Void in
+                    let _viewC:Settings = Settings()
+                    self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+                        
+                    })
+            }
+            
             break
         default:
             break
@@ -168,6 +193,18 @@ class LeftPanel: UIViewController {
             break
         case _btn_bingoList!:
             _parentView?._showRight()
+            break
+        case _btn_settings!:
+            let _viewC:Settings = Settings()
+            self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+                
+            })
+            break
+        case _btn_profile!:
+            let _viewC:ProfilePage = ProfilePage()
+            self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+                
+            })
             break
         default:
             break

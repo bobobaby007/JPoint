@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,BingoUserItemAtMyList_delegate{
+class Settings:UIViewController,UITableViewDataSource,UITableViewDelegate{
     var _setuped:Bool = false
     var _tableView:UITableView?
     var _btn_back:UIButton?
@@ -43,8 +43,8 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             return
         }
         self.automaticallyAdjustsScrollViewInsets = false
-        _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-        
+        _bgImg = PicView()
+        _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
         _bgImg._setPic(NSDictionary(objects: ["bg.jpg","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
         })
         _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
@@ -54,12 +54,21 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         self.view.addSubview(_bgImg)
         
         _tableView = UITableView(frame: CGRect(x: 0, y: _barH, width: self.view.frame.width, height: self.view.frame.height-_barH))
-        _tableView?.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 5))
-        _tableView?.registerClass(ImageListItem.self, forCellReuseIdentifier: "ImageListItem")
+        //_tableView?.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 5))
+        //_tableView?.registerClass(ImageListItem.self, forCellReuseIdentifier: "settingsCell")
         _tableView?.delegate = self
         _tableView?.dataSource = self
         _tableView?.backgroundColor = UIColor.clearColor()
         _tableView!.separatorColor=UIColor.clearColor()
+        
+        
+        _tableView?.clipsToBounds = false
+        _tableView?.tableFooterView = UIView()
+        //_tableView?.separatorStyle = UITableViewCellSeparatorStyle.None
+        _tableView?.separatorColor = UIColor.whiteColor()
+        
+        _tableView?.backgroundColor = UIColor.clearColor()
+        
         
         self.view.addSubview(_tableView!)
         
@@ -82,7 +91,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: 55)
         _nameLabel?.font = UIFont.boldSystemFontOfSize(20)
         _nameLabel?.textColor = UIColor.whiteColor()
-        _nameLabel?.text = "图列"
+        _nameLabel?.text = "设置"
         
         _topView?.addSubview(_nameLabel!)
         // _tableView?.tableHeaderView = _topView
@@ -98,78 +107,22 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             return self.view.frame.height
         }
         
-        
         return _cellHeight
     }
     func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return 0
     }
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let _cell:ImageListItem = _tableView?.dequeueReusableCellWithIdentifier("ImageListItem") as! ImageListItem
-        
-        _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: _cellHeight))
-        _cell._setInfos("3小时前", __clickNum: 3*indexPath.row, __bingoNum: indexPath.row)
-        _cell._setText("快来猜的收购额无奈的说过多少个呢但是难过的很@＃％……％¥……¥＃％@＃")
-        _cell._parentDelegate = self
-        if indexPath .isEqual(_selectedIndex){
-            _cell._changeToHeight(self.view.frame.height)
-            _cell._open()
-        }else{
-            _cell._changeToHeight(_cellHeight)
-            _cell._close()
-        }
-
-        
-        _cell._setPic("profile")
+        let _cell:UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "settingsCell")
         
         return _cell
     }
     
-    //---代理
-    func _needToTalk(__id: String) {
-        let _message:MessageWindow = MessageWindow()
-        self.presentViewController(_message, animated: true) { (comp) -> Void in
-            _message._getDatas()
-        }
-    }
-    func _showUser(__index: Int) {
-        
-    }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if indexPath .isEqual(_selectedIndex){ //---恢复
-           _selectedIndex = nil
-           // UIApplication.sharedApplication().statusBarHidden = false
-            
-            UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.LightContent
-            UIApplication.sharedApplication().statusBarHidden=false
-            
-            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-                self._tableView?.frame = CGRect(x: 0, y: self._barH, width: self.view.frame.width, height: self.view.frame.height-self._barH)
-                self._topView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self._barH)
-                }, completion: { (complete) -> Void in
-                
-            })
-            
-        }else{
-          _selectedIndex = indexPath
-            UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.Default
-            UIApplication.sharedApplication().statusBarHidden=true
-            UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-                self._tableView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-                self._topView?.frame = CGRect(x: 0, y: -self._barH, width: self.view.frame.width, height: self._barH)
-                }, completion: { (complete) -> Void in
-                    
-            })
-           
-        }
         
-        
-        
-        _tableView?.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
-        _tableView?.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Top, animated: true)
         
     }
     

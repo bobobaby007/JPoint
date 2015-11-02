@@ -108,6 +108,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         self.addChildViewController(_editingViewC!)
         _editingViewC!._delagate = self
+        _editingViewC!._mainView = self
         _editingViewC?.view.frame=CGRect(x: 0, y: -self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         self.view.addSubview(_editingViewC!.view)
         _editingViewC?.didMoveToParentViewController(self)
@@ -257,19 +258,45 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     
     //----编辑页面代理
+    
+    
+    
     func _edingImageIn() {
        // self.view.removeGestureRecognizer(_panGesture!)
         _shouldReceivePan = false
     }
     //----bingo页面代理
-    
     func _bingoViewOut() {
-        _bingoController?.view.removeFromSuperview()
-        _bingoController?.removeFromParentViewController()
-        _bingoController = nil
-        _next()
-        //self.view.addGestureRecognizer(_panGesture!)
-        _shouldReceivePan = true
+        
+        UIView.animateWithDuration(0.4, delay: 0.2, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
+            self._btn_love!.center = CGPoint(x: self.view.frame.width-30, y: 10)
+             //self._btn_love!.transform = CGAffineTransformMakeScale(2, 2)
+            }) { (com) -> Void in
+                UIView.animateWithDuration(0.4, delay: 0.4, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+                    self._btn_love!.transform = CGAffineTransformMakeScale(1.1, 1.1)
+                    self._bingoController?.view.alpha = 0
+                }) { (com) -> Void in
+                    UIView.animateWithDuration(0.4, delay: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+                        
+                        //self._btn_love!.center = CGPoint(x: self.view.frame.width-30, y: -40)
+                        self._btn_love!.transform = CGAffineTransformMakeScale(0, 0)
+                        self._bingoController?.view.removeFromSuperview()
+                        self._bingoController?.removeFromParentViewController()
+                        self._bingoController = nil
+                        
+                        }) { (com) -> Void in
+                            //self._btn_love!.center = _p
+                            
+                            self._next()
+                            //self.view.addGestureRecognizer(_panGesture!)
+                            self._shouldReceivePan = true
+                        }
+                }
+        }
+        
+        
+        
+        
     }
     func _talkNow() {
        // self.view.addGestureRecognizer(_panGesture!)
@@ -292,14 +319,47 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func _bingoFailed(){
         _showFailPanel()
     }
-    
+    //=--------bingo成功
     func _bingo(){
+        
+        let _dict:NSDictionary = _currentPicItem!._dict!
+        let _autor:NSDictionary = (_dict.objectForKey("author") as! NSDictionary)
+        
+        var _avator:String = "profile"
+        if let _touxiang = _autor.objectForKey("avatar") as? String{
+            _avator = MainAction._imageUrl(_touxiang)
+        }
+        
+        MainAction._addBingosTo(_autor.objectForKey("_id") as! String, __type: MainAction._BingoType_bingo, __content: "[Bingo]", __nickname: _autor.objectForKey("nickname") as! String, __image: _avator)
+        
         _showBingo()
     }
+    
+    //-----提交bingo数据
+    
+    
+    
     //---头像点击代理
     func _viewUser() {
         
     }
+    
+    //-----提示面板普通弹出
+    func _showAlert(__text:String){
+        _setFailtText(__text)
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
+            }) { (comp) -> Void in
+                self._hideAlert()
+        }
+    }
+    func _hideAlert(){
+        UIView.animateWithDuration(0.2, delay: 0.5, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
+            }) { (comp) -> Void in
+        }
+    }
+    
     //---失败提示板出现
     func _showFailPanel(){
         _waitingForNext = true
@@ -332,9 +392,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----
     func _showBingo(){
        // self.view.removeGestureRecognizer(_panGesture!)
-        
-        
-        
         _shouldReceivePan = false
         if _bingoController == nil{
             _bingoController = BingoView()
@@ -343,8 +400,20 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self.addChildViewController(_bingoController!)
         self.view.addSubview(_bingoController!.view)
 //        _bingoController._setMyImage(NSDictionary(objects: ["image_3.jpg","file"], forKeys: ["url","type"]))
-        _bingoController?._setBingoName("小甜甜")
-        _bingoController?._setBingoImage(NSDictionary(objects: ["image_2.jpg","file"], forKeys: ["url","type"]))
+        _bingoController?._setBingoName((_currentPicItem!._dict!.objectForKey("author") as! NSDictionary).objectForKey("nickname") as! String)
+        
+        
+        if let _avatar = (_currentPicItem!._dict!.objectForKey("author") as! NSDictionary).objectForKey("avatar") as? String{
+            _bingoController?._setBingoImage(MainAction._imageUrl(_avatar))
+        }else{
+         _bingoController?._setBingoImage("profile")
+        }
+        
+            
+           // _bingoController?._setBingoImage(_avatar as! String)
+        
+        
+        
         _bingoController?._show()
     }
     //----下一张
@@ -370,6 +439,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -self._btnW)
             self._btn_list?.center = CGPoint(x: 50, y: -self._btnW)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -self._btnW)
+            self._btn_love!.transform = CGAffineTransformMakeScale(1, 1)
             
             //self._thirdPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY-self._bottomOut)
         }) { (finished) -> Void in
@@ -458,8 +528,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._profilePanel?.alpha = 0
             let _author:NSDictionary = _dict.objectForKey("author") as! NSDictionary
             
-            _profilePanel?._setPic(MainAction._imageUrl(_author.objectForKey("nickname") as! String))
-            
+            if let _avatar = _author.objectForKey("avatar") as? String{
+                _profilePanel?._setPic((MainAction._imageUrl(_avatar)))
+            }else{
+                _profilePanel?._setPic("profile")
+            }
             
             
             _profilePanel?._setName(_author.objectForKey("nickname") as! String)
@@ -750,15 +823,20 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._editingViewC?.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             }) { (array) -> Void in
         }
-        self._btn_plus?.transform = CGAffineTransformMakeScale(1.2, 1.2)
-        UIView.animateWithDuration(0.4, delay: 0.6, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            
-            self._btn_plus?.backgroundColor = UIColor.redColor()
-            
-            self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0.25*3.14)
-                        //self._btn_plus?.layer.transform = CATransform3DMakeRotation(0, 45, 45, 45)
-            }) { (array) -> Void in
+        
+        
+        UIView.animateWithDuration(0.2, delay: 0.2, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            self._btn_plus?.transform = CGAffineTransformMakeScale(1.2, 1.2)
+            }) { (ok) -> Void in
+                UIView.animateWithDuration(0.4, delay: 0.4, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+                    self._btn_plus?.backgroundColor = UIColor.redColor()
+                    self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0.25*3.14)
+                    //self._btn_plus?.layer.transform = CATransform3DMakeRotation(0, 45, 45, 45)
+                    }) { (array) -> Void in
+                }
         }
+        
+        
         UIView.animateWithDuration(1, delay: 1, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.9, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             
             self._btn_love?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(0, 0), 0)

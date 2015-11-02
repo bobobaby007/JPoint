@@ -137,14 +137,14 @@ class CoreAction {
     
     
     //-----保存字典到文件
-    static func _saveDictTo(__dict:NSDictionary,__fileName:String){
+    static func _saveDictToFile(__dict:NSDictionary,__fileName:String){
         let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
         let _documentDirectory = _paths.objectAtIndex(0) as! NSString
         let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
         __dict.writeToFile(_path, atomically: false)
     }
     //-----从文件获取字典
-    static func _getDict(__fileName:String)->NSDictionary?{
+    static func _getDictFromFile(__fileName:String)->NSDictionary?{
         let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
         let _documentDirectory = _paths.objectAtIndex(0) as! NSString
         let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
@@ -155,14 +155,14 @@ class CoreAction {
         }
     }
     //-----保存数组到文件
-    static func _saveArrayTo(__array:NSArray,__fileName:String){
+    static func _saveArrayToFile(__array:NSArray,__fileName:String){
         let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
         let _documentDirectory = _paths.objectAtIndex(0) as! NSString
         let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
         __array.writeToFile(_path, atomically: false)
     }
     //-----从文件获取数组
-    static func _getArray(__fileName:String)->NSArray?{
+    static func _getArrayFromFile(__fileName:String)->NSArray?{
         let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
         let _documentDirectory = _paths.objectAtIndex(0) as! NSString
         let _path = _documentDirectory.stringByAppendingPathComponent(__fileName)
@@ -201,7 +201,7 @@ class CoreAction {
                 print(error)
             }
         } else {
-            print("GameData.plist not found. Please, make sure it is part of the bundle.")
+            print("\(__fileName).plist not found. Please, make sure it is part of the bundle.")
         }
         
     }

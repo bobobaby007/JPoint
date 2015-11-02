@@ -30,7 +30,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     let _barH:CGFloat = 80
     
     
-    let _messagesArray:NSArray = [["type":"match","content":"image_3.jpg||快来踩一踩，猜一猜，才车使馆时代","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"]]
+    let _messagesArray:NSArray = [["type":"match","content":"image_1.jpg||快来踩一踩，猜一猜，才车使馆时代","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"]]
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
@@ -48,12 +48,11 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
         self.view.layer.shadowRadius = 15
         
-        _bgImg = PicView()
-        _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        
         _bgImg._setPic(NSDictionary(objects: ["bg.jpg","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
         })
-        _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-        _bgImg._refreshView()
+        
         //var _uiV:UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
         
         self.view.addSubview(_bgImg)

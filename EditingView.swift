@@ -15,7 +15,7 @@ protocol EditingView_delegate:NSObjectProtocol{
     func _edingImageIn()
 }
 
-class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate{
+class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate{
     let _gap:CGFloat = 10
     let _btnW:CGFloat = 60
     var _setuped:Bool = false
@@ -39,7 +39,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     var _label_sent:UILabel?
     var _label_cancel:UILabel?
     
+    weak var _mainView:MainView?
     weak var _delagate:EditingView_delegate?
+    
+    var _imageInputer:ImageInputer?
     
     var _infoForImage:InfoForImage?
     override func viewDidLoad() {
@@ -55,18 +58,21 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btn_camera = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         
         _btn_camera?.layer.borderWidth = 2
-        _btn_camera?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_camera?.layer.borderColor = UIColor(white: 1, alpha: 0.9).CGColor
         _btn_camera?.layer.cornerRadius = _btnW/2
-        _btn_camera?.backgroundColor = UIColor(red: 255/255, green: 204/255, blue: 116/255, alpha: 1)
-        _btn_camera?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+        //_btn_camera?.backgroundColor = UIColor(red: 255/255, green: 204/255, blue: 116/255, alpha: 1)
+        _btn_camera?.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        _btn_camera?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
         _btn_camera?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_photo = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_photo?.layer.borderWidth = 2
-        _btn_photo?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_photo?.layer.borderColor = UIColor(white: 1, alpha: 0.9).CGColor
         _btn_photo?.layer.cornerRadius = _btnW/2
-        _btn_photo?.backgroundColor = UIColor(red: 198/255, green: 87/255, blue: 255/255, alpha: 1)
-        _btn_photo?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+        //_btn_photo?.backgroundColor = UIColor(red: 198/255, green: 87/255, blue: 255/255, alpha: 1)
+        _btn_photo?.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        
+        _btn_photo?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
         _btn_photo?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_clear = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
@@ -176,22 +182,15 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func buttonAction(__sender:UIButton){
         switch __sender{
         case _btn_camera!:
-            _imagePicker = UIImagePickerController()
-           // _imagePicker!.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.Camera)!
-            
-            //_imagePicker!.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.SavedPhotosAlbum)!
-            _imagePicker!.delegate = self
-            _imagePicker!.sourceType = UIImagePickerControllerSourceType.Camera
-            UIApplication.sharedApplication().keyWindow?.rootViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
+            _openImageInputer()
+            _imageInputer?._hideBtns()
+            _imageInputer?._openCamera()
             break
         case _btn_photo!:
-            _imagePicker = UIImagePickerController()
+            _openImageInputer()
+            _imageInputer?._hideBtns()
+            _imageInputer?._openPhotoLibrary()
             
-            //_imagePicker!.mediaTypes = UIImagePickerController.availableMediaTypesForSourceType(UIImagePickerControllerSourceType.SavedPhotosAlbum)!
-            //_imagePicker!.allowsEditing=false
-            _imagePicker!.delegate = self
-            _imagePicker!.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
-            UIApplication.sharedApplication().keyWindow?.rootViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
             break
         case _btn_clear!:
             _drawingBoard?._clear()
@@ -200,7 +199,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             let _img:UIImage = _captureBgImage()
             let _answerImg:UIImage = _drawingBoard!._captureImage()
             MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media)
-           // CoreAction._uploadImage()
+            _mainView?._showAlert("图片已经提交，可以再来一张!")
             if _shouldBeClosed(){
                 
             }else{
@@ -258,7 +257,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self._label_clear?.center = CGPoint(x: 60, y: self._btn_closeH!+self._btnW)
         _label_clear?.alpha = 0
         
-        _label_cancel?.text = "取消"
+        _label_cancel?.text = "换一张图片"
         self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW)
         self._label_cancel?.alpha = 0
         
@@ -314,7 +313,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     //---按钮弹出
     func _btnsShow(){
         if _label_cancel == nil{
-            _label_cancel = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: self.view.frame.height - self._btn_closeH! - self._btnW/2))
+            _label_cancel = UILabel(frame: CGRect(x: 0, y: 0, width: 150, height: self.view.frame.height - self._btn_closeH! - self._btnW/2))
             _label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height)
             
             _label_cancel?.textAlignment = NSTextAlignment.Center
@@ -328,8 +327,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self._label_cancel?.alpha = 0
         
         UIView.animateWithDuration(0.6, delay: 0.4, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2-self._btnW/2-15, y: self.view.frame.height/2)
-            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2+self._btnW/2+15, y: self.view.frame.height/2)
+            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2-self._btnW/2-20, y: self.view.frame.height/2+20)
+            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2+self._btnW/2+20, y: self.view.frame.height/2+20)
             self._btn_camera!.alpha=1
             self._btn_photo!.alpha=1
             
@@ -342,13 +341,41 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     func _btnsHide(){
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
-            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
+            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
             self._btn_camera!.alpha=0
             self._btn_photo!.alpha=0
             }) { (stoped) -> Void in
                 
         }
+    }
+    
+    func _openImageInputer(){
+        if _imageInputer == nil{
+            _imageInputer = ImageInputer()
+            _imageInputer?._parentViewController = self
+            _imageInputer?._delegate = self
+            _mainView!.addChildViewController(_imageInputer!)
+            _mainView!.view.addSubview(_imageInputer!.view)
+            _mainView?._shouldReceivePan = false
+        }
+    }
+    
+    //-----imageinputer 代理
+    func _imageInputer_canceled() {
+        _imageInputer?.view.removeFromSuperview()
+        _imageInputer?.removeFromParentViewController()
+        _imageInputer = nil
+        _mainView?._shouldReceivePan = true
+    }
+    
+    func _imageInputer_saved() {
+        _bgImageV!.image = _imageInputer!._captureBgImage()
+        _imageInputer?.view.removeFromSuperview()
+        _imageInputer?.removeFromParentViewController()
+        _imageInputer = nil
+        
+        didImageIn()
     }
     
     //----
@@ -379,22 +406,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     
     
-    //---picker代理
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
-        _bgImageV!.image = image
-        _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
-        didImageIn()
-    }
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
-       // var _alassetsl:ALAssetsLibrary = ALAssetsLibrary()
-        let image:UIImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
-        _bgImageV!.image = image
-        _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
-        didImageIn()
-    }
-    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-        _imagePicker?.dismissViewControllerAnimated(true, completion:nil)
-    }
     func didImageIn(){
         _btnsHide()
         _hasImg = true

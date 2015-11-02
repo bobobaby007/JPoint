@@ -4,7 +4,7 @@
 <array>
 	<dict>
 		<key>type</key>
-		<string>text</string>
+		<string>bingo</string>
 		<key>image</key>
 		<string>profile</string>
 		<key>uid</key>
@@ -12,7 +12,7 @@
 		<key>nickname</key>
 		<string>BingoMe</string>
 		<key>content</key>
-		<string>小B在这里等着你</string>
+		<string>[match]</string>
 	</dict>
 </array>
 </plist>

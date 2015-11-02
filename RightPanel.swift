@@ -13,8 +13,8 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
     var _tableView:UITableView?
-    var _chats:NSArray?
     var _datained:Bool = false
+    var _tableIned:Bool = false
     var _topView:UIView?
     var _btn_back:UIButton?
     weak var _parentView:ViewController?
@@ -28,36 +28,19 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         if _setuped{
             return
         }
-        self.view.backgroundColor = UIColor.whiteColor()
+        self.view.backgroundColor = UIColor.blackColor()
         //self.view.clipsToBounds = false
         
         
-        _bgImg = PicView()
-        _bgImg.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+        _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        
         _bgImg._setPic(NSDictionary(objects: ["bg.jpg","file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
         })
-        _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-        _bgImg._refreshView()
+        
         //var _uiV:UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
         
         self.view.addSubview(_bgImg)
         
-        
-        
-        
-        _chats = NSArray()
-        
-        _tableView = UITableView(frame: CGRect(x: 0, y: 80, width: self.view.frame.width, height: self.view.frame.height-80))
-        _tableView?.clipsToBounds = false
-        _tableView?.registerClass(ChatCell.self, forCellReuseIdentifier: "ChatCell")
-        _tableView?.dataSource = self
-        _tableView?.delegate = self
-        _tableView?.tableFooterView = UIView()
-        //_tableView?.separatorStyle = UITableViewCellSeparatorStyle.None
-        _tableView?.separatorColor = UIColor.whiteColor()
-        _tableView?.separatorInset = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 50)
-        _tableView?.backgroundColor = UIColor.clearColor()
-        self.view.addSubview(_tableView!)
         
         
         _topView = UIView(frame:  CGRect(x: 0, y: 0, width: self.view.frame.width, height: 80))
@@ -108,15 +91,35 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
             return
         }
         MainAction._getBingoChats { (array) -> Void in
-            self._chats = array
+            
+            self._tabelsIn()
             self._tableView?.reloadData()
             self._datained = true
         }
         
         
     }
+    func _tabelsIn(){
+        if _tableIned{
+            return
+        }else{
+            _tableView = UITableView(frame: CGRect(x: 0, y: 80, width: self.view.frame.width, height: self.view.frame.height-80))
+            _tableView?.clipsToBounds = false
+            _tableView?.registerClass(ChatCell.self, forCellReuseIdentifier: "ChatCell")
+            _tableView?.dataSource = self
+            _tableView?.delegate = self
+            _tableView?.tableFooterView = UIView()
+            //_tableView?.separatorStyle = UITableViewCellSeparatorStyle.None
+            _tableView?.separatorColor = UIColor.whiteColor()
+            
+            _tableView?.backgroundColor = UIColor.clearColor()
+            self.view.insertSubview(_tableView!, belowSubview: _topView!)
+            _tableIned = true
+        }
+        
+    }
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return _chats!.count
+        return MainAction._ChatsList!.count
     }
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 90
@@ -125,11 +128,19 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         let _cell:ChatCell = _tableView?.dequeueReusableCellWithIdentifier("ChatCell") as! ChatCell
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60))
         
-        let _dict:NSDictionary = _chats?.objectAtIndex(indexPath.row) as! NSDictionary
+        let _dict:NSDictionary = MainAction._ChatsList!.objectAtIndex(indexPath.row) as! NSDictionary
         
+        _cell._setId(_dict.objectForKey("uid") as! String)
         _cell._setPic(_dict.objectForKey("image") as! String)
-        _cell._setName(_dict.objectForKey("userName") as! String)
+        _cell._setName(_dict.objectForKey("nickname") as! String)
         _cell._setContent(_dict.objectForKey("content") as! String)
+        
+        
+        if (indexPath.row == MainAction._ChatsList!.count-1) {
+            _cell.separatorInset = UIEdgeInsetsMake(0, 1000, 0, 0)
+        }else{
+            _cell.separatorInset = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 50)
+        }
         
         return _cell
     }

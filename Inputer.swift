@@ -134,8 +134,6 @@ class Inputer: UIView,UITextViewDelegate {
        // print(keyboardScreenBeginFrame)
        // print(keyboardScreenEndFrame)
         
-        
-        
         _keboardFrame = keyboardScreenEndFrame
         
         if keyboardScreenEndFrame.height>216{
