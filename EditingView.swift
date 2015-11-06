@@ -199,7 +199,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             let _img:UIImage = _captureBgImage()
             let _answerImg:UIImage = _drawingBoard!._captureImage()
             MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media)
-            _mainView?._showAlert("图片已经提交，可以再来一张!")
+            _mainView?._showAlert("图片已经提交，可以再来一张!",__wait: 0.5)
             if _shouldBeClosed(){
                 
             }else{

@@ -18,6 +18,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
     var _topView:UIView?
     var _btn_back:UIButton?
     weak var _parentView:ViewController?
+    let _barH:CGFloat = 60
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -43,7 +44,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         
         
         
-        _topView = UIView(frame:  CGRect(x: 0, y: 0, width: self.view.frame.width, height: 80))
+        _topView = UIView(frame:  CGRect(x: 0, y: 0, width: self.view.frame.width, height: _barH))
         _topView?.backgroundColor = UIColor.clearColor()
         _blurV = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Dark))
         //_blurV?.alpha = 0.5
@@ -51,8 +52,8 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         _topView?.addSubview(_blurV!)
         
         
-        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 40, height: 40))
-        _btn_back?.center = CGPoint(x: 30, y: 50)
+        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 30, height: 30))
+        _btn_back?.center = CGPoint(x: 30, y: _barH/2+6)
         _btn_back?.setImage(UIImage(named: "icon_backToBingo"), forState: UIControlState.Normal)
         _btn_back?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _topView?.addSubview(_btn_back!)
@@ -61,7 +62,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         
         
         let _titleButton:UIButton = UIButton(frame: CGRect(x: 0, y: 0, width: (self.view.frame.width-90)/2, height: 30))
-        _titleButton.center = CGPoint(x: self.view.frame.width/2, y: 50)
+        _titleButton.center = CGPoint(x: self.view.frame.width/2, y: _barH/2+6)
         _titleButton.setImage(UIImage(named: "icon_bingoList"), forState: UIControlState.Normal)
     
         _titleButton.titleLabel?.font = UIFont.boldSystemFontOfSize(18)
@@ -103,7 +104,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         if _tableIned{
             return
         }else{
-            _tableView = UITableView(frame: CGRect(x: 0, y: 80, width: self.view.frame.width, height: self.view.frame.height-80))
+            _tableView = UITableView(frame: CGRect(x: 0, y: _barH, width: self.view.frame.width, height: self.view.frame.height-_barH))
             _tableView?.clipsToBounds = false
             _tableView?.registerClass(ChatCell.self, forCellReuseIdentifier: "ChatCell")
             _tableView?.dataSource = self

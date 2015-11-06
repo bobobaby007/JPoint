@@ -12,7 +12,7 @@ import Foundation
 class ImageLoader {
     
     let cache = NSCache()
-
+   
     class var sharedLoader : ImageLoader {
     struct Static {
         static let instance : ImageLoader = ImageLoader()

@@ -29,7 +29,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     var _nameLabel:UILabel?
     
     var _latestTime:NSTimeInterval?
-    let _barH:CGFloat = 80
+    let _barH:CGFloat = 60
     
     
     
@@ -70,8 +70,8 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         _blurV?.frame = _topView!.bounds
         _topView?.addSubview(_blurV!)
         
-        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 40, height: 40))
-        _btn_back?.center = CGPoint(x: 30, y: 50)
+        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 30, height: 30))
+        _btn_back?.center = CGPoint(x: 30, y: _barH/2+6)
         _btn_back?.setImage(UIImage(named: "icon_back"), forState: UIControlState.Normal)
         _btn_back?.transform = CGAffineTransformRotate((_btn_back?.transform)!, -3.14*0.5)
         _btn_back?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -79,7 +79,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         
         _nameLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 30))
         _nameLabel?.textAlignment = NSTextAlignment.Center
-        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: 55)
+        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: _barH/2+6)
         _nameLabel?.font = UIFont.boldSystemFontOfSize(20)
         _nameLabel?.textColor = UIColor.whiteColor()
         _nameLabel?.text = "图列"

@@ -24,6 +24,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         self.showsHorizontalScrollIndicator=false
         self.showsVerticalScrollIndicator=false
         _imgView=UIImageView(frame: self.bounds)
+        _imgView?.layer.minificationFilter = kCAFilterTrilinear
         //_imgView?.alpha = 0.3
         _imgView?.contentMode=UIViewContentMode.ScaleAspectFit
         self.addSubview(_imgView!)

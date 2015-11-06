@@ -78,6 +78,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _loadingV:UIView?
     
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -204,26 +207,57 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----加载列表
     func _loadBingoList()->Void{
         _showLoadingV()
-        MainAction._getBingoList { (array) -> Void in
-            print("图片总数：",MainAction._BingoList.count)
+        MainAction._getBingoList { (__dict) -> Void in
+            
+            
+            
+            //print("图片总数：",MainAction._BingoList.count)
            // self._showIndex(self._currentIndex)
-            dispatch_async(dispatch_get_main_queue(), {
-                if self._isFirstLoaded{
-                    self._showMainPage()
-                    
-                    self._isFirstLoaded=false
-                    self._currentIndex = self._firstIndex-1
-                    self._next()
-                    //self._showIndex(self._currentIndex)
-                    
-                }else{
-                    self._currentIndex = self._firstIndex-1
-                    
-                }
-                self._listLoaded = true
-                self._removeLoading()
+            if __dict.objectForKey("recode") as! Int == 200{
                 
-            })
+                if MainAction._BingoList.count == 0{
+                    //print("again")
+                    let timer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "_loadBingoList", userInfo: nil, repeats: false)
+                    timer.fire()
+                    return
+                }
+                
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    
+                    
+                    if self._isFirstLoaded{
+                        self._showMainPage()
+                        self._isFirstLoaded=false
+                        self._currentIndex = self._firstIndex-1
+                        self._next()
+                        //self._showIndex(self._currentIndex)
+                    }else{
+                        self._currentIndex = self._firstIndex-1
+                        
+                    }
+                    self._listLoaded = true
+                    self._removeLoading()
+                    
+                })
+            }else{
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    print(__dict.objectForKey("recode"))
+                    self._showAlert("重新登录..",__wait: 0.5)
+                    MainAction._signupQuick({ (__dict) -> Void in
+                        //print(__dict)
+                        self._loadBingoList()
+                    })
+                })
+                
+                
+                
+                
+                
+            }
+            
         }
     }
     
@@ -249,8 +283,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
                 self._loadingV!.transform = CGAffineTransformMakeScale(0, 0)
                 }, completion: { (yes) -> Void in
-                    self._loadingV!.removeFromSuperview()
-                    self._loadingV = nil
+                    if self._loadingV != nil{
+                        self._loadingV!.removeFromSuperview()
+                        self._loadingV = nil
+                    }
+                    
             })
             
             
@@ -345,16 +382,20 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     
     //-----提示面板普通弹出
-    func _showAlert(__text:String){
+    func _showAlert(__text:String,__wait:Double){
         _setFailtText(__text)
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
             }) { (comp) -> Void in
-                self._hideAlert()
+                if __wait >= 0{
+                   self._hideAlert(__wait)
+                }
+                
         }
     }
-    func _hideAlert(){
-        UIView.animateWithDuration(0.2, delay: 0.5, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+    func _hideAlert(__wait:Double){
+        
+        UIView.animateWithDuration(0.2, delay: __wait, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
             self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
             }) { (comp) -> Void in
         }
@@ -517,7 +558,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _currentPicItem?._ready()
             
             let _dict:NSDictionary = _currentPicItem!._dict!
-            print(_dict)
+            //print(_dict)
             
             _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_currentPicItem!.center.y + _picItemW/2 + _gap + _infoH)
             _infoPanel?.alpha = 0
@@ -526,16 +567,27 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _infoPanel?._setLike(_dict.objectForKey("over") as! Int)
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH)
             self._profilePanel?.alpha = 0
-            let _author:NSDictionary = _dict.objectForKey("author") as! NSDictionary
             
-            if let _avatar = _author.objectForKey("avatar") as? String{
-                _profilePanel?._setPic((MainAction._imageUrl(_avatar)))
-            }else{
-                _profilePanel?._setPic("profile")
+            if let _author:NSDictionary = _dict.objectForKey("author") as? NSDictionary{
+                if let _avatar = _author.objectForKey("avatar") as? String{
+                    _profilePanel?._setPic((MainAction._imageUrl(_avatar)))
+                }else{
+                    _profilePanel?._setPic("profile")
+                }
+                if let _nickname = _author.objectForKey("nickname") as? String{
+                    _profilePanel?._setName(_nickname)
+                }else{
+                    _profilePanel?._setName("someone")
+                }
             }
+                
             
             
-            _profilePanel?._setName(_author.objectForKey("nickname") as! String)
+            
+            
+            
+            
+            
             _profilePanel?._setSay(_getQuestionByString(_dict.objectForKey("question") as! String))
             self._profilePanel?.alpha = 0
             UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
@@ -576,7 +628,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         if __index >= MainAction._BingoList.count{
             if __index == MainAction._BingoList.count{
                 //_firstIndex = __index
-                print("again",_firstIndex)
+                //print("again",_firstIndex)
                 
                 //_showLoadingV()
                 

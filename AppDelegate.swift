@@ -16,14 +16,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        MainAction._getBingoChats { (array) -> Void in
-            MainAction._addBingosTo("560dff20146092b1ab3f68fb", __type: "bingo", __content: "ssss",__nickname: "我",__image: "profile")
-        }
         
+//        MainAction._getBingoChats { (array) -> Void in
+//            MainAction._addBingosTo("560dff20146092b1ab3f68fb", __type: "bingo", __content: "ssss",__nickname: "我",__image: "profile")
+//        }
+
+        //MainAction._signupQuick()
+        //MainAction._getMyProfile()
+        //MainAction._soketConnect()
         // Override point for customization after application launch.
         return true
     }
 
+    
+    
+    
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.

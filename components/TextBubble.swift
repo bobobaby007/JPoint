@@ -29,6 +29,7 @@ class TextBubble: UIView  {
         _sayText = UITextView(frame: CGRect(x: _insert, y: _insert, width: _sayW, height: frame.height))
         _sayText!.textColor = UIColor(red: 76/255, green: 83/255, blue: 126/255, alpha: 1)
         _sayText!.editable = false
+        _sayText?.returnKeyType = UIReturnKeyType.Done
         _sayText!.scrollEnabled = false
         _sayText!.font = UIFont.systemFontOfSize(14)
         _sayText!.backgroundColor = UIColor.clearColor()

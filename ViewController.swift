@@ -31,7 +31,7 @@ class ViewController: UIViewController {
         setup()
         //print(CoreAction._version())
         _showMainView()
-        
+        _checkProfile()
         // Do any additional setup after loading the view, typically from a nib.
     }
     func setup(){
@@ -46,7 +46,7 @@ class ViewController: UIViewController {
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
         
-        _mainView?._loadBingoList()
+        //_mainView?._loadBingoList()
         
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
         self.view.addGestureRecognizer(_panG!)
@@ -55,6 +55,24 @@ class ViewController: UIViewController {
         _backButton?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _setuped=true
     }
+    func _checkProfile(){
+        MainAction._getMyProfile { (__dict) -> Void in
+            if __dict.objectForKey("recode") as! Int == 200{
+                dispatch_async(dispatch_get_main_queue(), {
+                    self._mainView!._loadBingoList()
+                })
+            }else{
+                dispatch_async(dispatch_get_main_queue(), {
+                    MainAction._loginQuick({ (__dict) -> Void in
+                        //print(__dict)
+                        self._checkProfile()
+                    })
+                })
+            }
+        }
+    }
+    
+    
     func btnHander(sender:UIButton){
         _showMainView()
     }

@@ -78,6 +78,7 @@ class InfoForImage:UIView,UITextViewDelegate{
         _sayText!.textContainer.maximumNumberOfLines = 3
         _sayText?.textColor = UIColor(red: 76/255, green: 83/255, blue: 126/255, alpha: 1)
         _sayText?.delegate = self
+        _sayText?.returnKeyType = UIReturnKeyType.Done
         //_sayText?.editable = false
         _sayText?.scrollEnabled = false
         _sayText?.font = UIFont.systemFontOfSize(14)
@@ -113,6 +114,7 @@ class InfoForImage:UIView,UITextViewDelegate{
     }
     
     
+    
     //----文字输入代理
     
     func textViewDidBeginEditing(textView: UITextView) {
@@ -122,14 +124,17 @@ class InfoForImage:UIView,UITextViewDelegate{
         self.superview?.addGestureRecognizer(_tapG!)
     }
     
-    
-    
     func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
 //        let _n:Int=_sayText!.text.lengthOfBytesUsingEncoding(NSUnicodeStringEncoding)/2
 //        
 //        if (_n+text.lengthOfBytesUsingEncoding(NSUnicodeStringEncoding)/2)>_maxNum{
 //            return false
 //        }
+        
+        if text == "\n"{
+            textView.resignFirstResponder()
+            return false
+        }
         
         
         return true

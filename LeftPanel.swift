@@ -25,6 +25,7 @@ class LeftPanel: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        _refreshProfile()
     }
     func setup(){
         if _setuped{
@@ -72,7 +73,7 @@ class LeftPanel: UIViewController {
         _label_name = UILabel(frame: CGRect(x: 0, y: 0, width: 160, height: 25))
         _label_name?.textAlignment = NSTextAlignment.Center
         _label_name?.center = CGPoint(x: self.view.frame.width/2, y: 172)
-        _label_name?.font = UIFont.systemFontOfSize(22)
+        _label_name?.font = UIFont.systemFontOfSize(20)
         
         _label_name?.textColor = UIColor.whiteColor()
         self.view.addSubview(_label_name!)
@@ -80,7 +81,7 @@ class LeftPanel: UIViewController {
         _label_edit = UILabel(frame: CGRect(x: 0, y: 0, width: 160, height: 20))
         _label_edit?.textAlignment = NSTextAlignment.Center
         _label_edit?.center = CGPoint(x: self.view.frame.width/2, y: 200)
-        _label_edit?.font = UIFont.systemFontOfSize(16)
+        _label_edit?.font = UIFont.systemFontOfSize(14)
         _label_edit?.text = "点击编辑资料"
         _label_edit?.textColor = UIColor.darkGrayColor()
         
@@ -136,6 +137,24 @@ class LeftPanel: UIViewController {
         //self.view.addSubview(_uiV)
         _setuped = true
     }
+    func _refreshProfile(){
+        MainAction._getProfile { (__dict) -> Void in
+            if let _avatar = __dict.objectForKey("avatar") as? String{
+                self._setProfileImg((MainAction._imageUrl(_avatar)))
+            }else{
+                self._setProfileImg("profile")
+            }
+            if let _nickname = __dict.objectForKey("nickname") as? String{
+                self._setName(_nickname)
+            }else{
+                self._setName("")
+            }
+
+        }
+    }
+    
+    
+    
     func _setProfileImg(__str:String){
         _profileImg!._setPic(NSDictionary(objects: [__str,"file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
             self._btn_profile!.setImage(self._profileImg!._imgView!.image, forState: UIControlState.Normal)
@@ -145,7 +164,17 @@ class LeftPanel: UIViewController {
         
     }
     func _setName(__str:String){
-        _label_name?.text = __str
+        if __str == "" {
+            
+            _label_name?.textColor = UIColor.grayColor()
+            _label_name?.text = "呀，还没有名字！"
+            
+        }else{
+            _label_name?.textColor = UIColor.whiteColor()
+            _label_name?.text = __str
+        }
+        
+        
     }
     
     func _swapTo(__distance:CGFloat){
@@ -202,6 +231,7 @@ class LeftPanel: UIViewController {
             break
         case _btn_profile!:
             let _viewC:ProfilePage = ProfilePage()
+            _viewC._parentView = self
             self.presentViewController(_viewC, animated: true, completion: { () -> Void in
                 
             })

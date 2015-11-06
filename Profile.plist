@@ -3,12 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>profileImg</key>
-	<string></string>
+	<string>profile</string>
 	<key>nickname</key>
 	<string></string>
 	<key>sex</key>
+	<integer>0</integer>
+	<key>birthday</key>
 	<string></string>
 	<key>phone</key>
+	<string></string>
+	<key>email</key>
 	<string></string>
 </dict>
 </plist>

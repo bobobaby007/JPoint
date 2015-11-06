@@ -27,7 +27,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     var _nameLabel:UILabel?
     
     var _latestTime:NSTimeInterval?
-    let _barH:CGFloat = 80
+    let _barH:CGFloat = 60
     
     
     let _messagesArray:NSArray = [["type":"match","content":"image_1.jpg||快来踩一踩，猜一猜，才车使馆时代","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"]]
@@ -87,8 +87,8 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         _topView?.addSubview(_blurV!)
         
         
-        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 40, height: 40))
-        _btn_back?.center = CGPoint(x: 30, y: 50)
+        _btn_back = UIButton(frame: CGRect(x: 10, y: 20, width: 30, height: 30))
+        _btn_back?.center = CGPoint(x: 30, y: _barH/2+6)
         _btn_back?.setImage(UIImage(named: "icon_back"), forState: UIControlState.Normal)
         _btn_back?.transform = CGAffineTransformRotate((_btn_back?.transform)!, -3.14*0.5)
         _btn_back?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -99,7 +99,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         _profileImg?.clipsToBounds = true
         _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
         _profileImg?.layer.borderWidth = 1
-        _profileImg?.center = CGPoint(x: self.view.frame.width/2, y: 25)
+        _profileImg?.center = CGPoint(x: self.view.frame.width/2, y: _barH/2+6)
         _topView?.addSubview(_profileImg!)
         
         _nameLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 40, height: 30))
@@ -197,8 +197,8 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     func _setName(__str:String){
         _nameLabel?.text = __str
         _nameLabel?.sizeToFit()
-        _nameLabel?.center = CGPoint(x:self.view.frame.width/2+10 , y: 55)
-        _profileImg?.center = CGPoint(x: (self.view.frame.width-_nameLabel!.frame.width)/2-10, y: 55)
+        _nameLabel?.center = CGPoint(x:self.view.frame.width/2+10 , y: _barH/2+6)
+        _profileImg?.center = CGPoint(x: (self.view.frame.width-_nameLabel!.frame.width)/2-10, y: _barH/2+6)
     }
     
     //----输入框代理

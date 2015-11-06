@@ -104,11 +104,7 @@ class CoreAction {
     }
     //－－－－获取图片像素alpha值
     static func _getPixelAlphaFromImage(pos: CGPoint,__inImage:UIImage) -> CGFloat {
-        
         let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(__inImage.CGImage))
-        
-        
-        
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
         let pixelInfo: Int = ((Int(__inImage.size.width) * Int(pos.y)) + Int(pos.x)) * 4
 //        let r = CGFloat(data[pixelInfo]) / CGFloat(255.0)
@@ -133,9 +129,6 @@ class CoreAction {
         let build = dictionary["CFBundleVersion"] as! String
         return "\(version) build \(build)"
     }
-    
-    
-    
     //-----保存字典到文件
     static func _saveDictToFile(__dict:NSDictionary,__fileName:String){
         let _paths = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true) as NSArray
@@ -192,7 +185,6 @@ class CoreAction {
         let fileManager = NSFileManager.defaultManager()
         // If it doesn't, copy it from the default file in the Bundle
         if let bundlePath = NSBundle.mainBundle().pathForResource(__fileName, ofType: "plist") {
-            
             let resultDictionary = NSMutableDictionary(contentsOfFile: bundlePath)
             print("Bundle \(__fileName).plist file is --> \(resultDictionary?.description)")
             do{
@@ -213,156 +205,32 @@ class CoreAction {
         let _fileManager = NSFileManager.defaultManager()
         return _fileManager.fileExistsAtPath(_path)
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /*
-    static func _uploadImage(){
-        let imageData = UIImagePNGRepresentation(UIImage(named: "okgo.png")!)
-        
-        if imageData != nil{
-            let request = NSMutableURLRequest(URL: NSURL(string:"http://4view.cn/interface/upfile.php")!)
-            //let request = NSMutableURLRequest(URL: NSURL(string:"http://192.168.1.106:9999/v1/bingo/send/")!)
-            //let session = NSURLSession.sharedSession()
-            //let string = imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
-           // print(string)
-            let string:NSString = NSString(format: "www")
-            
-            request.HTTPMethod = "POST"
-            
-            let boundary = NSString(format: "---------------------------14737809831466499882746641449")
-            let contentType = NSString(format: "multipart/form-data; boundary=%@",boundary)
-            //  println("Content Type \(contentType)")
-            request.addValue(contentType as String, forHTTPHeaderField: "Content-Type")
-            
-            let body = NSMutableData()
-            
-            // String
-//            body.appendData(NSString(format: "\r\n--%@\r\n",boundary).dataUsingEncoding(NSUTF8StringEncoding)!)
-//            body.appendData(NSString(format:"Content-Disposition: form-data; name=\"string\"\r\n\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            //body.appendData(string!.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)!)
-//            body.appendData("hello world".dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)!)
-           
-            
-            body.appendData(NSString(format: "\r\n--%@\r\n", boundary).dataUsingEncoding(NSUTF8StringEncoding)!)
-            // body.appendData(NSString(format:"Content-Disposition: form-data; name=\"pic\"; filename=\"okgo.png\"\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            body.appendData(NSString(format:"Content-Disposition: form-data; name=\"myForm\"; filename=\"ttttt\"\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-           // body.appendData(NSString(format: "Content-Type: application/octet-stream\r\n\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            // body.appendData(imageData!)
-            body.appendData(string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)!)
-            //body.appendData(NSString(format: "\r\n--%@\r\n", boundary).dataUsingEncoding(NSUTF8StringEncoding)!)
-            
-            
-            
-            // Image
-            body.appendData(NSString(format: "\r\n--%@\r\n", boundary).dataUsingEncoding(NSUTF8StringEncoding)!)
-           // body.appendData(NSString(format:"Content-Disposition: form-data; name=\"pic\"; filename=\"okgo.png\"\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-             body.appendData(NSString(format:"Content-Disposition: form-data; name=\"pic\"; filename=\"okgo.png\"\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            body.appendData(NSString(format: "Content-Type: application/octet-stream\r\n\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-           // body.appendData(imageData!)
-            body.appendData(string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)!)
-            body.appendData(NSString(format: "\r\n--%@\r\n", boundary).dataUsingEncoding(NSUTF8StringEncoding)!)
-            
-           // print(body)
-            request.HTTPBody = body
-            
-            
-            
-            let see = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
-             // print(data)
-                
-                let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                print(_str)
-                
-                do{
-                 let jsonResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
-                  print(jsonResult)
-                }catch{
-                    print(error)
-                }
-                
-                
-                
-                
-                
-                
-//            var jsonResult: NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
-//                               print("AsSynchronous\(jsonResult)")
-            })
-            
-            see.resume()
-            
-            //var returnData = NSURLConnection.sendSynchronousRequest(request, returningResponse: nil, error: nil)
-//            let queue:NSOperationQueue = NSOperationQueue()
-//            NSURLConnection.sendAsynchronousRequest(request, queue: queue, completionHandler: { (response, data, error) -> Void in
-//                var err: NSError
-//                var jsonResult: NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers, error: nil) as NSDictionary
-//                print("AsSynchronous\(jsonResult)")
-           // })
-            
-            
-            
-//            let returnString = NSString(data: returnData, encoding: NSUTF8StringEncoding)
-//            
-//            print("returnString \(returnString)")
-            
-        }
-        
-
-    }*/
-    
-    static func _uploadImage(){
+    //----image转换成可发送字符串
+    static func _imageToString(__image:UIImage)->String{
         //let imageData = UIImagePNGRepresentation(UIImage(named: "test.png")!)
-        let imageData = UIImageJPEGRepresentation(UIImage(named: "image_1.jpg")!, 1
-        )
-       // let imageData_jpg = UIImagePNGRepresentation(UIImage(named: "image_1.jpg")!)
-
-        if imageData != nil{
-            let request = NSMutableURLRequest(URL: NSURL(string:"http://bingome.giccoo.com/v1/bingo/send/")!)
-            //let request = NSMutableURLRequest(URL: NSURL(string:"http://192.168.1.106:9999/v1/bingo/send/")!)
-            //let session = NSURLSession.sharedSession()
-            var string:String = (imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn))!
-           //let data = imageData?.base64EncodedDataWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithLineFeed)
-            string = string.stringByReplacingOccurrencesOfString("+", withString: "%2B")
-            //let string = NSString(data: data!, encoding: NSUTF8StringEncoding)
-            // print(string)
-            //return
-            //let string:String = "我说的"
-            
-            request.HTTPMethod = "POST"
-            var postString : String = "token="
-           postString = postString.stringByAppendingFormat("&image=%@&question=%@&answer=%@&type=%@&lng=%d&lat=%d",string,"问题",string,"Meida",7,7)
-            
-           // print(postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false))
-            
-            //return
-            
-            request.HTTPBody = postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-            
-            
-            
-            let see = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
-                // print(data)
-                
-                let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                print(_str)
-                
-//                do{
-//                    let jsonResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
-//                    print(jsonResult)
-//                }catch{
-//                    print(error)
-//                }
-            })
-            see.resume()
-        }
+        let imageData = UIImageJPEGRepresentation(__image, 0.7)
+        var string:String = (imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn))!
+        string = string.stringByReplacingOccurrencesOfString("+", withString: "%2B")
+        return string
     }
+    //----发送参数到url
+    static func _sendToUrl(__postString:String,__url:String,__block:(NSDictionary)->Void){
+        let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
+        request.HTTPMethod = "POST"
+        request.HTTPBody = __postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
+        let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
+            let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            print(_str)
+            do{
+                let jsonResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
+                __block(jsonResult as! NSDictionary)
+            }catch{
+                print(error)
+            }
+        })
+        task.resume()
+    }
+    
     
     
 }
