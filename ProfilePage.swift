@@ -49,6 +49,8 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     
     var _profile_old:NSDictionary?
     
+    var _imageChanged:Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -73,7 +75,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         _btn_profile = UIButton(type: UIButtonType.Custom)
         
         _btn_profile!.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-        _btn_profile?.center = CGPoint(x: self.view.frame.width/2, y: 140)
+        _btn_profile?.center = CGPoint(x: self.view.frame.width/2, y: 120)
         
         _btn_profile?.clipsToBounds = true
         _btn_profile!.layer.cornerRadius = 50
@@ -94,7 +96,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         
         _seg_sex?.tintColor = UIColor.whiteColor()
         _seg_sex?.frame = CGRect(x: 0, y: 0, width: _central_w, height: 40)
-        _seg_sex?.center = CGPoint(x: self.view.frame.width/2, y: 240)
+        _seg_sex?.center = CGPoint(x: self.view.frame.width/2, y: 220)
         //_seg_sex?.selectedSegmentIndex = 0
         _seg_sex?.enabled = true
         //_seg_sex?.momentary = true
@@ -153,20 +155,20 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         self.view.addSubview(_topView!)
         
         
-        _label_name = UILabel(frame: CGRect(x: (self.view.frame.width - _central_w)/2, y: 280, width: 50, height: 30))
+        _label_name = UILabel(frame: CGRect(x: (self.view.frame.width - _central_w)/2, y: 260, width: 50, height: 30))
         _label_name?.text = "昵称:"
         _label_name?.textAlignment = NSTextAlignment.Left
         _label_name?.textColor = UIColor.darkGrayColor()
         
         
-        _text_name = UITextField(frame: CGRect(x: (self.view.frame.width - _central_w)/2+50, y: 280, width: _central_w-50, height: 30))
+        _text_name = UITextField(frame: CGRect(x: (self.view.frame.width - _central_w)/2+50, y: 260, width: _central_w-50, height: 30))
         
         _text_name?.textAlignment = NSTextAlignment.Right
         _text_name?.text = "输入名字"
         _text_name?.delegate = self
         _text_name?.textColor = UIColor.whiteColor()
         
-        let _line:UIView = UIView(frame: CGRect(x: (self.view.frame.width - _central_w)/2, y: 280+30, width: _central_w, height: 1))
+        let _line:UIView = UIView(frame: CGRect(x: (self.view.frame.width - _central_w)/2, y: 260+30, width: _central_w, height: 1))
         _line.backgroundColor = UIColor.whiteColor()
         
         
@@ -229,7 +231,11 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         if let _avatar = __dict.objectForKey("avatar") as? String{
             self._setProfileImg(MainAction._imageUrl(_avatar))
         }else{
-            self._setProfileImg("profile")
+            if __dict.objectForKey("sex") as? Int == 1{
+                self._setProfileImg("user-icon-m.jpg")
+            }else{
+                self._setProfileImg("user-icon-w.jpg")
+            }
         }
         
         }
@@ -278,9 +284,11 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         
     }
     func _imageInputer_saved() {
-        
+        _imageChanged = true
         MainAction._changeAvatar(_imageInputer!._captureBgImage()) { (__dict) -> Void in
-            
+            if self._parentView != nil {
+                self._parentView?._updateProfielOnline()
+            }
         }
         self._btn_profile!.setImage(self._imageInputer!._captureBgImage(), forState: UIControlState.Normal)
         self._imageInputer!.view.removeFromSuperview()
@@ -292,7 +300,6 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
        
         switch sender{
         case _btn_back!:
-            
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })
@@ -314,9 +321,6 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         }
     }
     func _checkIfChanged()->Bool{
-        
-        
-        
         return false
     }
     func _saveProfile(){

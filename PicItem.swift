@@ -12,8 +12,8 @@ import UIKit
 
 protocol PicItemDelegate:NSObjectProtocol{
     func _clicked()
-    func _bingo()
-    func _bingoFailed()
+    func _bingo(__x:Int,__y:Int)
+    func _bingoFailed(__x:Int,__y:Int)
 }
 
 class PicItem: UIView {
@@ -55,7 +55,7 @@ class PicItem: UIView {
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        
         addSubview(_imageV!)
-        addSubview(_answerV!)
+        //addSubview(_answerV!)
     }
     func _ready(){
         self.addGestureRecognizer(_tapG!)
@@ -72,9 +72,13 @@ class PicItem: UIView {
         _clickSign = ClickSign(frame: CGRect(x: __p.x, y: __p.y, width: 0, height: 0))
         addSubview(_clickSign!)
         _clickSign?._show()
+        
+        let _clickX =  Int(10000*__p.x/_answerV!.frame.width) //----x比例最大10000
+        let _clickY =  Int(10000*__p.y/_answerV!.frame.height)
+        
         if _answerV!._imgView!.image == nil{
             self.removeGestureRecognizer(_tapG!)
-            _delegate?._bingoFailed()
+            _delegate?._bingoFailed(_clickX,__y: _clickY)
             return
         }
         let _p:CGPoint = CGPoint(x: __p.x*(_answerV!._imgView!.image!.size.width/_answerV!.frame.width), y: __p.y*(_answerV!._imgView!.image!.size.height/_answerV!.frame.height))
@@ -82,13 +86,18 @@ class PicItem: UIView {
        
        // print(_alpha)
         
+        
+        
+        
+        
+        
         self.removeGestureRecognizer(_tapG!)
         _delegate?._clicked()
         if _alpha == 1{
-            _delegate?._bingo()
+            _delegate?._bingo(_clickX,__y: _clickY)
         }else{
             _showFail()
-            _delegate?._bingoFailed()
+            _delegate?._bingoFailed(_clickX,__y: _clickY)
         }
         
     }

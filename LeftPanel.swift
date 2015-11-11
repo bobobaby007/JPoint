@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-class LeftPanel: UIViewController {
+class LeftPanel: UIViewController,MyImageList_delegate {
     var _setuped:Bool = false
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
@@ -94,7 +94,7 @@ class LeftPanel: UIViewController {
         _btn_gingoMe?.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         _btn_gingoMe?.setImage(UIImage(named: "icon_GotoBingo"), forState: UIControlState.Normal)
         _btn_gingoMe?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-5*_gapY)
-        _btn_gingoMe?.setTitle("激点", forState: UIControlState.Normal)
+        _btn_gingoMe?.setTitle("去猜猜", forState: UIControlState.Normal)
         _btn_gingoMe?.titleLabel?.font = UIFont.systemFontOfSize(20)
         _btn_gingoMe?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _btn_gingoMe?.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
@@ -115,7 +115,7 @@ class LeftPanel: UIViewController {
         _btn_imgList?.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         _btn_imgList?.setImage(UIImage(named: "icon_myList"), forState: UIControlState.Normal)
         _btn_imgList?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height-3*_gapY)
-        _btn_imgList?.setTitle("图列", forState: UIControlState.Normal)
+        _btn_imgList?.setTitle("我的发布", forState: UIControlState.Normal)
         _btn_imgList?.titleLabel?.font = UIFont.systemFontOfSize(20)
         _btn_imgList?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _btn_imgList?.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
@@ -142,7 +142,11 @@ class LeftPanel: UIViewController {
             if let _avatar = __dict.objectForKey("avatar") as? String{
                 self._setProfileImg((MainAction._imageUrl(_avatar)))
             }else{
-                self._setProfileImg("profile")
+                if __dict.objectForKey("sex") as? Int == 1{
+                    self._setProfileImg("user-icon-m.jpg")
+                }else{
+                    self._setProfileImg("user-icon-w.jpg")
+                }
             }
             if let _nickname = __dict.objectForKey("nickname") as? String{
                 self._setName(_nickname)
@@ -182,6 +186,13 @@ class LeftPanel: UIViewController {
         
     }
     
+    //-----我的发布代理
+    func _gotoPostOnePic() {
+        _parentView?._showMainView()
+        _parentView?._mainView?._showEdtingPage()
+    }
+    
+    
     func _swapTo(__distance:CGFloat){
         
     }
@@ -218,6 +229,8 @@ class LeftPanel: UIViewController {
         switch sender{
         case _btn_imgList!:
             let _viewC:MyImageList = MyImageList()
+            _viewC._delegate = self
+            _viewC._getData()
             self.presentViewController(_viewC, animated: true, completion: { () -> Void in
                 
             })

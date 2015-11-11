@@ -306,7 +306,6 @@ class ViewController: UIViewController {
         _currentPage = "mainView"
         self._mainView?.view.userInteractionEnabled = true
         
-        
         UIView.animateWithDuration(0.2, animations: { () -> Void in
                 self._mainView?.view.transform = CGAffineTransformMakeTranslation(0, 0)
                 self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)

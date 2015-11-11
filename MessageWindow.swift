@@ -103,7 +103,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
         _profileImg?.layer.borderWidth = 1
         _profileImg?.center = CGPoint(x: self.view.frame.width/2, y: _barH/2+6)
-        _topView?.addSubview(_profileImg!)
+        
         
         _nameLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 40, height: 30))
         _nameLabel?.textColor = UIColor.whiteColor()
@@ -237,7 +237,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     func _setPorofileImg(__str:String){
         _prifileImageUrl = __str
         _profileImg?._setPic(NSDictionary(objects: [__str,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
-            
+          self._topView?.addSubview(self._profileImg!)
         })
     }
     func _setName(__str:String){

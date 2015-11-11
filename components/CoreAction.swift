@@ -125,7 +125,7 @@ class CoreAction {
     }
     //------截图
     static func _captureImage(__view:UIView)->UIImage{
-        UIGraphicsBeginImageContextWithOptions(__view.frame.size, false, 0.0);
+        UIGraphicsBeginImageContextWithOptions(__view.frame.size,true, 0.0);
         __view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
         let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
@@ -232,12 +232,11 @@ class CoreAction {
     }
     //----发送参数到url
     static func _sendToUrl(__postString:String,__url:String,__block:(NSDictionary)->Void){
-        //print("sending====",__url,__postString)
+        print("sending====",__url,__postString)
         let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
         request.HTTPMethod = "POST"
         request.HTTPBody = __postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
     
-        
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
             if erro != nil{
                 print("链接失败:",__url,erro)

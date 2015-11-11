@@ -99,6 +99,9 @@ class ProfilePanel:UIView {
         _userImg?._setPic(NSDictionary(objects: [__pic,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             
         })
+//        _userImg?._setPic(NSDictionary(objects: ["noPic.jpg","file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
+//            
+//        })
     }
     func _setName(__set:String){
         _nameLabel?.text = __set

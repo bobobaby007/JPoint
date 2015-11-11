@@ -19,6 +19,8 @@ class MainAction {
     static let _Version:String = "v1"
     static let _URL_PostBingo:String = "bingo/send/"//---发布图片地址
     static let _URL_BingoList:String = "bingo/list/"//----获取首页列表
+    static let _URL_MyImageList:String = "my/list/"//－－－我的图列
+    static let _URL_MyImageDetail = "my/bingo/" //--- 我的图列详情
     static let _URL_Sent_Bingo:String = "bingo/check/"//----发送bingo地址
     static let _URL_Signup:String = "sign/up/" //----注册地址
     static let _URL_Login:String = "sign/in/"//登录地址
@@ -32,6 +34,7 @@ class MainAction {
     static let _BingoType_text:String = "text"
     static let _BingoType_bingo:String = "bingo"
     static var _BingoList:NSArray = []   //首页列表
+    static var _MyImageList:NSArray = [] //我的图列数组
     static var _ChatsList:NSArray?//---bingo聊天列表
     static var _profileDict:NSDictionary?
     static var _userInfo:NSMutableDictionary?
@@ -123,6 +126,38 @@ class MainAction {
             __block(__dict)
         }
     }
+    //-----获取我的图列
+    static func _getMyImageList(__block:(NSDictionary)->Void){
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_MyImageList
+        let postString : String = "token=" + _token
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            //print(__dict.objectForKey("reason"))
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                //_MyImageList = __dict.objectForKey("info") as! NSArray
+                
+            }else{
+                
+            }
+            __block(__dict)
+        }
+    }
+    //-----获取图列详情
+    static func _getImageDetails(__picId:String, __block:(NSDictionary)->Void){
+        __block(NSDictionary())
+//        let url = _BasicDomain + "/" + _Version + "/" +  _URL_MyImageDetail
+//        let postString : String = "token=" + _token + "&bingo=" + __picId
+//        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+//            let recode:Int = __dict.objectForKey("recode") as! Int
+//            if recode == 200{
+//                //_MyImageList = __dict.objectForKey("info") as! NSArray
+//            }else{
+//                
+//            }
+//            __block(__dict)
+//        }
+    }
+    
     //---提交新的图片
     static func _postNewBingo(__image:UIImage,__question:String,__answer:UIImage,__type:String){
         var postString : String = "token=" + _token
@@ -155,10 +190,10 @@ class MainAction {
         }
     }
     //------bingo成功
-    static func _sentBingo(__picId:String,__x:CGFloat,__y:CGFloat,__block:(NSDictionary)->Void){
+    static func _sentBingo(__picId:String,__x:Int,__y:Int,__right:String,__block:(NSDictionary)->Void){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_Sent_Bingo
-        var postString : String = "token=" + _token
-        postString = postString.stringByAppendingFormat("&id=%@&x=%d&x=%d",__picId,__x,__y)
+        let postString : String = "token=\(_token)&id=\(__picId)&x=\(__x)&y=\(__y)&right=\(__right)"
+        //postString = postString.stringByAppendingFormat("&id=%@&x=%d&y=%d&right=%@",__picId,__x,__y,__right)
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
             //print(__dict.objectForKey("reason"))
             __block(__dict)
@@ -203,9 +238,6 @@ class MainAction {
             print(_socket)
         }
         _saveOneChat(NSDictionary(objects: [__dict.objectForKey("uid")!,__dict.objectForKey("type")!,__dict.objectForKey("content")!,CoreAction._timeStrOfCurrent()], forKeys: ["uid","type","content","time"]))
-        
-       
-        
     }
     //－－－－保存一条记录
     static func _saveOneChat(__dict:NSDictionary){
@@ -249,7 +281,6 @@ class MainAction {
             return nil
         }
     }
-    
     
     //------获取本地个人资料
     static func _getProfile(__block:(NSDictionary)->Void){

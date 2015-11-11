@@ -11,6 +11,7 @@ import UIKit
 
 class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     var inited:Bool = false
+    var _id:String = ""
     var _bgImg:PicView?
     var _rect:CGRect?
     var _height:CGFloat = 10
@@ -24,7 +25,13 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     var _usersIned:Bool = false
     var _textBubble:TextBubble?
     var _overShadow:UIImageView?
+    
+    var _label_noUserBingo:UILabel?
+    
     weak var _parentDelegate:BingoUserItemAtMyList_delegate?
+    
+    var _bingoUsers:NSArray = []
+    
     
     func initWidthFrame(__frame:CGRect){
         if inited{
@@ -86,24 +93,17 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
     
     func _changeToHeight(__height:CGFloat){
         _height = __height
-        
-        
-        
         if __height>=_bgImg!.frame.width{
             _bgImg?.frame = CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset)
-            
-            
         }else{
             _bgImg?.frame = CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: __height-_imageInset)
             
         }
-        
-        
         _bgImg?._refreshView()
         
     }
+    //-----载入点击的圈圈位置
     func _getPoints(){
-        
         if _pointsView == nil{
             _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
             _pointsView?.layer.cornerRadius = _cornerRadius
@@ -111,8 +111,6 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             _pointsView?.userInteractionEnabled = false
         }
         addSubview(_pointsView!)
-        
-        
         for subview in _pointsView!.subviews{
             subview.removeFromSuperview()
         }
@@ -124,13 +122,8 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         }
         for _index:Int in 0...3{
             _addPointAt(CGFloat(random()%100),__y: CGFloat(random()%100),__tag:_index)
-            
         }
-        
-        
-       
     }
-    
     func _addPointAt(__x:CGFloat,__y:CGFloat,__tag:Int){
         let __p:CGPoint = CGPoint(x: _imageInset+__x*(_rect!.width-2*_imageInset)/100, y: _imageInset+__y*(_rect!.width-2*_imageInset)/100)
         let _r:CGFloat = 5 + CGFloat(random()%50)
@@ -152,8 +145,6 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         _pointsView!.addSubview(_item)
     }
     func _showPoint(__dict:NSDictionary){
-        
-        
         let __p:CGPoint = CGPoint(x: _imageInset + (__dict.objectForKey("x") as! CGFloat)*(_rect!.width-2*_imageInset)/100, y: _imageInset+(__dict.objectForKey("y") as! CGFloat)*(_rect!.width-2*_imageInset)/100)
         
         if _signer != nil{
@@ -168,6 +159,31 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         
         
     }
+    func _ifHaseUsers(){
+        if self._bingoUsers.count == 0{
+            if _label_noUserBingo == nil{
+                let _h:CGFloat = _height - _infoPanel!.frame.origin.y - _infoPanel!.frame.height - 25 - 10
+                _label_noUserBingo = UILabel(frame: CGRect(x: _imageInset, y:_height-_h-10, width: _rect!.width-2*_imageInset, height: _h))
+                _label_noUserBingo?.lineBreakMode = NSLineBreakMode.ByCharWrapping
+                _label_noUserBingo?.text = "目前还没有人猜中您的心思\n再等等，也许是你设置的难度有点大"
+                _label_noUserBingo?.textAlignment = NSTextAlignment.Center
+                _label_noUserBingo?.clipsToBounds = true
+                _label_noUserBingo?.layer.cornerRadius = 5
+                _label_noUserBingo?.backgroundColor = UIColor(white: 0.8, alpha: 0.3)
+               // _label_noUserBingo?.textColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5)
+                _label_noUserBingo?.textColor = UIColor.whiteColor()
+                
+            }
+            self.addSubview(_label_noUserBingo!)
+        }else{
+            if _label_noUserBingo != nil{
+                _label_noUserBingo?.removeFromSuperview()
+                _label_noUserBingo = nil
+            }
+            self._usersIn()
+            
+        }
+    }
     func _usersIn(){
         let _h:CGFloat = _height - _infoPanel!.frame.origin.y - _infoPanel!.frame.height - 25
         let _w:CGFloat = _h-50
@@ -180,7 +196,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         
         self.addSubview(_usersScroller!)
         
-        for _index:Int in 0...12{
+        for var _index:Int = 0; _index < _bingoUsers.count; ++_index {
             let _user:BingoUserItemAtMyList = BingoUserItemAtMyList()
             _user.initWidthFrame(CGRect(x: 0, y: 0, width: _w, height: _h))
             _user.frame = CGRect(x: (_w+_gap)*CGFloat(_index), y: 0, width: _w, height: _h)
@@ -192,21 +208,20 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             _usersScroller?.addSubview(_user)
             
         }
-        _usersScroller?.contentSize = CGSize(width: 13*(_w+_gap), height: _h)
-        
-        
-        
+        _usersScroller?.contentSize = CGSize(width: CGFloat(_bingoUsers.count)*(_w+_gap), height: _h)
     }
     //----代理
     func _needToTalk(__id: String) {
         _parentDelegate?._needToTalk(__id)
     }
+    
     func _showUser(__index: Int) {
         let __dict:NSDictionary = _points!.objectAtIndex(__index) as! NSDictionary
         //print(__dict)
         _showPoint(__dict)
 
     }
+    //-----清除用户
     func _clearUsers(){
         if _usersScroller == nil{
             return
@@ -215,10 +230,11 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             _subV.removeFromSuperview()
         }
     }
+    
+    //-----获取bingo的用户
     func _getUsers(){
-        
-        _clearUsers()
-        _usersIn()
+        self._clearUsers()
+        self._ifHaseUsers()
     }
     
     
@@ -228,9 +244,22 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         addSubview(_textBubble!)
         //print(_textBubble!._mySize)
          _infoPanel!.frame = CGRect(x: _imageInset+5, y: _textBubble!.frame.origin.y+_textBubble!.frame.height+10, width: _rect!.width-2*_imageInset-10, height: 30)
-        _getPoints()
-        _getUsers()
+        _getDatas()
     }
+    
+    func _getDatas(){
+        
+        MainAction._getImageDetails(_id) { (__dict) -> Void in
+            self._bingoUsers = []
+            //self._getPoints()
+            self._getUsers()
+            
+        }
+        
+        
+    }
+    
+    
     func _close(){
         
         _overShadow?.hidden = false
@@ -239,7 +268,11 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
           _usersScroller?.removeFromSuperview()
           _usersScroller = nil
         }
-        
+        if _label_noUserBingo != nil{
+            _label_noUserBingo?.removeFromSuperview()
+            _label_noUserBingo = nil
+        }
+
         if _pointsView != nil{
             _pointsView?.removeFromSuperview()
             _pointsView = nil
@@ -257,11 +290,12 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         
         _infoPanel!.frame = CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30)
 
+        
     }
     
     func _setPic(__picUrl:String){
-        _bgImg?._setImage(__picUrl)
-        _bgImg?._refreshView()
+        _bgImg?._loadImage(__picUrl)
+        //_bgImg?._refreshView()
     }
     func _setText(__str:String){
         _textBubble?._setSay(__str)

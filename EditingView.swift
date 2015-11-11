@@ -176,7 +176,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self.view.layer.shadowOpacity = 0.2
         self.view.layer.shadowRadius = 5
 
-        _setProfilePic("profile")
+        //_setProfilePic("profile")
     }
     
     func buttonAction(__sender:UIButton){
@@ -226,8 +226,14 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
                 print(__dict)
                 self._infoForImage!._setPic(MainAction._imageUrl(_avatar))
             }else{
-                self._infoForImage!._setPic("profile")
+                if __dict.objectForKey("sex") as? Int == 1{
+                    self._infoForImage!._setPic("user-icon-m.jpg")
+                }else{
+                    self._infoForImage!._setPic("user-icon-w.jpg")
+                }
             }
+            
+            
         }
         _btnsShow()
     }

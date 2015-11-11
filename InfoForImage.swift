@@ -135,8 +135,6 @@ class InfoForImage:UIView,UITextViewDelegate{
             textView.resignFirstResponder()
             return false
         }
-        
-        
         return true
     }
     
@@ -146,7 +144,9 @@ class InfoForImage:UIView,UITextViewDelegate{
     
     
     func _setPic(__pic:String){
-        _userImg?._setImage(__pic)
+        _userImg?._setPic(NSDictionary(objects: [__pic,"file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
+            
+        })
     }
 //    func _setName(__set:String){
 //        _nameLabel?.text = __set

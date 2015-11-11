@@ -9,6 +9,9 @@
 import Foundation
 import UIKit
 
+protocol MyImageList_delegate: NSObjectProtocol{
+    func _gotoPostOnePic()
+}
 
 class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,BingoUserItemAtMyList_delegate{
     var _setuped:Bool = false
@@ -16,7 +19,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     var _btn_back:UIButton?
     let _cellHeight:CGFloat = 140
     var _selectedIndex:NSIndexPath?
-    var _messages:NSMutableArray? = NSMutableArray()
+    var _imagesArray:NSArray = []
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
     
@@ -31,13 +34,14 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     var _latestTime:NSTimeInterval?
     let _barH:CGFloat = 60
     
+    var _btn_noImage:UIButton?
     
-    
+    weak var _delegate:MyImageList_delegate?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
+        
     }
-    
     func setup(){
         if _setuped{
             return
@@ -82,7 +86,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: _barH/2+6)
         _nameLabel?.font = UIFont.boldSystemFontOfSize(20)
         _nameLabel?.textColor = UIColor.whiteColor()
-        _nameLabel?.text = "图列"
+        _nameLabel?.text = "我的发布"
         
         _topView?.addSubview(_nameLabel!)
         // _tableView?.tableHeaderView = _topView
@@ -91,28 +95,71 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         
         
         _setuped=true
-    }
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         
+        //_getData()
+        
+        
+    }
+    
+    func _getData(){
+        MainAction._getMyImageList { (__dict) -> Void in
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self._imagesArray = __dict.objectForKey("info")  as! NSArray//MainAction._MyImageList
+                    //self._imagesArray = []
+                    self._tableView!.reloadData()
+                    self._ifHasImages()
+                })
+            }else{
+                
+            }
+        }
+    }
+    func _ifHasImages(){//--------没发布过图片
+        if self._imagesArray.count == 0{
+            if _btn_noImage == nil{
+                _btn_noImage = UIButton(frame: CGRect(x: 0, y: 0, width: 205, height: 49))
+                _btn_noImage?.center = CGPoint(x: self.view.frame.width/2, y: _barH + 70)
+                _btn_noImage?.clipsToBounds = true
+                _btn_noImage?.layer.cornerRadius = 5
+                _btn_noImage?.titleLabel?.lineBreakMode = NSLineBreakMode.ByCharWrapping
+                _btn_noImage?.titleLabel?.textAlignment = NSTextAlignment.Center
+                _btn_noImage?.titleLabel?.font = UIFont.systemFontOfSize(13)
+                _btn_noImage?.setBackgroundImage(UIImage(named: "btn_circle.png"), forState: UIControlState.Normal)
+                _btn_noImage?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+                _btn_noImage?.setTitleColor(UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5), forState: UIControlState.Normal)
+                _btn_noImage?.setTitle("您还没有发布过图片\n现在发布,看谁能猜中你的心思", forState: UIControlState.Normal)
+                _btn_noImage?.backgroundColor = UIColor(white: 1, alpha: 0.5)
+                self.view.addSubview(_btn_noImage!)
+            }
+        }else{
+            if _btn_noImage != nil{
+                _btn_noImage?.removeFromSuperview()
+                _btn_noImage = nil
+            }
+        }
+    }
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         if indexPath .isEqual(_selectedIndex){
             return self.view.frame.height
         }
-        
-        
         return _cellHeight
     }
     func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return _imagesArray.count
     }
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let __dict:NSDictionary = _imagesArray.objectAtIndex(indexPath.row) as! NSDictionary
+        //print(__dict)
         let _cell:ImageListItem = _tableView?.dequeueReusableCellWithIdentifier("ImageListItem") as! ImageListItem
-        
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: _cellHeight))
-        _cell._setInfos("3小时前", __clickNum: 3*indexPath.row, __bingoNum: indexPath.row)
-        _cell._setText("快来猜的收购额无奈的说过多少个呢但是难过的很@＃％……％¥……¥＃％@＃")
+        _cell._setInfos(CoreAction._dateDiff(__dict.objectForKey("create_at") as! String), __clickNum: __dict.objectForKey("view") as! Int, __bingoNum: __dict.objectForKey("over") as! Int)
+        _cell._setText(__dict.objectForKey("question") as! String)
         _cell._parentDelegate = self
         if indexPath .isEqual(_selectedIndex){
             _cell._changeToHeight(self.view.frame.height)
@@ -121,9 +168,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             _cell._changeToHeight(_cellHeight)
             _cell._close()
         }
-
-        
-        _cell._setPic("profile")
+        _cell._setPic(MainAction._imageUrl(__dict.objectForKey("image") as! String))
         
         return _cell
     }
@@ -141,12 +186,12 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath .isEqual(_selectedIndex){ //---恢复
            _selectedIndex = nil
-           // UIApplication.sharedApplication().statusBarHidden = false
+            //UIApplication.sharedApplication().statusBarHidden = false
             
             UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.LightContent
             UIApplication.sharedApplication().statusBarHidden=false
             
-            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 self._tableView?.frame = CGRect(x: 0, y: self._barH, width: self.view.frame.width, height: self.view.frame.height-self._barH)
                 self._topView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self._barH)
                 }, completion: { (complete) -> Void in
@@ -155,7 +200,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             
         }else{
           _selectedIndex = indexPath
-            UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.Default
+            //UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.Default
             UIApplication.sharedApplication().statusBarHidden=true
             UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 self._tableView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
@@ -176,6 +221,14 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     func btnHander(sender:UIButton){
         switch sender{
         case _btn_back!:
+            self.dismissViewControllerAnimated(true, completion: { () -> Void in
+                
+            })
+            break
+        case _btn_noImage!:
+            if _delegate != nil{
+                _delegate?._gotoPostOnePic()
+            }
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })

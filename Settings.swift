@@ -169,8 +169,11 @@ class Settings:UIViewController{
             break
         case _btn_contact!:
             let _viewC:MessageWindow = MessageWindow()
+            _viewC._uid = "bingome"
             self.presentViewController(_viewC, animated: true, completion: { () -> Void in
-                
+                _viewC._setPorofileImg("Bingome-logo")
+                _viewC._setName("BingoMe")
+                _viewC._getDatas()
             })
             
             break

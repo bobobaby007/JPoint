@@ -361,12 +361,16 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //_next()
     }
     
-    func _bingoFailed(){
+    func _bingoFailed(__x:Int,__y:Int){
+        MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right: "no") { (__dict) ->
+        Void in
+            
+        }
         _showFailPanel()
     }
     //=--------bingo成功
-    func _bingo(){
-        MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: 20, __y: 20) { (__dict) -> Void in
+    func _bingo(__x:Int,__y:Int){
+        MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right:"yes") { (__dict) -> Void in
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 
@@ -375,8 +379,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }
             
         }
-        
         MainAction._addBingosTo(self._uid, __type: MainAction._BingoType_bingo, __content: "[Bingo]", __nickname: self._nickname, __image: self._avator)
+        //MainAction._saveOneChat(<#T##__dict: NSDictionary##NSDictionary#>)
         self._showBingo(self._nickname, __image: self._avator)
     }
     
@@ -563,7 +567,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     _avator = MainAction._imageUrl(_touxiang)
                     print(_avator)
                 }else{
-                    _avator = "profile"
+                    if _dict.objectForKey("sex") as? Int == 1{
+                        _avator = "user-icon-m.jpg"
+                    }else{
+                        _avator = "user-icon-w.jpg"
+                    }
                 }
                 if let __nickname = _author.objectForKey("nickname") as? String{
                     _nickname = __nickname
