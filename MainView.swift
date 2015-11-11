@@ -20,6 +20,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _forDelectPicItem:PicItem?
     var _currentPicItem:PicItem?
     var _nextPicItem:PicItem?
+    
+    var _nickname = "someone"
+    var _avator = "profile"
+    var _uid = "" //---用户id
+    
     //var _thirdPicItem:PicItem?
     
     var _CentralY:CGFloat = 130
@@ -79,7 +84,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _loadingV:UIView?
     
     
-    
+    var _replayTimes:Int = 0
+    var _timer:NSTimer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -202,31 +208,19 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //_showIndex(0)
         
         
-        
     }
     //----加载列表
     func _loadBingoList()->Void{
+        _startTimer()
         _showLoadingV()
         MainAction._getBingoList { (__dict) -> Void in
-            
-            
-            
-            //print("图片总数：",MainAction._BingoList.count)
+            print("图片总数：",MainAction._BingoList.count)
            // self._showIndex(self._currentIndex)
             if __dict.objectForKey("recode") as! Int == 200{
-                
                 if MainAction._BingoList.count == 0{
-                    //print("again")
-                    let timer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "_loadBingoList", userInfo: nil, repeats: false)
-                    timer.fire()
                     return
                 }
-                
-                
                 dispatch_async(dispatch_get_main_queue(), {
-                    
-                    
-                    
                     if self._isFirstLoaded{
                         self._showMainPage()
                         self._isFirstLoaded=false
@@ -239,7 +233,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     }
                     self._listLoaded = true
                     self._removeLoading()
-                    
+                    self._timer?.invalidate()
                 })
             }else{
                 
@@ -260,6 +254,22 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
         }
     }
+    //-----循环访问
+    func _startTimer(){
+        if self._timer ==  nil{
+            self._timer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "_timerHander", userInfo: nil, repeats: true)
+            
+            //NSRunLoop.mainRunLoop().addTimer(self._timer!, forMode: NSDefaultRunLoopMode)
+            //self._timer!.fire()
+        }
+
+    }
+    
+    func _timerHander(){
+        print("ooo")
+        _loadBingoList()
+    }
+    
     
     //----展示加载动画
     
@@ -304,7 +314,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //----bingo页面代理
     func _bingoViewOut() {
-        
         UIView.animateWithDuration(0.4, delay: 0.2, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseInOut, animations: { () -> Void in
             self._btn_love!.center = CGPoint(x: self.view.frame.width-30, y: 10)
              //self._btn_love!.transform = CGAffineTransformMakeScale(2, 2)
@@ -330,10 +339,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                         }
                 }
         }
-        
-        
-        
-        
     }
     func _talkNow() {
        // self.view.addGestureRecognizer(_panGesture!)
@@ -342,8 +347,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _bingoController = nil
         _shouldReceivePan = true
         let _messageWindow:MessageWindow = MessageWindow()
+        _messageWindow._uid = _uid
         
         self.presentViewController(_messageWindow, animated: true) { (complete) -> Void in
+            _messageWindow._setPorofileImg(self._avator)
+            _messageWindow._setName(self._nickname)
             _messageWindow._getDatas()
         }
     }
@@ -358,19 +366,20 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //=--------bingo成功
     func _bingo(){
-        
-        let _dict:NSDictionary = _currentPicItem!._dict!
-        let _autor:NSDictionary = (_dict.objectForKey("author") as! NSDictionary)
-        
-        var _avator:String = "profile"
-        if let _touxiang = _autor.objectForKey("avatar") as? String{
-            _avator = MainAction._imageUrl(_touxiang)
+        MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: 20, __y: 20) { (__dict) -> Void in
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                
+            }else{
+                self._showAlert("网络似乎不太给力..", __wait: 3)
+            }
+            
         }
         
-        MainAction._addBingosTo(_autor.objectForKey("_id") as! String, __type: MainAction._BingoType_bingo, __content: "[Bingo]", __nickname: _autor.objectForKey("nickname") as! String, __image: _avator)
-        
-        _showBingo()
+        MainAction._addBingosTo(self._uid, __type: MainAction._BingoType_bingo, __content: "[Bingo]", __nickname: self._nickname, __image: self._avator)
+        self._showBingo(self._nickname, __image: self._avator)
     }
+    
     
     //-----提交bingo数据
     
@@ -431,7 +440,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
     }
     //----
-    func _showBingo(){
+    func _showBingo(__name:String,__image:String){
        // self.view.removeGestureRecognizer(_panGesture!)
         _shouldReceivePan = false
         if _bingoController == nil{
@@ -440,34 +449,16 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }
         self.addChildViewController(_bingoController!)
         self.view.addSubview(_bingoController!.view)
-//        _bingoController._setMyImage(NSDictionary(objects: ["image_3.jpg","file"], forKeys: ["url","type"]))
-        _bingoController?._setBingoName((_currentPicItem!._dict!.objectForKey("author") as! NSDictionary).objectForKey("nickname") as! String)
-        
-        
-        if let _avatar = (_currentPicItem!._dict!.objectForKey("author") as! NSDictionary).objectForKey("avatar") as? String{
-            _bingoController?._setBingoImage(MainAction._imageUrl(_avatar))
-        }else{
-         _bingoController?._setBingoImage("profile")
-        }
-        
-            
+        _bingoController?._setBingoName(__name)
+        _bingoController?._setBingoImage(__image)
            // _bingoController?._setBingoImage(_avatar as! String)
-        
-        
-        
         _bingoController?._show()
     }
     //----下一张
     func _next(){
-        
-        
-        
         _btnsIn = false
         self._infoPanel?.alpha=0
         self._profilePanel?.alpha=0
-        
-        
-        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             if self._currentPicItem != nil{
                 self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: -100)
@@ -521,9 +512,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
         }else{
             _currentPicItem = _picInAtIndex(_currentIndex)
-            
             if _currentPicItem != nil{
-                
                 _currentPicItem?.alpha = 0
                 _currentPicItem?.center = CGPoint(x: self.view.frame.width/2, y: _CentralY+10)
                 self.view.addSubview(_currentPicItem!)
@@ -569,24 +558,21 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._profilePanel?.alpha = 0
             
             if let _author:NSDictionary = _dict.objectForKey("author") as? NSDictionary{
-                if let _avatar = _author.objectForKey("avatar") as? String{
-                    _profilePanel?._setPic((MainAction._imageUrl(_avatar)))
+                _uid = _author.objectForKey("_id") as! String
+                if let _touxiang = _author.objectForKey("avatar") as? String{
+                    _avator = MainAction._imageUrl(_touxiang)
+                    print(_avator)
                 }else{
-                    _profilePanel?._setPic("profile")
+                    _avator = "profile"
                 }
-                if let _nickname = _author.objectForKey("nickname") as? String{
-                    _profilePanel?._setName(_nickname)
+                if let __nickname = _author.objectForKey("nickname") as? String{
+                    _nickname = __nickname
                 }else{
-                    _profilePanel?._setName("someone")
+                    _nickname = "someone"
                 }
             }
-                
-            
-            
-            
-            
-            
-            
+            _profilePanel?._setPic(_avator)
+            _profilePanel?._setName(_nickname)
             
             _profilePanel?._setSay(_getQuestionByString(_dict.objectForKey("question") as! String))
             self._profilePanel?.alpha = 0
@@ -600,7 +586,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     
             }
         }
-        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._CentralY)
             self._nextPicItem?.center = CGPoint(x: self.view.frame.width/2, y: self._bottomY-self._bottomOut)
@@ -624,7 +609,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //----载入图片
     func _picInAtIndex(__index:Int)->PicItem?{
-        
         if __index >= MainAction._BingoList.count{
             if __index == MainAction._BingoList.count{
                 //_firstIndex = __index
@@ -634,7 +618,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                 
                 _loadBingoList()
             }
-            
             return nil
             //_item._setToLoading()
         }else{
@@ -646,9 +629,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _item._delegate = self
             return _item
         }
-        
-        
-       
     }
     //--------滑动代理
     func panHander(__gesture:UIPanGestureRecognizer){

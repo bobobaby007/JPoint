@@ -80,8 +80,13 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         
         
         _setuped=true
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_new_chat, object: nil)
     }
-    
+    //--------接受到消息
+    func _receivedNotification(notification: NSNotification){
+        _datained=false
+        _getDatas()
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         
@@ -140,7 +145,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         if (indexPath.row == MainAction._ChatsList!.count-1) {
             _cell.separatorInset = UIEdgeInsetsMake(0, 1000, 0, 0)
         }else{
-            _cell.separatorInset = UIEdgeInsets(top: 0, left: 80, bottom: 0, right: 50)
+            _cell.separatorInset = UIEdgeInsets(top: 0, left: 90, bottom: 0, right: 50)
         }
         
         return _cell
@@ -148,10 +153,15 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //_tableView?.cellForRowAtIndexPath(indexPath)?.didMoveToSuperview()
         _tableView?.deselectRowAtIndexPath(indexPath, animated: false)
-        let _messageWindow:MessageWindow = MessageWindow()
         
+        let _dict:NSDictionary = MainAction._ChatsList!.objectAtIndex(indexPath.row) as! NSDictionary
+        
+        let _messageWindow:MessageWindow = MessageWindow()
+        _messageWindow._uid = _dict.objectForKey("uid") as! String
         
         UIApplication.sharedApplication().keyWindow!.rootViewController!.presentViewController(_messageWindow, animated: true) { (complete) -> Void in
+            _messageWindow._setPorofileImg(_dict.objectForKey("image") as! String)
+            _messageWindow._setName(_dict.objectForKey("nickname") as! String)
             _messageWindow._getDatas()
         }
 //        let _viewC:MyImageList = MyImageList()

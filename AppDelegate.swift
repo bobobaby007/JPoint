@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         //MainAction._signupQuick()
         //MainAction._getMyProfile()
-        //MainAction._soketConnect()
+       // MainAction._soketConnect()
         // Override point for customization after application launch.
         return true
     }

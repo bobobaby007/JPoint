@@ -226,7 +226,12 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         }else{
             self._text_name?.text = ""
         }
-    
+        if let _avatar = __dict.objectForKey("avatar") as? String{
+            self._setProfileImg(MainAction._imageUrl(_avatar))
+        }else{
+            self._setProfileImg("profile")
+        }
+        
         }
     }
     
@@ -273,18 +278,14 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         
     }
     func _imageInputer_saved() {
+        
         MainAction._changeAvatar(_imageInputer!._captureBgImage()) { (__dict) -> Void in
             
-            if __dict.objectForKey("recode") as! Int == 200{
-                self._btn_profile!.setImage(self._imageInputer!._captureBgImage(), forState: UIControlState.Normal)
-            }
-            
-            
-            
-            self._imageInputer!.view.removeFromSuperview()
-            self._imageInputer!.removeFromParentViewController()
-            self._imageInputer = nil
         }
+        self._btn_profile!.setImage(self._imageInputer!._captureBgImage(), forState: UIControlState.Normal)
+        self._imageInputer!.view.removeFromSuperview()
+        self._imageInputer!.removeFromParentViewController()
+        self._imageInputer = nil
     }
     
     func btnHander(sender:UIButton){
@@ -325,7 +326,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         
         MainAction._uploadProfile(_dict) { (__dict) -> Void in
             if self._parentView != nil{
-                self._parentView?._refreshProfile()
+                self._parentView?._updateProfielOnline()
             }
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 

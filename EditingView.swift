@@ -44,7 +44,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     var _imageInputer:ImageInputer?
     
-    var _infoForImage:InfoForImage?
+    var _infoForImage:InfoForImage?//----用户信息
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -198,8 +198,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         case _btn_send!:
             let _img:UIImage = _captureBgImage()
             let _answerImg:UIImage = _drawingBoard!._captureImage()
+            
             MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media)
-            _mainView?._showAlert("图片已经提交，可以再来一张!",__wait: 0.5)
+            _mainView?._showAlert("图片已经提交，可以再来一张!",__wait: 1.5)
             if _shouldBeClosed(){
                 
             }else{
@@ -220,6 +221,14 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     //---——展示
     
     func _show(){
+        MainAction._getProfile { (__dict) -> Void in
+            if let _avatar = __dict.objectForKey("avatar") as? String{
+                print(__dict)
+                self._infoForImage!._setPic(MainAction._imageUrl(_avatar))
+            }else{
+                self._infoForImage!._setPic("profile")
+            }
+        }
         _btnsShow()
     }
     
@@ -382,6 +391,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func _reset(){
         _btnsHide()
         _bottomBtnsOut()
+        _infoForImage?._setSay((_infoForImage?._placeHold)!)
         self._label_cancel?.alpha = 0
     }
     func _shouldBeClosed()->Bool{
@@ -390,6 +400,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _hasImg = false
             _bottomBtnsOut()
             _btnsShow()
+        
             _drawingBoard?._clear()
             _drawingBoard!._setEnabled(false)
             return false

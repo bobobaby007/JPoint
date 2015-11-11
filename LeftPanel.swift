@@ -149,7 +149,12 @@ class LeftPanel: UIViewController {
             }else{
                 self._setName("")
             }
-
+            
+        }
+    }
+    func _updateProfielOnline(){
+        MainAction._getMyProfile { (__dict) -> Void in
+            self._refreshProfile()
         }
     }
     

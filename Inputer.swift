@@ -30,7 +30,9 @@ class Inputer: UIView,UITextViewDelegate {
     }
     var _placeHoldText:UILabel?
     var _maxNum:Int = 200
-    
+    let _fontSize:CGFloat = 18
+    let _textOriginY:CGFloat = 9
+    let _heightOfClosed:CGFloat = 52
     var _barView:UIView?
     //var _inputView:UIInputView
     var _inputText:UITextView?
@@ -39,14 +41,14 @@ class Inputer: UIView,UITextViewDelegate {
     
     var _tapC:UITapGestureRecognizer?
     
-    let _heightOfClosed:CGFloat = 45
+    
     
     var _btn_send:UIButton?
     
     
     
     var _keboardFrame:CGRect?
-    
+    var _isOpened:Bool = false
     
     func setup(){
         if _setuped{
@@ -63,19 +65,19 @@ class Inputer: UIView,UITextViewDelegate {
         
         
         
-        _placeHoldText = UILabel(frame: CGRect(x: 20+5, y: 7.5, width: self.frame.width-90-10, height: 30))
+        _placeHoldText = UILabel(frame: CGRect(x: 20+5, y: _textOriginY, width: self.frame.width-90-10, height: _heightOfClosed-15))
         //_placeHoldText?.center =
-        _placeHoldText?.font = UIFont.systemFontOfSize(15)
+        _placeHoldText?.font = UIFont.systemFontOfSize(_fontSize)
         _placeHoldText?.text=_placeHold
         _placeHoldText?.textColor = UIColor(white: 0.8, alpha: 1)
         _placeHoldText?.backgroundColor = UIColor.clearColor()
         
         
-        _inputText = UITextView(frame: CGRect(x: 20, y: 7.5, width: self.frame.width-90, height: 30))
-        _inputText?.font = UIFont.systemFontOfSize(12)
+        _inputText = UITextView(frame: CGRect(x: 20, y: _textOriginY, width: self.frame.width-90, height:  _heightOfClosed-15))
+        _inputText?.font = UIFont.systemFontOfSize(_fontSize)
         _inputText?.delegate = self
         _inputText?.backgroundColor = UIColor.clearColor()
-        _inputBg = UIView(frame: CGRect(x: 15, y: 7.5, width: self.frame.width-90, height: 30))
+        _inputBg = UIView(frame: CGRect(x: 15, y: _textOriginY, width: self.frame.width-90, height:  _heightOfClosed-15))
         _inputBg?.backgroundColor = UIColor.whiteColor()
         _inputBg?.layer.masksToBounds = true
         _inputBg?.layer.cornerRadius = 15
@@ -104,6 +106,8 @@ class Inputer: UIView,UITextViewDelegate {
         _barView!.addSubview(_btn_send!)
         
        // _barView?.userInteractionEnabled=true
+        _inputText?.text = ""
+        _refresshView()
         
         _setuped = true
         
@@ -115,7 +119,10 @@ class Inputer: UIView,UITextViewDelegate {
     override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
         let _hitView = super.hitTest(point, withEvent: event)
         if _hitView==self{
-            _close()
+            if _isOpened{
+                _close()
+            }
+            
             return nil
         }else{
             return _hitView
@@ -138,6 +145,7 @@ class Inputer: UIView,UITextViewDelegate {
         
         if keyboardScreenEndFrame.height>216{
             print("chage")
+            _isOpened = true
             _refresshView()
             _delegate?._inputer_opened()
         }
@@ -167,9 +175,9 @@ class Inputer: UIView,UITextViewDelegate {
         //self.hidden=false
         
         
-        _inputText!.frame = CGRect(x: 20, y: 7.5, width: self.frame.width-90, height: _h)
+        _inputText!.frame = CGRect(x: 20, y: _textOriginY, width: self.frame.width-90, height: _h)
        
-        _inputBg!.frame = CGRect(x: 15, y: 7.5, width: self.frame.width-90+5, height: _inputText!.frame.height)
+        _inputBg!.frame = CGRect(x: 15, y: _textOriginY, width: self.frame.width-90+5, height: _inputText!.frame.height)
         
         UIView.commitAnimations()
         
@@ -236,27 +244,22 @@ class Inputer: UIView,UITextViewDelegate {
         //_desAlert?.text=String(_n)+"/"+String(_maxNum)
     }
     //----
-    
-    
     func btnHander(__sender:UIButton){
-        
         _delegate?._inputer_send(NSDictionary(objects: [_inputText!.text], forKeys: ["text"]))
         _reset()
     }
     func _reset(){
         _inputText?.text=""
-        _close()
+        _refresshView()
+        //_close()
     }
     func tapHander(__tap:UITapGestureRecognizer){
         _close()
     }
-    
-    
     func _close(){
-        
+        _isOpened = false
         _inputText?.resignFirstResponder()
         _refresshView()
-        
         self.superview!.removeGestureRecognizer(_tapC!)
         
         _delegate?._inputer_closed()

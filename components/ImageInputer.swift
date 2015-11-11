@@ -211,26 +211,15 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         _imagePicker?.dismissViewControllerAnimated(true, completion:nil)
         _delegate?._imageInputer_canceled()
     }
-    
-    
-    
     func _captureBgImage()->UIImage{
-        
-        
         UIGraphicsBeginImageContextWithOptions(_bgImageV!.contentSize, _bgImageV!.opaque, 1);
-        
         _bgImageV!.layer.renderInContext(UIGraphicsGetCurrentContext()!)
-        
         //_bgImageV!.layer.drawInRect(CGRect(x: 0, y:0, width: _bgImageV!.frame.size.width, height: _bgImageV!.frame.size.height))
-        
-        
         let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
         
         UIGraphicsEndImageContext();
         
-        
         UIGraphicsBeginImageContextWithOptions(_bgImageV!.frame.size, false, 1)
-        
         
         img.drawInRect(CGRect(x: -_bgImageV!.contentOffset.x, y: -_bgImageV!.contentOffset.y, width: _bgImageV!.contentSize.width, height: _bgImageV!.contentSize.height))
         

@@ -240,23 +240,15 @@ class BingoView:UIViewController {
     }
     func _talkNow(){
         _clearColors()
-        
-        
-       
             self._bingoImg?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2-50)
             self._bingoImg?.alpha=0
             self._bingoView?.alpha=0
             //self._blurV.alpha = 0
-            
             self._btn_talkNow?.transform = CGAffineTransformMakeScale(0.1, 0.1)
             self._btn_talkNow?.alpha=0
-            
             self._btn_notNow?.transform = CGAffineTransformMakeScale(0.1, 0.1)
             self._btn_notNow?.alpha=0
-            
             self._bingoLable?.alpha = 0
-            
-        
             self._delagate?._talkNow()
         
     }
@@ -283,9 +275,6 @@ class BingoView:UIViewController {
                     
             }
             self._delagate?._bingoViewOut()
-        
-        
-        
     }
     
     func _out(){

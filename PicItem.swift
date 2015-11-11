@@ -55,7 +55,7 @@ class PicItem: UIView {
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        
         addSubview(_imageV!)
-       // addSubview(_answerV!)
+        addSubview(_answerV!)
     }
     func _ready(){
         self.addGestureRecognizer(_tapG!)

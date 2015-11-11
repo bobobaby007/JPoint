@@ -10,13 +10,14 @@ import Foundation
 import UIKit
 
 class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,Inputer_delegate{
+    var _uid:String = "bingome"
     var _setuped:Bool = false
     var _tableView:UITableView?
-    var _messages:NSMutableArray? = NSMutableArray()
+    var _messages:NSMutableArray? = NSMutableArray()//---需要展示的最终数据，包括时间段
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
     
-    var _users:NSMutableArray?
+    
     var _datained:Bool = false
     var _topView:UIView?
     var _btn_back:UIButton?
@@ -24,13 +25,15 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
 
     var _inputer:Inputer?
     var _profileImg:PicView?
+    var _prifileImageUrl:String = ""
     var _nameLabel:UILabel?
     
     var _latestTime:NSTimeInterval?
     let _barH:CGFloat = 60
     
+    var _needChatsNum:Int = 100 //----需要获取的聊天记录数量
     
-    let _messagesArray:NSArray = [["type":"match","content":"image_1.jpg||快来踩一踩，猜一猜，才车使馆时代","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"],["type":"message","content":"你好！sdg的闪光点是广东省各地时光俄根深蒂固树大根深到噶是个少女风格树大根深树大根深到噶上","time":"2222"],["type":"messageByMe","content":"hi，","time":"2222"]]
+    var _messagesArray:NSArray = [] //---获取的聊天记录原始数据
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
@@ -63,7 +66,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         _inputer!._placeHold = "输入你想说的话"
         _inputer?.setup()
         
-        _users = NSMutableArray()
+        
         
         _tableView = UITableView(frame: CGRect(x: 0, y: _barH, width: self.view.frame.width, height: self.view.frame.height-_barH-_inputer!._heightOfClosed))
         _tableView?.clipsToBounds = false
@@ -110,21 +113,33 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         
         // _tableView?.tableHeaderView = _topView
         self.view.addSubview(_topView!)
-        
-        
-        
-        
-        
-        
-        _setPorofileImg("profile")
-        _setName("小kity")
+        //_setPorofileImg("profile")
+        //_setName("")
         
         _setuped = true
+        
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_new_chat, object: nil)
     }
-    
-    
-    
-    
+    //--------接受到消息
+    func _receivedNotification(notification: NSNotification){
+        
+        let __dict:NSDictionary = notification.userInfo! as NSDictionary
+        
+        if let __uid:String = __dict.objectForKey("uid") as? String{
+            if __uid == _uid{
+                _addMessage(__dict.objectForKey("type") as! String, __content: __dict.objectForKey("content") as! String)
+                _tableView?.reloadData()
+                _refreshView()
+                let _cell:MessageCell = _tableView?.cellForRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0)) as! MessageCell
+                //_cell._type = __dict.objectForKey("type") as? String
+                _cell._justSent()
+                
+                
+            }
+        }
+        
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         
@@ -132,27 +147,29 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     }
     func _getDatas(){
         _messages = NSMutableArray()
-        
+        if let __array:NSArray = MainAction._getChatHistory(_uid, __num:_needChatsNum){
+            _messagesArray = NSMutableArray(array: __array)
+        }
         for _dict in _messagesArray{
-            
-            _addMessage(MessageCell._Type_Time, __content:_dict.objectForKey("time") as! String)//----添加时间
+            if let __time:String = _dict.objectForKey("time") as? String{
+                _addMessage(MessageCell._Type_Time, __content:__time)//----添加时间
+            }
             
             let _type:String = _dict.objectForKey("type") as! String
             switch _type{
-            case "match":
-                _addMessage(MessageCell._Type_Match, __content: _dict.objectForKey("content") as! String)
-            case "message":
-                _addMessage(MessageCell._Type_Message, __content: _dict.objectForKey("content") as! String)
-            case "messageByMe":
-                _addMessage(MessageCell._Type_Message_By_Me, __content: _dict.objectForKey("content") as! String)
+            case MessageCell._Type_Bingo:
+                break
+            case MessageCell._Type_Message:
+                break
+            case MessageCell._Type_Message_By_Me:
+                break
             default:
                 break
             }
-            
-            
+            _addMessage(_type, __content: _dict.objectForKey("content") as! String)
         }
         _tableView?.reloadData()
-        _tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
+        _refreshView()
     }
     
     func _addMessage(__type:String,__content:String){
@@ -160,20 +177,29 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         switch __type{
         case MessageCell._Type_Time:
             _h = 30
-        case MessageCell._Type_Match:
+        case MessageCell._Type_Bingo:
             _h = 200
         case MessageCell._Type_Message:
-            _h = MessageCell._getHighByStr(__content)
+            _h = max(80,MessageCell._getHighByStr(__content))
         case MessageCell._Type_Message_By_Me:
             _h = MessageCell._getHighByStr(__content)
         default:
             break
         }
-        
         _messages?.addObject(NSDictionary(objects: [__type,__content,_h], forKeys: ["type","content","height"]))
+    }
+    func _refreshView(){
+        if let _h:CGFloat = _inputer!._getHeightOfBar() {
+            UIView.animateWithDuration(0.35) { () -> Void in
+                self._tableView!.frame = CGRect(x: 0, y: self._barH, width: self.view.frame.width, height: self.view.frame.height-self._barH-_h)
+            }
+        }
+        //_tableView?.reloadData()
+        if _messages?.count > 0 {
+            _tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
+        }
         
     }
-    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return _messages!.count
     }
@@ -184,12 +210,32 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let _cell:MessageCell = _tableView?.dequeueReusableCellWithIdentifier("MessageCell") as! MessageCell
         let _dict:NSDictionary = _messages?.objectAtIndex(indexPath.row) as! NSDictionary
-        _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60),__type: _dict.objectForKey("type") as! String)
+        
+        
+        let _type:String = _dict.objectForKey("type") as! String
+        _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60),__type:_type)
+        switch _type{
+        case MessageCell._Type_Time:
+            break
+        case MessageCell._Type_Bingo:
+            break
+        case MessageCell._Type_Message:
+            //print(_prifileImageUrl)
+            _cell._setPic(_prifileImageUrl)
+        case MessageCell._Type_Message_By_Me:
+            break
+        default:
+            break
+        }
+        
+        
+        
         _cell._setContent(_dict.objectForKey("content") as! String)
         
         return _cell
     }
     func _setPorofileImg(__str:String){
+        _prifileImageUrl = __str
         _profileImg?._setPic(NSDictionary(objects: [__str,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             
         })
@@ -204,39 +250,25 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     //----输入框代理
     
     func _inputer_changed(__dict: NSDictionary) {
-      
-        let _h:CGFloat = _inputer!._getHeightOfBar()!
-        
-        UIView.animateWithDuration(0.35) { () -> Void in
-            self._tableView?.transform = CGAffineTransformMakeTranslation(0,self._inputer!._heightOfClosed-_h)
-        }
-        
-        
+      _refreshView()
     }
     
     func _inputer_closed() {
-        UIView.animateWithDuration(0.35) { () -> Void in
-            self._tableView?.transform = CGAffineTransformMakeTranslation(0,0)
-        }
-        
-        
+        _refreshView()
     }
     func _inputer_opened() {
-        let _h:CGFloat = _inputer!._getHeightOfBar()!
-        UIView.animateWithDuration(0.35) { () -> Void in
-            self._tableView?.transform = CGAffineTransformMakeTranslation(0,self._inputer!._heightOfClosed-_h)
-        }
-        
+       _refreshView()
     }
     func _inputer_send(__dict: NSDictionary) {
         _addMessage(MessageCell._Type_Message_By_Me, __content: __dict.objectForKey("text") as! String)
+        
+        MainAction._sentOneChat(NSDictionary(objects: [_uid,MessageCell._Type_Message_By_Me,__dict.objectForKey("text") as! String], forKeys: ["uid","type","content"]))
+        
         _tableView?.reloadData()
-        _tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
+        _refreshView()
         let _cell:MessageCell = _tableView?.cellForRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0)) as! MessageCell
         _cell._justSent()
     }
-    
-    
     func btnHander(sender:UIButton){
         switch sender{
         case _btn_back!:

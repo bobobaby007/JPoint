@@ -13,10 +13,10 @@ import UIKit
 class MessageCell: UITableViewCell {
     var inited:Bool = false
     var _profileImg:PicView?
-    static let _Type_Match:String = "_Type_Match"
-    static let _Type_Message:String = "_Type_Message"
-    static let _Type_Message_By_Me:String = "_Type_Message_By_Me"
-    static let _Type_Time:String = "_Type_Time"
+    static let _Type_Bingo:String = "bingo"
+    static let _Type_Message:String = "message"
+    static let _Type_Message_By_Me:String = "me"
+    static let _Type_Time:String = "time"
     var _timeLabel:UILabel?
     var _type:String?
     var _frame:CGRect?
@@ -24,9 +24,9 @@ class MessageCell: UITableViewCell {
     var _matchLabel:UILabel?
     var _matchBackG:UIView?
     var _message_textView:UITextView?
-    static let _messageTextFontSize:CGFloat = 16
+    static let _messageTextFontSize:CGFloat = 14
     static let _messageTextMaxWidth:CGFloat = 220
-    static let _messageTextPadding:CGFloat = 10
+    static let _messageTextPadding:CGFloat = 6
     
     func initWidthFrame(__frame:CGRect,__type:String){
         
@@ -48,9 +48,7 @@ class MessageCell: UITableViewCell {
 
             
             switch _type!{
-            case MessageCell._Type_Match:
-                
-                
+            case MessageCell._Type_Bingo:
                 _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
                 _profileImg?.layer.cornerRadius = 30
                 _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
@@ -58,9 +56,6 @@ class MessageCell: UITableViewCell {
                 _profileImg?.layer.borderWidth = 2
                 addSubview(_profileImg!)
                 _setPic("profile")
-
-                
-                
                 _matchBackG = UIView(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
                 _matchBackG?.backgroundColor = UIColor(white: 1, alpha: 0.8)
                 _matchBackG?.layer.cornerRadius = 15
@@ -92,10 +87,13 @@ class MessageCell: UITableViewCell {
                 _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
                 _profileImg?.layer.cornerRadius = 30
                 _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-                _profileImg?.layer.borderWidth = 2
+                _profileImg?.layer.borderWidth = 1
                 _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
                 addSubview(_profileImg!)
                 _setPic("profile")
+                
+                
+                
                 
                 _message_textView = UITextView(frame: CGRect(x: 80, y: 0, width:MessageCell._messageTextMaxWidth, height: 50))
                 _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
@@ -107,7 +105,7 @@ class MessageCell: UITableViewCell {
                 _message_textView?.scrollEnabled = false
                 _message_textView?.backgroundColor = UIColor.clearColor()
                 _message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
-                _message_textView?.layer.borderWidth = 1.5
+                _message_textView?.layer.borderWidth = 1
                 _message_textView?.font = UIFont.systemFontOfSize(MessageCell._messageTextFontSize)
                 addSubview(_message_textView!)
                 
@@ -123,13 +121,12 @@ class MessageCell: UITableViewCell {
                 _message_textView?.font = UIFont.systemFontOfSize(MessageCell._messageTextFontSize)
                 _message_textView?.editable = false
                 _message_textView?.scrollEnabled = false
-                
                 addSubview(_message_textView!)
                 break
             case MessageCell._Type_Time:
                 _timeLabel = UILabel(frame: CGRect(x: 0, y: 0, width: _frame!.width, height: 25))
                 _timeLabel?.font = UIFont.systemFontOfSize(12)
-                _timeLabel?.textColor = UIColor.whiteColor()
+                _timeLabel?.textColor = UIColor(white: 1, alpha: 0.5)
                 _timeLabel?.textAlignment = NSTextAlignment.Center
                 addSubview(_timeLabel!)
                 break
@@ -176,12 +173,10 @@ class MessageCell: UITableViewCell {
     
     func _setContent(__str:String){
         switch _type!{
-        case MessageCell._Type_Match:
+        case MessageCell._Type_Bingo:
             //let fullNameArr = split(__str.characters){$0 == " "}.map(String.init)
             let _array:Array = __str.componentsSeparatedByString("||")
-            
             _matchImg?._setImage(_array[0])
-            
             _matchLabel?.text = _array[1]
             _matchLabel?.sizeToFit()
             _matchImg?._refreshView()
@@ -190,6 +185,11 @@ class MessageCell: UITableViewCell {
             _message_textView?.text = __str
             //_message_textView?.sizeThatFits(CGSize(width: 100, height: CGFloat.max))
             _message_textView?.sizeToFit()
+            if _message_textView?.frame.height < 60{
+                _message_textView?.frame.origin.y =  (60 - _message_textView!.frame.height)/2
+            }
+            
+            
             break
         case MessageCell._Type_Message_By_Me:
             _message_textView?.text = __str
@@ -198,42 +198,85 @@ class MessageCell: UITableViewCell {
             //_message_textView?.sizeThatFits(CGSize(width: 100, height: CGFloat.max))
             break
         case MessageCell._Type_Time:
-            _timeLabel?.text = CoreAction._timeStr(__str)
+            _timeLabel?.text = CoreAction._dateDiff(__str)
             break
         default:
             break
         }
     }
     func _setPic(__picUrl:String){
-        _profileImg?._setImage(__picUrl)
-        _profileImg?._refreshView()
+        _profileImg?._setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
+            
+        })
+        //_profileImg?._refreshView()
     }
     func _justSent(){
+        switch _type!{
+        case MessageCell._Type_Bingo:
+            
+            break
+        case MessageCell._Type_Message:
+            _animationOfMessage()
+            break
+        case MessageCell._Type_Message_By_Me:
+            _animationOfMessageByMe()
+            break
+        case MessageCell._Type_Time:
+            
+            break
+        default:
+            break
+        }
+        
+    }
+    
+    func _animationOfMessageByMe(){
         _message_textView?.frame.origin = CGPoint(x: _frame!.width-5, y: _message_textView!.frame.height)
         _message_textView?.transform = CGAffineTransformMakeScale(0, 0)
         _message_textView?.backgroundColor = UIColor.clearColor()
         _message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
         _message_textView?.textColor = UIColor.whiteColor()
         _message_textView?.layer.borderWidth = 1.5
-        UIView.animateWithDuration(1, delay: 0.3, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._message_textView?.transform = CGAffineTransformMakeScale(1, 1)
             self._message_textView?.frame.origin = CGPoint(x: self._frame!.width-self._message_textView!.frame.width-5, y: 0)
-            
             }) { (_complete) -> Void in
-               self._sentOk()
+                UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveLinear, animations: { () -> Void in
+                    self._message_textView?.backgroundColor = UIColor(white: 1, alpha: 0.8)
+                    // self._message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
+                    self._message_textView?.layer.borderWidth = 0
+                    self._message_textView?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
+                    }) { (_complete) -> Void in
+                        
+                }
         }
+    }
+    func _animationOfMessage(){
+        _message_textView?.frame.origin = CGPoint(x: -80, y: _message_textView!.frame.origin.y)
+        _message_textView?.sizeToFit()
         
-    }
-    func _sentOk(){
-        UIView.animateWithDuration(2, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveLinear, animations: { () -> Void in
-            self._message_textView?.backgroundColor = UIColor(white: 1, alpha: 0.8)
-            // self._message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
-            self._message_textView?.layer.borderWidth = 0
-            self._message_textView?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
+        let _h:CGFloat = _message_textView!.frame.height
+        var _y:CGFloat = 0
+        if _h < 60{
+            _y =  (60 - _h)/2
+        }
+        _message_textView?.transform = CGAffineTransformMakeScale(0, 0)
+        _profileImg?.transform = CGAffineTransformMakeScale(0, 0)
+        _profileImg?.alpha = 0
+        //_message_textView?.backgroundColor = UIColor.clearColor()
+        //_message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
+        // _message_textView?.textColor = UIColor.whiteColor()
+        //_message_textView?.layer.borderWidth = 1.5
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._message_textView?.transform = CGAffineTransformMakeScale(1, 1)
+            self._message_textView?.frame.origin = CGPoint(x: 80, y: _y)
+            self._profileImg?.transform = CGAffineTransformMakeScale(1, 1)
+            self._profileImg?.alpha = 1
             }) { (_complete) -> Void in
-               
+                
         }
     }
+    
     static func _getHighByStr(__str:String)->CGFloat{
         //CGSize size = [myLabel sizeThatFits:CGSizeMake(myLabel.frame.size.width, CGFLOAT_MAX)];
         //let _font:UIFont = UIFont.systemFontOfSize(12)
@@ -251,7 +294,7 @@ class MessageCell: UITableViewCell {
        
         
         
-        return _textV.frame.height+5
+        return _textV.frame.height+10
     }
     
 }

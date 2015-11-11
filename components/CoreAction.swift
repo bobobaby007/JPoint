@@ -10,14 +10,29 @@ import Foundation
 import UIKit
 
 class CoreAction {
-    //-----当前时间转换成字符串
-    static func _timeStr(__timeStr:String)->String {
+    //-----当前时间串转换成字符串
+    static func _timeStrOfCurrent()->String {
         //let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
         let formatter = NSDateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        //formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.dateFormat = "yyyy-M-dd'T'HH:mm:ss.SSSZZZ"
         formatter.timeZone = NSTimeZone.localTimeZone()
         //let _date:NSDate = formatter.dateFromString(__timeStr)!
         let timestamp = formatter.stringFromDate(NSDate())
+        //let timestamp = formatter.stringFromDate(_date)
+        //print(_date,__timeStr,timestamp,dateDiff(__timeStr))
+        return timestamp
+    }
+    //-----date转换成字符串
+    static func _timeStrFromDate(_date:NSDate)->String {
+        //let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
+        let formatter = NSDateFormatter()
+        //formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.dateFormat = "yyyy-M-dd'T'HH:mm:ss.SSSZZZ"
+        formatter.timeZone = NSTimeZone.localTimeZone()
+        //let _date:NSDate = formatter.dateFromString(__timeStr)!
+        //let timestamp = formatter.stringFromDate(NSDate())
+        let timestamp = formatter.stringFromDate(_date)
         //print(_date,__timeStr,timestamp,dateDiff(__timeStr))
         return timestamp
     }
@@ -42,7 +57,6 @@ class CoreAction {
         let sec = abs(dateComponents.second)
         
         var timeAgo = ""
-        
         if (sec > 0){
             if (sec > 1) {
                 timeAgo = "\(sec)秒前"// Seconds Ago"
@@ -50,7 +64,6 @@ class CoreAction {
                 timeAgo = "\(sec)秒前"// Seconds Ago"
             }
         }
-        
         if (min > 0){
             if (min > 1) {
                 timeAgo = "\(min)分钟前"// Minutes Ago"
@@ -58,7 +71,6 @@ class CoreAction {
                 timeAgo = "\(min)分钟前"// Minute Ago"
             }
         }
-        
         if(hours > 0){
             if (hours > 1) {
                 timeAgo = "\(hours)小时前"// Hours Ago"
@@ -66,7 +78,6 @@ class CoreAction {
                 timeAgo = "\(hours)小时前"// Hour Ago"
             }
         }
-        
         if (days > 0) {
             if (days > 1) {
                 timeAgo = "\(days)天前"// Days Ago"
@@ -74,7 +85,6 @@ class CoreAction {
                 timeAgo = "\(days)天前"// Day Ago"
             }
         }
-        
         if(weeks > 0){
             if (weeks > 1) {
                 timeAgo = "\(weeks)周前"// Weeks Ago"
@@ -82,7 +92,6 @@ class CoreAction {
                 timeAgo = "\(weeks)周前"// Week Ago"
             }
         }
-        
         return timeAgo;
     }
     //－－－－－－－把图片变成灰色
@@ -208,29 +217,43 @@ class CoreAction {
     //----image转换成可发送字符串
     static func _imageToString(__image:UIImage)->String{
         //let imageData = UIImagePNGRepresentation(UIImage(named: "test.png")!)
-        let imageData = UIImageJPEGRepresentation(__image, 0.7)
+        let imageData = UIImageJPEGRepresentation(__image, 0.9)
+        var string:String = (imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn))!
+        string = string.stringByReplacingOccurrencesOfString("+", withString: "%2B")
+        return string
+    }
+    //----image转换成可发送字符串
+    static func _imageToString_PNG(__image:UIImage)->String{
+        //let imageData = UIImagePNGRepresentation(UIImage(named: "test.png")!)
+        let imageData = UIImagePNGRepresentation(__image)
         var string:String = (imageData?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithCarriageReturn))!
         string = string.stringByReplacingOccurrencesOfString("+", withString: "%2B")
         return string
     }
     //----发送参数到url
     static func _sendToUrl(__postString:String,__url:String,__block:(NSDictionary)->Void){
+        //print("sending====",__url,__postString)
         let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
         request.HTTPMethod = "POST"
         request.HTTPBody = __postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
+    
+        
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
+            if erro != nil{
+                print("链接失败:",__url,erro)
+                __block(NSDictionary(objects: [erro!.code], forKeys: ["recode"]))
+                return
+            }
             let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
-            print(_str)
+            print(__url,_str)
             do{
                 let jsonResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
                 __block(jsonResult as! NSDictionary)
             }catch{
-                print(error)
+                print("failed with url:",__url,"respone:",_str)
+                __block(NSDictionary(objects: [0], forKeys: ["recode"]))
             }
         })
         task.resume()
     }
-    
-    
-    
 }

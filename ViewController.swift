@@ -33,24 +33,25 @@ class ViewController: UIViewController {
         _showMainView()
         _checkProfile()
         // Do any additional setup after loading the view, typically from a nib.
+        //MainAction._deleteChatHistory("bingome")
+        //let _:NSTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "timerHander", userInfo: nil, repeats: false)
     }
+    
+    func timerHander(){
+        MainAction._receiveOneChat(NSDictionary(objects: [MessageCell._Type_Message,"bingome","为啥给你呢好噶时光萨嘎色噶速度，水电工翁","2015-11-09T06:10:26.795Z"], forKeys: ["type","from","content","time"]))
+    }    
     func setup(){
         if _setuped{
             return
         }
-        
         ViewController._self = self
-        
         _mainView = MainView()
         self.view.backgroundColor = UIColor.blackColor()
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
-        
         //_mainView?._loadBingoList()
-        
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
         self.view.addGestureRecognizer(_panG!)
-        
         _backButton = UIButton(frame: CGRect(x: 0, y: 0, width: _distanceToSwape/2, height: self.view.frame.height))
         _backButton?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _setuped=true
@@ -59,6 +60,8 @@ class ViewController: UIViewController {
         MainAction._getMyProfile { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
                 dispatch_async(dispatch_get_main_queue(), {
+                    MainAction._soketConnect()
+                    
                     self._mainView!._loadBingoList()
                 })
             }else{
