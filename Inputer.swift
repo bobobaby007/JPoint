@@ -149,25 +149,18 @@ class Inputer: UIView,UITextViewDelegate {
             _refresshView()
             _delegate?._inputer_opened()
         }
-        
-        
     }
-        
     func keyboardWillHide() {
        _keboardFrame = CGRect(x: 0,y: self.frame.height,width: self.frame.width,height: 0)
     }
-    
     func _refresshView(){
         var _h:CGFloat = _inputText!.contentSize.height
-        
         if _h < _heightOfClosed-15{
             _h = _heightOfClosed-15
         }
-        
         if _h>200{
             _h = 200
         }
-        
         UIView.beginAnimations("open", context: nil)
         UIView.setAnimationDuration(0.3)
         _barView?.frame = CGRect(x: 0, y: _keboardFrame!.origin.y-_h-15, width: self.frame.width, height: _h+15)

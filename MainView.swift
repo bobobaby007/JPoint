@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_delegate,EditingView_delegate{
+class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_delegate,EditingView_delegate,InfoPanel_delegate{
     let _gap:CGFloat = 10
     var _bgView:UIImageView?
     var _setuped:Bool = false
@@ -24,6 +24,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _nickname = "someone"
     var _avator = "profile"
     var _uid = "" //---用户id
+    var _sex = 0
     
     //var _thirdPicItem:PicItem?
     
@@ -179,6 +180,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self.view.addSubview(_btn_love!)
         
         _infoPanel = InfoPanel(frame: CGRect(x: _gap, y: _CentralY+_picItemW/2+_gap, width: _picItemW, height: _infoH))
+        _infoPanel?._delegate = self
         _infoPanel?.alpha = 0
         self.view.addSubview(_infoPanel!)
         
@@ -302,6 +304,60 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             
         }
+    }
+    
+    //----信息条代理
+    //---分享求助
+    func _share_this() {
+        
+        sendWXContentUser()
+    }
+    func sendWXContentUser() {//分享给朋友！！
+        let _image:UIImage = CoreAction._captureImage(_currentPicItem!._imageV!)
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        _thumbImage.image = _image
+        let _pic:UIImage = CoreAction._captureImage(_thumbImage)
+        var _ta:String = "她"
+        if _sex == 1 {
+            _ta = "他"
+        }
+        let message:WXMediaMessage = WXMediaMessage()
+        message.title = "我喜欢"+_ta+"，帮我找找"+_ta+"的兴趣点"
+        message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
+        message.setThumbImage(_pic);
+        let ext:WXWebpageObject = WXWebpageObject();
+        ext.webpageUrl = "http://4view.cn"
+        message.mediaObject = ext
+        let resp = GetMessageFromWXResp()
+        resp.message = message
+        WXApi.sendResp(resp);
+        
+    }
+    
+    func sendWXContentFriend() {//分享朋友圈
+        let _image:UIImage = CoreAction._captureImage(_currentPicItem!._imageV!)
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        _thumbImage.image = _image
+        let _pic:UIImage = CoreAction._captureImage(_thumbImage)
+        var _ta:String = "她"
+        if _sex == 1 {
+            _ta = "他"
+        }
+        let message:WXMediaMessage = WXMediaMessage()
+        message.title = "我喜欢"+_ta+"，帮我找找"+_ta+"的兴趣点"
+        message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
+        message.setThumbImage(_pic);
+        
+        let ext:WXWebpageObject = WXWebpageObject();
+        ext.webpageUrl = "http://4view.cn"
+        message.mediaObject = ext
+        message.mediaTagName = "Bingo一下"
+        let req = SendMessageToWXReq()
+        req.scene = 1
+        req.text = "来，点一下"
+        req.bText = false
+        req.message = message
+        WXApi.sendReq(req);
     }
     
     //----编辑页面代理
@@ -568,8 +624,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     print(_avator)
                 }else{
                     if _dict.objectForKey("sex") as? Int == 1{
+                        _sex = 1
                         _avator = "user-icon-m.jpg"
                     }else{
+                        _sex = 0
                         _avator = "user-icon-w.jpg"
                     }
                 }

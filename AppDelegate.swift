@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //MainAction._getMyProfile()
        // MainAction._soketConnect()
         // Override point for customization after application launch.
+        WXApi.registerApp("wx1fe07c97d3fbc1ae")//---注册微信分享
         return true
     }
 
