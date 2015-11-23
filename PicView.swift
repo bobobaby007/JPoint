@@ -61,9 +61,14 @@ class PicView: UIScrollView,UIScrollViewDelegate{
             let _str = __pic.objectForKey("url") as! String
             let _range = _str.rangeOfString("http")
             if _range?.count != nil{
+                
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+                
                 ImageLoader.sharedLoader.imageForUrl(__pic.objectForKey("url") as! String, completionHandler: { (image, url) -> () in
                     // _setImage(image)
                     //println("")
+                    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                    
                     if image==nil{
                         //--加载失败
                         print("图片加载失败:",__pic.objectForKey("url"))

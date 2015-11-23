@@ -51,6 +51,11 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     
     var _imageChanged:Bool = false
     
+    
+    var _failPanelV:UIView?
+    let _failPanelH:CGFloat = 60
+    var _failLabel:UILabel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -88,7 +93,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         _btn_profile?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_uploadProfile = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
-        _btn_uploadProfile?.center = CGPoint(x: self.view.frame.width/2+30, y: 140+30)
+        _btn_uploadProfile?.center = CGPoint(x: self.view.frame.width/2+30, y: 120+30+10)
         _btn_uploadProfile?.setImage(UIImage(named: "uploadProfileIcon"), forState: UIControlState.Normal)
         _btn_uploadProfile?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
@@ -286,9 +291,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     func _imageInputer_saved() {
         _imageChanged = true
         MainAction._changeAvatar(_imageInputer!._captureBgImage()) { (__dict) -> Void in
-            if self._parentView != nil {
-                self._parentView?._updateProfielOnline()
-            }
+            self._updateProfielOnline()
         }
         self._btn_profile!.setImage(self._imageInputer!._captureBgImage(), forState: UIControlState.Normal)
         self._imageInputer!.view.removeFromSuperview()
@@ -323,20 +326,79 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     func _checkIfChanged()->Bool{
         return false
     }
-    func _saveProfile(){
-        let _dict:NSMutableDictionary = NSMutableDictionary()
-        _dict.setValue(_text_name?.text, forKey: "nickname")
-        _dict.setValue(_seg_sex?.selectedSegmentIndex, forKey: "sex")
-        
-        MainAction._uploadProfile(_dict) { (__dict) -> Void in
+    func _updateProfielOnline(){
+        MainAction._getMyProfile { (__dict) -> Void in
             if self._parentView != nil{
-                self._parentView?._updateProfielOnline()
+                self._parentView?._refreshProfile()
             }
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })
         }
+    }
+    func _saveProfile(){
+        let _dict:NSMutableDictionary = NSMutableDictionary()
+        _dict.setValue(_text_name?.text, forKey: "nickname")
+        _dict.setValue(_seg_sex?.selectedSegmentIndex, forKey: "sex")
+        MainAction._uploadProfile(_dict) { (__dict) -> Void in
+            if __dict.objectForKey("recode") as! Int == 200{
+                dispatch_async(dispatch_get_main_queue(), {
+                   self._updateProfielOnline()
+                })
+            }else{
+                if (__dict.objectForKey("recode") as? Int) < 0{
+                    
+                    dispatch_async(dispatch_get_main_queue(), {
+                        self._showAlert("链接失败，请检查网络",__wait: 1.5)
+                    })
+                    return
+                }
+                dispatch_async(dispatch_get_main_queue(), {
+                    self._showAlert(__dict.objectForKey("recode") as! String,__wait: 1.5)
+                })
+            }
+        }
         
+    }
+    
+    //-----提示面板普通弹出
+    
+    func _showAlert(__text:String,__wait:Double){
+        _showAlertThen(__text, __wait: __wait) { () -> Void in
+            
+        }
+    }
+    func _showAlertThen(__text:String,__wait:Double,__then:()->Void){
+        if _failPanelV == nil{
+            _failPanelV = UIView(frame: CGRect(x: 0, y: -_failPanelH-20, width: self.view.frame.width, height: _failPanelH+20))
+            _failPanelV?.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5)
+            _failLabel = UILabel(frame: CGRect(x: 5, y: 5+20, width: _failPanelV!.frame.width-10, height: _failPanelH))
+            _failLabel?.textAlignment = NSTextAlignment.Center
+            _failLabel?.textColor = UIColor.whiteColor()
+            _failLabel?.font = UIFont.systemFontOfSize(12)
+            _failPanelV?.addSubview(_failLabel!)
+            self.view.addSubview(_failPanelV!)
+        }
+        _failLabel?.text = __text
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
+            }) { (comp) -> Void in
+                if __wait >= 0{
+                    
+                    self._hideAlert(__wait, __then: { () -> Void in
+                        __then()
+                    })
+                }
+                
+        }
+    }
+    func _hideAlert(__wait:Double,__then:()->Void){
+        UIView.animateWithDuration(0.2, delay: __wait, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
+            }) { (comp) -> Void in
+                __then()
+                
+        }
     }
     
 }

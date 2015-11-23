@@ -125,7 +125,10 @@ class CoreAction {
     }
     //------截图
     static func _captureImage(__view:UIView)->UIImage{
-        UIGraphicsBeginImageContextWithOptions(__view.frame.size,true, 0.0);
+       // let _scale:CGFloat = 2*UIScreen.mainScreen().scale
+        
+        UIGraphicsBeginImageContextWithOptions(__view.frame.size,true,0.0);
+        
         __view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
         let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
@@ -236,11 +239,13 @@ class CoreAction {
         let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
         request.HTTPMethod = "POST"
         request.HTTPBody = __postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-    
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
             if erro != nil{
-                print("链接失败:",__url,erro)
-                __block(NSDictionary(objects: [erro!.code], forKeys: ["recode"]))
+                //print("链接失败:",__url,erro)
+                //__block(NSDictionary(objects: [1009], forKeys: ["recode"]))//--- -1009
+                __block(NSDictionary(objects: [erro!.code], forKeys: ["recode"]))//--- -1009
                 return
             }
             let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
@@ -255,4 +260,8 @@ class CoreAction {
         })
         task.resume()
     }
+    
+    
+    
+    
 }

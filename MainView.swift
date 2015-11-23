@@ -69,14 +69,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
-    let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道"]
+    let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道","找亮点","点一下，看看跟我的兴趣点一致不","点点图片，bingo me!","猜我的兴趣点在哪里","点图片就对了","我想看看你点哪里","喜欢哪里点哪里，跟我一样有奖励"]
     
     var _shouldReceivePan:Bool = true
     
     
-    var _failPanelV:UIView?
-    let _failPanelH:CGFloat = 50
-    var _failLabel:UILabel?
     
     var _isFirstLoaded:Bool = true
     var _waitingForNext:Bool = false // －－－提示面板缩回后是否要展示下一张
@@ -87,6 +84,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _replayTimes:Int = 0
     var _timer:NSTimer?
+    
+    var _btn_needTo:UIButton?
+    var _needTo:Int = 0 //----需要做的动作
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -189,14 +191,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _profilePanel?.alpha = 0
         self.view.addSubview(_profilePanel!)
         
-        _failPanelV = UIView(frame: CGRect(x: 0, y: -_failPanelH-20, width: self.view.frame.width, height: _failPanelH+20))
-        _failPanelV?.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5)
-        _failLabel = UILabel(frame: CGRect(x: 5, y: 5+20, width: _failPanelV!.frame.width-10, height: _failPanelH))
-        _failLabel?.textAlignment = NSTextAlignment.Center
-        _failLabel?.textColor = UIColor.whiteColor()
-        _failLabel?.font = UIFont.systemFontOfSize(12)
-        _failPanelV?.addSubview(_failLabel!)
-        self.view.addSubview(_failPanelV!)
+        
         
         
         _showBtns()
@@ -205,15 +200,62 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         
         _nextPicItem = nil
+        _showLoadingV()
+        
+        _checkProfile()
         //_thirdPicItem = nil
        
         //_showIndex(0)
         
         
     }
+    
+    func _checkProfile(){
+        MainAction._getMyProfile { (__dict) -> Void in
+            if __dict.objectForKey("recode") as! Int == 200{
+                dispatch_async(dispatch_get_main_queue(), {
+                    MainAction._soketConnect()
+                    self._loadBingoList()
+                })
+            }else{
+//                dispatch_async(dispatch_get_main_queue(), {
+//                    self._startTimer()
+//                })
+                if (__dict.objectForKey("recode") as? Int) < 0{
+                    dispatch_async(dispatch_get_main_queue(), {
+                        ViewController._self!._showAlert("链接失败，请检查网络",__wait: 1.5)
+                        self._needTo = 0
+                        self._showNeedTo("网络似乎出现问题，\n 请确认设备已经链接到网络，\n[点击重新登录]")
+                    })
+                    return
+                }
+                if (__dict.objectForKey("recode") as? Int) == 202{
+                    dispatch_async(dispatch_get_main_queue(), {
+                        MainAction._loginQuick({ (__dict) -> Void in
+                            self._checkProfile()
+                        })
+                    })
+                    return
+                }
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    if let _reson:String = __dict.objectForKey("reson") as? String{
+                        self._needTo = 0
+                        self._showNeedTo(_reson + "\n[点击重新登录]")
+                    }else{
+                        self._needTo = 0
+                        self._showNeedTo("网络出现问题了...\n[点击重试]")
+                    }
+                    
+                })
+                
+            }
+        }
+    }
+
     //----加载列表
     func _loadBingoList()->Void{
-        _startTimer()
+        //_startTimer()
         _showLoadingV()
         MainAction._getBingoList { (__dict) -> Void in
             print("图片总数：",MainAction._BingoList.count)
@@ -238,37 +280,75 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     self._timer?.invalidate()
                 })
             }else{
-                
-                dispatch_async(dispatch_get_main_queue(), {
-                    print(__dict.objectForKey("recode"))
-                    self._showAlert("重新登录..",__wait: 0.5)
-                    MainAction._signupQuick({ (__dict) -> Void in
-                        //print(__dict)
-                        self._loadBingoList()
+                if (__dict.objectForKey("recode") as? Int) < 0 {
+                    dispatch_async(dispatch_get_main_queue(), {
+                        ViewController._self!._showAlert("链接失败，请检查网络",__wait: 0.5)
+                        self._needTo = 1
+                        self._showNeedTo("网络似乎出现问题，\n 请确认设备已经链接到网络，\n[点击重新加载]")
                     })
+                    return
+                }
+                dispatch_async(dispatch_get_main_queue(), {
+                    self._startTimer()
                 })
-                
-                
-                
-                
                 
             }
             
         }
     }
+    
+    //-----需要重新连接
+    
+    func _showNeedTo(__text:String){
+        if _btn_needTo == nil{
+            _btn_needTo = UIButton(frame: CGRect(x: 0, y: 0, width: 205, height: 60))
+            _btn_needTo?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
+            _btn_needTo?.clipsToBounds = true
+            _btn_needTo?.layer.cornerRadius = 5
+            _btn_needTo?.titleLabel?.lineBreakMode = NSLineBreakMode.ByCharWrapping
+            _btn_needTo?.titleLabel?.textAlignment = NSTextAlignment.Center
+            _btn_needTo?.titleLabel?.font = UIFont.systemFontOfSize(13)
+            _btn_needTo?.setBackgroundImage(UIImage(named: "btn_circle.png"), forState: UIControlState.Normal)
+            _btn_needTo?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+            _btn_needTo?.setTitleColor(UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5), forState: UIControlState.Normal)
+            
+            _btn_needTo?.backgroundColor = UIColor(white: 1, alpha: 0.5)
+            self.view.addSubview(_btn_needTo!)
+        }
+        _btn_needTo?.setTitle(__text, forState: UIControlState.Normal)
+    }
+    func btnHander(sender:UIButton){
+        switch _needTo{
+        case 0:
+            self._checkProfile()
+            break
+        case 1:
+            self._loadBingoList()
+            break
+        default:
+            
+            break
+        }
+        if _btn_needTo != nil{
+            _btn_needTo?.removeFromSuperview()
+            _btn_needTo = nil
+        }
+    }
+    
+    
     //-----循环访问
     func _startTimer(){
         if self._timer ==  nil{
             self._timer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "_timerHander", userInfo: nil, repeats: true)
             
-            //NSRunLoop.mainRunLoop().addTimer(self._timer!, forMode: NSDefaultRunLoopMode)
-            //self._timer!.fire()
+            
         }
-
+        NSRunLoop.mainRunLoop().addTimer(self._timer!, forMode: NSDefaultRunLoopMode)
+        //self._timer!.fire()
     }
     
     func _timerHander(){
-        print("ooo")
+        print("oo")
         _loadBingoList()
     }
     
@@ -422,7 +502,15 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         Void in
             
         }
-        _showFailPanel()
+        _waitingForNext = true
+        ViewController._self?._showAlertThen("(>_<) 很遗憾！你没能猜中！", __wait: 1, __then: { () -> Void in
+            if self._waitingForNext == true{
+                self._next()
+            }
+
+        })
+        
+        
     }
     //=--------bingo成功
     func _bingo(__x:Int,__y:Int){
@@ -431,7 +519,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             if recode == 200{
                 
             }else{
-                self._showAlert("网络似乎不太给力..", __wait: 3)
+                ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
             }
             
         }
@@ -450,55 +538,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
     }
     
-    //-----提示面板普通弹出
-    func _showAlert(__text:String,__wait:Double){
-        _setFailtText(__text)
-        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
-            }) { (comp) -> Void in
-                if __wait >= 0{
-                   self._hideAlert(__wait)
-                }
-                
-        }
-    }
-    func _hideAlert(__wait:Double){
-        
-        UIView.animateWithDuration(0.2, delay: __wait, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
-            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
-            }) { (comp) -> Void in
-        }
-    }
-    
-    //---失败提示板出现
-    func _showFailPanel(){
-        _waitingForNext = true
-        _setFailtText("(>_<) 很遗憾！你没能猜中！")
-        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
-            }) { (comp) -> Void in
-            self._hideFailPanle()
-        }
-
-    }
-    //---失败提示板收回
-    func _hideFailPanle(){
-        UIView.animateWithDuration(0.2, delay: 0.5, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
-            
-            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
-            }) { (comp) -> Void in
-                
-                if self._waitingForNext == true{
-                    self._next()
-                }
-        }
-        
-    }
-    //----提示语
-    func _setFailtText(__str:String){
-        _failLabel?.text = __str
-        
-    }
     //----
     func _showBingo(__name:String,__image:String){
        // self.view.removeGestureRecognizer(_panGesture!)
@@ -549,6 +588,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             return
         }
         if _currentIndex >= MainAction._BingoList.count{
+            _showBtns()
             return
         }
         if _currentPicItem == nil{
@@ -802,9 +842,14 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //-----恢复到开始的查看page
     func _showMainPage(){
+        
+        if _currentIndex >= MainAction._BingoList.count{
+            _showBtns()
+            return
+        }
+        
         _currentStatus = "mainView"
         _btnsIn = false
-        
         self._editingViewC?._reset()
         
         UIView.animateWithDuration(0.4, animations: { () -> Void in
@@ -822,9 +867,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -self._btnW)
             
             
-            self._btn_love?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
-            self._btn_list?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
+            self._btn_love?.transform = CGAffineTransformMakeScale(1, 1)
+            self._btn_list?.transform = CGAffineTransformMakeScale(1, 1)
             self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
+            
             self._btn_plus?.backgroundColor =  UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
             self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         }) { (complete) -> Void in
@@ -836,6 +882,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     //－－－－－出现按钮--按钮在顶端
     func _showBtns(){
+        
+        
+        
+        
         _currentStatus = "showingBtns"
         let _btnToY:CGFloat = _btnY
         let _toY:CGFloat = _CentralY+1.5*_btnW
@@ -845,6 +895,14 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
             self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
+            
+            
+            
+            self._btn_love?.transform = CGAffineTransformMakeScale(1, 1)
+            self._btn_list?.transform = CGAffineTransformMakeScale(1, 1)
+            self._btn_plus?.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(1, 1), 0)
+            self._btn_plus?.backgroundColor =  UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
+            
             self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         }) { (array) -> Void in
             

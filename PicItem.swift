@@ -37,7 +37,7 @@ class PicItem: UIView {
         _imageV?._imgView!.contentMode = UIViewContentMode.ScaleAspectFill
         _imageV?._imgView!.layer.cornerRadius = _cornerRadius
         
-        
+        //_imageV?._setImage("noPic.jpg")
         
         _answerV = PicView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.width))
         _answerV?.maximumZoomScale = 1
@@ -121,13 +121,15 @@ class PicItem: UIView {
     //
     func _setToNone(){
         print("设为图片破裂")
-        _imageV!._imgView!.backgroundColor = UIColor(white: 0.8, alpha: 0.2)
+        
+        //_imageV!._imgView!.backgroundColor = UIColor(white: 0.8, alpha: 0.2)
         
 //        _imageV?._setPic(NSDictionary(objects: ["image_1","file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
 //            
 //        })
     }
     func _setPic(__set:String){
+        _imageV?._setImage("noPic.jpg")
         _imageV?._setPic(NSDictionary(objects: [__set,"file"], forKeys: ["url","type"]), __block: { (dict:NSDictionary) -> Void in
             if dict.objectForKey("info") as! String == "failed"{
                 print("底图加载失败！")

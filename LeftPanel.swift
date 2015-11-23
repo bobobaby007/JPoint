@@ -156,11 +156,7 @@ class LeftPanel: UIViewController,MyImageList_delegate {
             
         }
     }
-    func _updateProfielOnline(){
-        MainAction._getMyProfile { (__dict) -> Void in
-            self._refreshProfile()
-        }
-    }
+    
     
     
     

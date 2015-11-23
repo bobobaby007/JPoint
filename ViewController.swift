@@ -24,6 +24,12 @@ class ViewController: UIViewController {
     let _distanceToSwape:CGFloat = 60
     var _backButton:UIButton?
     
+    
+    var _failPanelV:UIView?
+    let _failPanelH:CGFloat = 50
+    var _failLabel:UILabel?
+    
+    
     static var _self:ViewController?
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +37,6 @@ class ViewController: UIViewController {
         setup()
         //print(CoreAction._version())
         _showMainView()
-        _checkProfile()
         // Do any additional setup after loading the view, typically from a nib.
         //MainAction._deleteChatHistory("bingome")
         //let _:NSTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "timerHander", userInfo: nil, repeats: false)
@@ -56,25 +61,7 @@ class ViewController: UIViewController {
         _backButton?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         _setuped=true
     }
-    func _checkProfile(){
-        MainAction._getMyProfile { (__dict) -> Void in
-            if __dict.objectForKey("recode") as! Int == 200{
-                dispatch_async(dispatch_get_main_queue(), {
-                    MainAction._soketConnect()
-                    
-                    self._mainView!._loadBingoList()
-                })
-            }else{
-                dispatch_async(dispatch_get_main_queue(), {
-                    MainAction._loginQuick({ (__dict) -> Void in
-                        //print(__dict)
-                        self._checkProfile()
-                    })
-                })
-            }
-        }
-    }
-    
+        
     
     func btnHander(sender:UIButton){
         _showMainView()
@@ -323,6 +310,48 @@ class ViewController: UIViewController {
                 }
         }
        self._backButton?.removeFromSuperview()
+    }
+    
+    
+    
+    //-----提示面板普通弹出
+    
+    func _showAlert(__text:String,__wait:Double){
+        _showAlertThen(__text, __wait: __wait) { () -> Void in
+            
+        }
+    }
+    func _showAlertThen(__text:String,__wait:Double,__then:()->Void){
+        if _failPanelV == nil{
+            _failPanelV = UIView(frame: CGRect(x: 0, y: -_failPanelH-20, width: self.view.frame.width, height: _failPanelH+20))
+            _failPanelV?.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5)
+            _failLabel = UILabel(frame: CGRect(x: 5, y: 5+20, width: _failPanelV!.frame.width-10, height: _failPanelH))
+            _failLabel?.textAlignment = NSTextAlignment.Center
+            _failLabel?.textColor = UIColor.whiteColor()
+            _failLabel?.font = UIFont.systemFontOfSize(12)
+            _failPanelV?.addSubview(_failLabel!)
+            self.view.addSubview(_failPanelV!)
+        }
+        _failLabel?.text = __text
+        UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
+            }) { (comp) -> Void in
+                if __wait >= 0{
+                    
+                    self._hideAlert(__wait, __then: { () -> Void in
+                        __then()
+                    })
+                }
+                
+        }
+    }
+    func _hideAlert(__wait:Double,__then:()->Void){
+        UIView.animateWithDuration(0.2, delay: __wait, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
+            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
+            }) { (comp) -> Void in
+                __then()
+                
+        }
     }
     
     

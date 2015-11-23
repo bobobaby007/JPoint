@@ -25,26 +25,26 @@ class InfoPanel:UIView {
     
     var _likeNum:Int?
     var _clickNum:Int?
-    let _IconW:CGFloat = 25
+    let _IconW:CGFloat = 14
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         _icon_time = UIImageView(image: UIImage(named: "time_icon.png"))
         _icon_time?.frame = CGRect(x: 5, y: 0, width: _IconW, height: _IconW)
-        _timeL = UILabel(frame: CGRect(x: _icon_time!.frame.origin.x+_IconW+5, y: 0, width: 50, height: _IconW))
-        _timeL?.font = UIFont.systemFontOfSize(12)
+        _timeL = UILabel(frame: CGRect(x: _icon_time!.frame.origin.x+_IconW+5, y: 0, width: 60, height: _IconW))
+        _timeL?.font = UIFont.systemFontOfSize(10)
         _timeL?.textColor = UIColor.whiteColor()
         
         _icon_click = UIImageView(image: UIImage(named: "click_icon.png"))
         _icon_click?.frame = CGRect(x: _timeL!.frame.origin.x+_timeL!.frame.width+5, y: 0, width: _IconW, height: _IconW)
         _clickL = UILabel(frame: CGRect(x: _icon_click!.frame.origin.x+_IconW+5, y: 0, width: 30, height: _IconW))
-        _clickL?.font = UIFont.systemFontOfSize(12)
+        _clickL?.font = UIFont.systemFontOfSize(10)
         _clickL?.textColor = UIColor.whiteColor()
         
         _icon_like = UIImageView(image: UIImage(named: "like_icon.png"))
         _icon_like?.frame = CGRect(x:  _clickL!.frame.origin.x+_clickL!.frame.width+5, y: 0, width: _IconW, height: _IconW)
         _likeL = UILabel(frame: CGRect(x: _icon_like!.frame.origin.x+_IconW+5, y: 0, width: 30, height: _IconW))
-        _likeL?.font = UIFont.systemFontOfSize(12)
+        _likeL?.font = UIFont.systemFontOfSize(10)
         _likeL?.textColor = UIColor.whiteColor()
         
         
@@ -54,6 +54,11 @@ class InfoPanel:UIView {
         _btn_share?.setTitle("求助", forState: UIControlState.Normal)
         _btn_share?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
+        
+        ///---------
+        _btn_share?.hidden = true
+        
+        //------
         
         addSubview(_icon_time!)
         

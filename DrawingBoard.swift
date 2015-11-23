@@ -8,12 +8,18 @@
 
 import Foundation
 import UIKit
+
+protocol DrawingBoard_delagate:NSObjectProtocol{
+   func _drawingBoardDidStartDraw()->Void
+}
+
 class DrawingBoard:UIViewController {
     var _setuped:Bool = false
     var _panG:UIPanGestureRecognizer = UIPanGestureRecognizer()
     var _tapG:UITapGestureRecognizer = UITapGestureRecognizer()
     var _containerView:UIView = UIView()
-    
+    var _started:Bool = false
+    weak var _delegate:DrawingBoard_delagate?
     override func viewDidLoad() {
         super.viewDidLoad()
         //setup()
@@ -76,6 +82,12 @@ class DrawingBoard:UIViewController {
         
     }
     func _addPointAt(__p:CGPoint){
+        if _started == false{
+            if _delegate != nil{
+                _delegate?._drawingBoardDidStartDraw()
+            }
+            _started = true
+        }
         let _v:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         
         _v.layer.cornerRadius = 50
@@ -106,6 +118,7 @@ class DrawingBoard:UIViewController {
         for view in _containerView.subviews{
             view.removeFromSuperview()
         }
+        _started = false
     }
     
 }

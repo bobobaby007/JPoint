@@ -15,7 +15,7 @@ protocol EditingView_delegate:NSObjectProtocol{
     func _edingImageIn()
 }
 
-class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate{
+class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate,DrawingBoard_delagate{
     let _gap:CGFloat = 10
     let _btnW:CGFloat = 60
     var _setuped:Bool = false
@@ -45,6 +45,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     var _imageInputer:ImageInputer?
     
     var _infoForImage:InfoForImage?//----用户信息
+    
+    var _tipsV:UIButton?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -128,15 +130,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _imageContainer?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
         
         
-        _drawingBoard = DrawingBoard()
-        _drawingBoard?.view.layer.cornerRadius = _cornerRadius
-        _drawingBoard?.view.clipsToBounds = true
         
-        self.addChildViewController(_drawingBoard!)
-        _drawingBoard!.view.frame = _imageContainer!.frame
-        _drawingBoard?.setup()
-        _drawingBoard!.view.center = _imageContainer!.center
-        _drawingBoard?.view.alpha = 0.6
         
         
         
@@ -165,7 +159,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         
     
         self.view.addSubview(_imageContainer!)
-        self.view.addSubview(_drawingBoard!.view)
+        
         self.view.addSubview(_btn_camera!)
         self.view.addSubview(_btn_photo!)
         self.view.addSubview(_btn_send!)
@@ -194,19 +188,38 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
         case _btn_clear!:
             _drawingBoard?._clear()
+            _btnsHide()
+            _bottomBtnsOut()
+            
+            
+            
+            
             break
         case _btn_send!:
             let _img:UIImage = _captureBgImage()
             let _answerImg:UIImage = _drawingBoard!._captureImage()
             
-            MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media)
-            _mainView?._showAlert("图片已经提交，可以再来一张!",__wait: 1.5)
-            if _shouldBeClosed(){
+            MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media ,__block: { (__dict) -> Void in
                 
-            }else{
-                
-            }
-            
+                if __dict.objectForKey("recode") as! Int == 200{
+                    dispatch_async(dispatch_get_main_queue(), {
+                        ViewController._self!._showAlert("图片提交成功，可以再来一张!",__wait: 1.5)
+                        //self._reset()
+                        self._shouldBeClosed()
+                    })
+                }else{
+                    
+                    if (__dict.objectForKey("recode") as? Int) < 0{
+                        dispatch_async(dispatch_get_main_queue(), {
+                            ViewController._self!._showAlert("链接失败，请检查网络",__wait: 3.5)
+                        })
+                        return
+                    }
+                    dispatch_async(dispatch_get_main_queue(), {
+                        ViewController._self!._showAlert("上传失败，请重试",__wait: 3.5)
+                    })
+                }
+            })
             break
         default:
             break
@@ -335,6 +348,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _label_cancel?.font = UIFont.systemFontOfSize(12)
             _label_cancel?.textColor = UIColor.whiteColor()
         }
+        _label_cancel?.alpha = 0
         self.view.addSubview(_label_cancel!)
         
         _label_cancel?.text = "返回"
@@ -360,6 +374,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             self._btn_photo!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
             self._btn_camera!.alpha=0
             self._btn_photo!.alpha=0
+            self._label_cancel?.alpha = 0
             }) { (stoped) -> Void in
                 
         }
@@ -398,17 +413,47 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btnsHide()
         _bottomBtnsOut()
         _infoForImage?._setSay((_infoForImage?._placeHold)!)
+        _hideTips()
+        _removeDrawing()
         self._label_cancel?.alpha = 0
     }
+    
+    func _drawingBoardIn(){
+        if _drawingBoard == nil{
+            _drawingBoard = DrawingBoard()
+            _drawingBoard?.view.layer.cornerRadius = _cornerRadius
+            _drawingBoard?.view.clipsToBounds = true
+            _drawingBoard?._delegate = self
+            self.addChildViewController(_drawingBoard!)
+            _drawingBoard!.view.frame = _imageContainer!.frame
+            _drawingBoard?.setup()
+            _drawingBoard!.view.center = _imageContainer!.center
+            _drawingBoard?.view.alpha = 0.6
+            self.view.addSubview(_drawingBoard!.view)
+        }
+        
+    }
+    func _removeDrawing(){
+        if _drawingBoard != nil{
+            _drawingBoard?._clear()
+            _drawingBoard!._setEnabled(false)
+            _drawingBoard?.view.removeFromSuperview()
+            _drawingBoard?.removeFromParentViewController()
+            _drawingBoard = nil
+        }
+        
+    }
+    
     func _shouldBeClosed()->Bool{
         if _hasImg{
             _bgImageV!.image = UIImage()
             _hasImg = false
             _bottomBtnsOut()
             _btnsShow()
-        
-            _drawingBoard?._clear()
-            _drawingBoard!._setEnabled(false)
+            _infoForImage?._setSay((_infoForImage?._placeHold)!)
+            
+            _removeDrawing()
+            _hideTips()
             return false
         }
         return true
@@ -426,9 +471,53 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func didImageIn(){
         _btnsHide()
         _hasImg = true
-        _drawingBoard!._setEnabled(true)
         _delagate?._edingImageIn()
-        _bottomBtnsIn()
+        _drawingBoardIn()
+        _drawingBoard!._setEnabled(true)
+        _showTips("在图片上涂鸦你的兴趣点")
     }
+    
+    
+    //---- 涂鸦板代理
+    
+    func _drawingBoardDidStartDraw() {
+        _bottomBtnsIn()
+        _hideTips()
+    }
+    //------展示提示
+    func _showTips(__text:String){
+        if _tipsV == nil{
+            _tipsV = UIButton(frame: CGRect(x: 0, y: 0, width: 160, height: 30))
+            _tipsV?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2 + 20 + _imageContainer!.frame.height/2 - 40)
+            _tipsV?.clipsToBounds = true
+            _tipsV?.layer.cornerRadius = 5
+            _tipsV?.titleLabel?.lineBreakMode = NSLineBreakMode.ByCharWrapping
+            _tipsV?.titleLabel?.textAlignment = NSTextAlignment.Center
+            _tipsV?.titleLabel?.font = UIFont.systemFontOfSize(13)
+            _tipsV?.setBackgroundImage(UIImage(named: "btn_circle.png"), forState: UIControlState.Normal)
+            
+            //_tipsV?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+            _tipsV?.setTitleColor(UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5), forState: UIControlState.Normal)
+            _tipsV?.backgroundColor = UIColor(white: 1, alpha: 0.8)
+            _tipsV?.userInteractionEnabled = false
+            _tipsV?.alpha = 0.9
+            self.view.addSubview(_tipsV!)
+        }
+        
+        _tipsV?.setTitle(__text, forState: UIControlState.Normal)
+        self._tipsV?.transform = CGAffineTransformMakeScale(0.3, 0.3)
+        UIView.animateWithDuration(0.6, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._tipsV?.transform = CGAffineTransformMakeScale(1, 1)
+            }) { (stoped) -> Void in
+                
+        }
+    }
+    func _hideTips(){
+        if _tipsV != nil{
+            _tipsV?.removeFromSuperview()
+            _tipsV = nil
+        }
+    }
+    
     
 }

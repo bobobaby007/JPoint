@@ -116,12 +116,17 @@ class MainAction {
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_BingoList
         let postString : String = "token=" + _token
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
-            //print(__dict.objectForKey("reason"))
+            print("0000000")
+            
             let recode:Int = __dict.objectForKey("recode") as! Int
+            
+            print("0000000000===",recode)
+            
+            
             if recode == 200{
                 _BingoList = __dict.objectForKey("info") as! NSArray
             }else{
-                
+             
             }
             __block(__dict)
         }
@@ -157,15 +162,14 @@ class MainAction {
 //            __block(__dict)
 //        }
     }
-    
     //---提交新的图片
-    static func _postNewBingo(__image:UIImage,__question:String,__answer:UIImage,__type:String){
+    static func _postNewBingo(__image:UIImage,__question:String,__answer:UIImage,__type:String,__block:(NSDictionary)->Void){
         var postString : String = "token=" + _token
         postString = postString.stringByAppendingFormat("&image=%@&question=%@&answer=%@&type=%@&lng=%d&lat=%d",CoreAction._imageToString(__image),__question,CoreAction._imageToString_PNG(__answer),__type,7,7)
         let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_PostBingo
         CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
-            print(__dict)
-            //__block(__dict)
+            //print(__dict)
+            __block(__dict)
         }
     }
     
