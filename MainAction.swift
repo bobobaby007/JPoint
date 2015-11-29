@@ -19,6 +19,7 @@ class MainAction {
     static let _Version:String = "v1"
     static let _URL_PostBingo:String = "bingo/send/"//---发布图片地址
     static let _URL_BingoList:String = "bingo/list/"//----获取首页列表
+    static let _URL_ClearReadRecord:String = "bingo/empty/"//-----清空我的阅读记录
     static let _URL_MyImageList:String = "my/list/"//－－－我的图列
     static let _URL_MyImageDetail = "my/bingo/" //--- 我的图列详情
     static let _URL_Sent_Bingo:String = "bingo/check/"//----发送bingo地址
@@ -130,6 +131,16 @@ class MainAction {
             }
             __block(__dict)
         }
+    }
+    
+    //----清空我的阅读记录＝＝＝＝＝＝＝＝＝＝＝＝＝正式上线需去掉调用
+    static func _clearMyReadRecord(){
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_ClearReadRecord
+        let postString : String = "token=" + _token
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            //__block(__dict)
+        }
+
     }
     //-----获取我的图列
     static func _getMyImageList(__block:(NSDictionary)->Void){

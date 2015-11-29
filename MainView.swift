@@ -216,6 +216,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                 dispatch_async(dispatch_get_main_queue(), {
                     MainAction._soketConnect()
                     self._loadBingoList()
+                    
+                    
+                    //----------上线需注释掉
+                    
+                    MainAction._clearMyReadRecord()
+                    
                 })
             }else{
 //                dispatch_async(dispatch_get_main_queue(), {

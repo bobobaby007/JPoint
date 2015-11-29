@@ -10,6 +10,47 @@ import Foundation
 import UIKit
 
 class CoreAction {
+    //----从网页查找图片
+    static func _getImagesFromUrl(__url:String,__block:(NSDictionary)->Void){
+        let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
+        request.HTTPMethod = "GET"
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        let task = NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, erro) -> Void in
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+            if erro != nil{
+                print("链接失败:",__url,erro)
+                
+                __block(NSDictionary(objects: [erro!.code], forKeys: ["recode"]))//--- -1009
+                return
+            }
+            
+            let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            let str:String = String(_str)
+            
+            
+            
+            let pattern = "http.*?(.png|.jpg|.gif)"
+            //let pattern = "http://img3.douban.com/view/site_background/raw/public/f920ea258447540.jpg"
+            do{
+                let _images:NSMutableArray = []
+                let regex = try NSRegularExpression(pattern: pattern, options: NSRegularExpressionOptions.CaseInsensitive)
+                let res = regex.matchesInString(str, options: NSMatchingOptions(rawValue: 0), range: NSMakeRange(0, str.characters.count))
+                var count = res.count
+                print("链接成功:",count)
+                while count > 0 {
+                    let checkingRes = res[--count]
+                    let tempStr = (str as NSString).substringWithRange(checkingRes.range)
+                    _images.addObject(tempStr)
+                    //print("图片:",tempStr)
+                }
+                __block(NSDictionary(objects: [200,_images], forKeys: ["recode","images"]))//--- 200成功
+            }catch{
+                print(error)
+            }
+            //print("链接成功:",__url,_str)
+        })
+        task.resume()
+    }
     //-----当前时间串转换成字符串
     static func _timeStrOfCurrent()->String {
         //let timestamp = NSDateFormatter.localizedStringFromDate(NSDate(), dateStyle: .MediumStyle, timeStyle: .ShortStyle)
