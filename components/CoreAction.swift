@@ -19,35 +19,30 @@ class CoreAction {
             UIApplication.sharedApplication().networkActivityIndicatorVisible = false
             if erro != nil{
                 print("链接失败:",__url,erro)
-                
                 __block(NSDictionary(objects: [erro!.code], forKeys: ["recode"]))//--- -1009
                 return
             }
-            
             let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
             let str:String = String(_str)
-            
-            
-            
-            let pattern = "http.*?(.png|.jpg|.gif)"
-            //let pattern = "http://img3.douban.com/view/site_background/raw/public/f920ea258447540.jpg"
+            let pattern = "(http://+?|https://+?)([^(>|\"|<|'|,|;)]+)(.png|.jpg|.gif)"
             do{
                 let _images:NSMutableArray = []
                 let regex = try NSRegularExpression(pattern: pattern, options: NSRegularExpressionOptions.CaseInsensitive)
                 let res = regex.matchesInString(str, options: NSMatchingOptions(rawValue: 0), range: NSMakeRange(0, str.characters.count))
                 var count = res.count
-                print("链接成功:",count)
+                // print("链接成功:",count)
                 while count > 0 {
                     let checkingRes = res[--count]
                     let tempStr = (str as NSString).substringWithRange(checkingRes.range)
+                    
                     _images.addObject(tempStr)
-                    //print("图片:",tempStr)
+                    print("图片:",tempStr)
                 }
                 __block(NSDictionary(objects: [200,_images], forKeys: ["recode","images"]))//--- 200成功
             }catch{
                 print(error)
+                __block(NSDictionary(objects: [0], forKeys: ["recode"]))//--- -1009
             }
-            //print("链接成功:",__url,_str)
         })
         task.resume()
     }
@@ -276,7 +271,7 @@ class CoreAction {
     }
     //----发送参数到url
     static func _sendToUrl(__postString:String,__url:String,__block:(NSDictionary)->Void){
-        print("sending====",__url,__postString)
+        //print("sending====",__url,__postString)
         let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
         request.HTTPMethod = "POST"
         request.HTTPBody = __postString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
@@ -289,15 +284,23 @@ class CoreAction {
                 __block(NSDictionary(objects: [erro!.code], forKeys: ["recode"]))//--- -1009
                 return
             }
-            let _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
-            print(__url,_str)
+            var _str = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            
+            _str = _str?.stringByReplacingOccurrencesOfString(":null", withString: ":\"\"")
+            
+            _str = _str?.stringByReplacingOccurrencesOfString("<null>", withString: "")
+            
+            
+            //print("链接成功:",__url,_str)
+            
             do{
-                let jsonResult = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableContainers)
+                let jsonResult = try NSJSONSerialization.JSONObjectWithData((_str?.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true))!, options: NSJSONReadingOptions.MutableContainers)
                 __block(jsonResult as! NSDictionary)
             }catch{
                 print("failed with url:",__url,"respone:",_str)
                 __block(NSDictionary(objects: [0], forKeys: ["recode"]))
             }
+
         })
         task.resume()
     }

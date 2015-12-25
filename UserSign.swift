@@ -167,7 +167,6 @@ class UserSign: UIView{
             self._circle_small?.alpha = 0
             self._heart?.alpha = 0
             
-            
             }) { (finished) -> Void in
                 self.removeFromSuperview()
         }

@@ -11,6 +11,7 @@ import UIKit
 
 protocol InfoPanel_delegate:NSObjectProtocol{
     func _share_this()
+    func _report_this(__des:String)
 }
 
 class InfoPanel:UIView {
@@ -26,6 +27,8 @@ class InfoPanel:UIView {
     var _likeNum:Int?
     var _clickNum:Int?
     let _IconW:CGFloat = 14
+    
+    var _btn_report:UIButton?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -58,6 +61,12 @@ class InfoPanel:UIView {
         ///---------
         _btn_share?.hidden = true
         
+        _btn_report = UIButton(frame: CGRect(x: frame.width-40, y: 0, width: 40, height: _IconW))
+        _btn_report?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        _btn_report?.titleLabel?.font = UIFont.systemFontOfSize(14)
+        _btn_report?.setTitle("举报", forState: UIControlState.Normal)
+        _btn_report?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+        
         //------
         
         addSubview(_icon_time!)
@@ -68,18 +77,46 @@ class InfoPanel:UIView {
         addSubview(_icon_like!)
         addSubview(_likeL!)
         addSubview(_btn_share!)
+        addSubview(_btn_report!)
         
     }
     func btnHander(sender:UIButton){
-        print("-----go")
+        
         switch sender{
         case _btn_share!:
             _delegate?._share_this()
+            break
+        case _btn_report!:
+            _showAction()
+            
             break
         default:
             break
         }
     }
+    
+    func _showAction(){
+        //let rateMenu = UIAlertController(title: "新建相册", message: "选择一种新建方式", preferredStyle: UIAlertControllerStyle.ActionSheet)
+        let menu=UIAlertController()
+        let action1 = UIAlertAction(title: "举报", style: UIAlertActionStyle.Default, handler: _actionHander)
+        let action2 = UIAlertAction(title: "取消", style: UIAlertActionStyle.Cancel, handler: nil)
+        menu.addAction(action1)
+        menu.addAction(action2)
+        
+        ViewController._self?.presentViewController(menu, animated: true, completion: nil)
+        //self.presentViewController(menu, animated: true, completion: nil)
+    }
+    func _actionHander(_action:UIAlertAction){
+        switch _action.title!{
+        case "举报":
+            _delegate?._report_this("举报")
+            break
+        default:
+            break
+        }
+        
+    }
+    
     func _setTime(__timer:String){
         _timeL?.text=__timer
     }

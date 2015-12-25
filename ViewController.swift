@@ -38,7 +38,7 @@ class ViewController: UIViewController {
         //print(CoreAction._version())
         _showMainView()
         // Do any additional setup after loading the view, typically from a nib.
-        //MainAction._deleteChatHistory("bingome")
+        MainAction._deleteChatHistory("bingome")
         //let _:NSTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "timerHander", userInfo: nil, repeats: false)
     }
     
@@ -80,8 +80,6 @@ class ViewController: UIViewController {
             _touchPoint = sender.locationInView(self.view)
             _startTransOfMainView = _mainView?.view.transform
             
-            
-            
             if (_touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0){//----左向右滑动
                 if _currentPage=="mainView"{
                  _leftIn()
@@ -102,7 +100,6 @@ class ViewController: UIViewController {
             if _currentPage=="mainView"{
                 _mainView?.panHander(sender)
             }
-            
             break
         case UIGestureRecognizerState.Changed:
             if _isChanging{
@@ -224,13 +221,16 @@ class ViewController: UIViewController {
             _leftPanel = LeftPanel()
             _leftPanel?._parentView = self
             self.addChildViewController(_leftPanel!)
-            self.view.addSubview(_leftPanel!.view)
+           // self.view.addSubview(_leftPanel!.view)
             self.view.insertSubview(_leftPanel!.view, belowSubview: _mainView!.view)
+            _leftPanel?.setup()
         }
         
     }
     func _rightIn(){
+        
         if _rightPanel == nil{
+            
             _rightPanel = RightPanel()
             _rightPanel?._parentView = self
             self.addChildViewController(_rightPanel!)
@@ -249,14 +249,15 @@ class ViewController: UIViewController {
     func _showLeft(){
         _leftIn()
         _currentPage = "leftPanel"
-        _leftPanel?.setup()
+        
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._mainView?.view.transform = CGAffineTransformMakeTranslation(self.view.frame.width-self._distanceToSwape/2, 0)
 
             }) { (comp) -> Void in
                 
-                if self._rightPanel != nil{
+                if self._rightPanel != nil&&self._currentPage=="leftPanel"{
+                    
                     self._rightPanel?.view.removeFromSuperview()
                     self._rightPanel?.removeFromParentViewController()
                     self._rightPanel = nil
@@ -276,9 +277,10 @@ class ViewController: UIViewController {
             self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
             self._rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape, height: 0)
             
+            
             }) { (complete) -> Void in
             
-            if self._leftPanel != nil{
+            if self._leftPanel != nil&&self._currentPage=="rightPanel"{
                 self._leftPanel?.view.removeFromSuperview()
                 self._leftPanel?.removeFromParentViewController()
                 self._leftPanel = nil
@@ -293,17 +295,19 @@ class ViewController: UIViewController {
         _currentPage = "mainView"
         self._mainView?.view.userInteractionEnabled = true
         
+        
+        
         UIView.animateWithDuration(0.2, animations: { () -> Void in
                 self._mainView?.view.transform = CGAffineTransformMakeTranslation(0, 0)
                 self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)
                 self._rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
             }) { (com) -> Void in
-                if self._leftPanel != nil{
+                if self._leftPanel != nil&&self._currentPage=="mainView"{
                     self._leftPanel?.view.removeFromSuperview()
                     self._leftPanel?.removeFromParentViewController()
                     self._leftPanel = nil
                 }
-                if self._rightPanel != nil{
+                if self._rightPanel != nil&&self._currentPage=="mainView"{
                     self._rightPanel?.view.removeFromSuperview()
                     self._rightPanel?.removeFromParentViewController()
                     self._rightPanel = nil
@@ -337,7 +341,6 @@ class ViewController: UIViewController {
             self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
             }) { (comp) -> Void in
                 if __wait >= 0{
-                    
                     self._hideAlert(__wait, __then: { () -> Void in
                         __then()
                     })
@@ -353,8 +356,6 @@ class ViewController: UIViewController {
                 
         }
     }
-    
-    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

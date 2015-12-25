@@ -14,6 +14,7 @@ class MessageCell: UITableViewCell {
     var inited:Bool = false
     var _profileImg:PicView?
     static let _Type_Bingo:String = "bingo"
+    static let _Type_Bingo_By_Me = "_Type_Bingo_By_Me"
     static let _Type_Message:String = "message"
     static let _Type_Message_By_Me:String = "me"
     static let _Type_Time:String = "time"
@@ -24,6 +25,9 @@ class MessageCell: UITableViewCell {
     var _matchLabel:UILabel?
     var _matchBackG:UIView?
     var _message_textView:UITextView?
+    
+    var _bingoId:String? //-----用于查看bingo详情，未赋值
+    
     static let _messageTextFontSize:CGFloat = 14
     static let _messageTextMaxWidth:CGFloat = 220
     static let _messageTextPadding:CGFloat = 6
@@ -81,6 +85,39 @@ class MessageCell: UITableViewCell {
                 _matchLabel?.textAlignment = NSTextAlignment.Left
                 _matchBackG?.addSubview(_matchLabel!)
                 
+                break
+            case MessageCell._Type_Bingo_By_Me:
+//                _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
+//                _profileImg?.layer.cornerRadius = 30
+//                _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+//                _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
+//                _profileImg?.layer.borderWidth = 2
+                //addSubview(_profileImg!)
+                //_setPic("profile")
+                _matchBackG = UIView(frame: CGRect(x: self.frame.width-190-75, y: 0, width: 190, height: 190))
+                _matchBackG?.backgroundColor = UIColor(white: 1, alpha: 0.8)
+                _matchBackG?.layer.cornerRadius = 15
+                addSubview(_matchBackG!)
+                
+                let _uv:UIImageView = UIImageView(image: UIImage(named: "icon_bing_at_message.png"))
+                _uv.frame = CGRect(x: 0, y: 0, width: 200, height: 70)
+                _uv.contentMode = UIViewContentMode.ScaleAspectFit
+                
+                _matchBackG?.addSubview(_uv)
+                
+                _matchImg = PicView(frame:CGRect(x: 10, y: 80, width: 100, height: 100))
+                _matchImg?.layer.cornerRadius = 12
+                _matchImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+                _matchBackG?.addSubview(_matchImg!)
+                
+                _matchLabel = UILabel(frame: CGRect(x: 120, y: 80, width: 60, height: 100))
+                _matchLabel?.numberOfLines = 0
+                _matchLabel?.font = UIFont.systemFontOfSize(12)
+                
+                _matchLabel?.lineBreakMode = NSLineBreakMode.ByCharWrapping
+                _matchLabel?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
+                _matchLabel?.textAlignment = NSTextAlignment.Left
+                _matchBackG?.addSubview(_matchLabel!)
                 
                 break
             case MessageCell._Type_Message:
@@ -91,10 +128,6 @@ class MessageCell: UITableViewCell {
                 _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
                 addSubview(_profileImg!)
                 _setPic("profile")
-                
-                
-                
-                
                 _message_textView = UITextView(frame: CGRect(x: 80, y: 0, width:MessageCell._messageTextMaxWidth, height: 50))
                 _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
                 _message_textView?.textColor = UIColor.whiteColor()
@@ -175,11 +208,18 @@ class MessageCell: UITableViewCell {
         switch _type!{
         case MessageCell._Type_Bingo:
             //let fullNameArr = split(__str.characters){$0 == " "}.map(String.init)
+            //-----图片||内容||bingoId
+            
             let _array:Array = __str.componentsSeparatedByString("||")
-            _matchImg?._setImage(_array[0])
+            _matchImg?._setPic(NSDictionary(objects: [_array[0],"file"], forKeys: ["url","type"]), __block: { (__dict) -> Void in
+                
+            })
             _matchLabel?.text = _array[1]
             _matchLabel?.sizeToFit()
             _matchImg?._refreshView()
+            
+            
+            
             break
         case MessageCell._Type_Message:
             _message_textView?.text = __str

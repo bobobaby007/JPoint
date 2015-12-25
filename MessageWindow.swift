@@ -120,6 +120,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_new_chat, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_new_bingo, object: nil)
     }
     //--------接受到消息
     func _receivedNotification(notification: NSNotification){
@@ -134,8 +135,6 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
                 let _cell:MessageCell = _tableView?.cellForRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0)) as! MessageCell
                 //_cell._type = __dict.objectForKey("type") as? String
                 _cell._justSent()
-                
-                
             }
         }
         
@@ -218,6 +217,10 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         case MessageCell._Type_Time:
             break
         case MessageCell._Type_Bingo:
+            _cell._setPic(_prifileImageUrl)
+            break
+        case MessageCell._Type_Bingo_By_Me:
+            _cell._setPic(_prifileImageUrl)
             break
         case MessageCell._Type_Message:
             //print(_prifileImageUrl)
@@ -263,6 +266,8 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         _addMessage(MessageCell._Type_Message_By_Me, __content: __dict.objectForKey("text") as! String)
         
         MainAction._sentOneChat(NSDictionary(objects: [_uid,MessageCell._Type_Message_By_Me,__dict.objectForKey("text") as! String], forKeys: ["uid","type","content"]))
+        
+        MainAction._addToBingoList(_uid, __type: MessageCell._Type_Message_By_Me, __content: __dict.objectForKey("text") as! String, __nickname: _nameLabel!.text!, __image:_prifileImageUrl)
         
         _tableView?.reloadData()
         _refreshView()

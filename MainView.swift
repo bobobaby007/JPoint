@@ -393,9 +393,39 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     
     //----信息条代理
+    //---举报
+    func _report_this(__des:String){
+        let _dict:NSDictionary = _currentPicItem!._dict!
+        let _author:NSDictionary = _dict.objectForKey("author") as! NSDictionary
+        MainAction._report(_author.objectForKey("_id") as! String, __bingoId: _dict.objectForKey("_id") as! String, __description: __des) { (__dict) -> Void in
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    ViewController._self!._showAlert("感谢您的举报，我们会尽快处理！", __wait: 3)
+                })
+            }else{
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
+                })
+                //
+            }
+        }
+        
+//        MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right:"yes") { (__dict) -> Void in
+//            let recode:Int = __dict.objectForKey("recode") as! Int
+//            if recode == 200{
+//                
+//            }else{
+//                ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
+//            }
+//            
+//        }
+//        MainAction._addBingosTo(self._uid, __type: MainAction._BingoType_bingo, __content: "[Bingo]", __nickname: self._nickname, __image: self._avator)
+//        //MainAction._saveOneChat(<#T##__dict: NSDictionary##NSDictionary#>)
+//        self._showBingo(self._nickname, __image: self._avator)
+    }
     //---分享求助
     func _share_this() {
-        
         sendWXContentUser()
     }
     func sendWXContentUser() {//分享给朋友！！
@@ -417,7 +447,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         let resp = GetMessageFromWXResp()
         resp.message = message
         WXApi.sendResp(resp);
-        
     }
     
     func sendWXContentFriend() {//分享朋友圈
@@ -529,7 +558,13 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }
             
         }
-        MainAction._addBingosTo(self._uid, __type: MainAction._BingoType_bingo, __content: "[Bingo]", __nickname: self._nickname, __image: self._avator)
+       // MainAction._addBingosTo(self._uid,__content: "[Bingo]", __nickname: self._nickname, __image: self._avator)
+        
+        
+        
+        
+       // MainAction._saveOneChat(<#T##__dict: NSDictionary##NSDictionary#>)
+        
         //MainAction._saveOneChat(<#T##__dict: NSDictionary##NSDictionary#>)
         self._showBingo(self._nickname, __image: self._avator)
     }
@@ -735,6 +770,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }else{
             let _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
             let _dict:NSDictionary = MainAction._BingoList[__index] as! NSDictionary
+            //print("ddddd:",_dict)
             _item._dict = _dict
             _item._setPic(MainAction._imageUrl(_dict.objectForKey("image") as! String))
             _item._setAnswer(MainAction._imageUrl(_dict.objectForKey("answer") as! String))

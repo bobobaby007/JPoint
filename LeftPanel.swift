@@ -139,15 +139,29 @@ class LeftPanel: UIViewController,MyImageList_delegate {
     }
     func _refreshProfile(){
         MainAction._getProfile { (__dict) -> Void in
+            
+            
+            var _hasAvatar:Bool = false
+            
             if let _avatar = __dict.objectForKey("avatar") as? String{
-                self._setProfileImg((MainAction._imageUrl(_avatar)))
+                
+                if _avatar == ""{
+                }else{
+                    _hasAvatar = true
+                    self._setProfileImg((MainAction._imageUrl(_avatar)))
+                }
             }else{
+                
+            }
+            if !_hasAvatar{
                 if __dict.objectForKey("sex") as? Int == 1{
                     self._setProfileImg("user-icon-m.jpg")
                 }else{
                     self._setProfileImg("user-icon-w.jpg")
                 }
             }
+            
+            
             if let _nickname = __dict.objectForKey("nickname") as? String{
                 self._setName(_nickname)
             }else{

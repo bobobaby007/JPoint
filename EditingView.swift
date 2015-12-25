@@ -15,7 +15,7 @@ protocol EditingView_delegate:NSObjectProtocol{
     func _edingImageIn()
 }
 
-class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate,DrawingBoard_delagate{
+class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate,DrawingBoard_delagate,EULA_delegate{
     let _gap:CGFloat = 10
     let _btnW:CGFloat = 60
     var _setuped:Bool = false
@@ -190,41 +190,70 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _drawingBoard?._clear()
             _btnsHide()
             _bottomBtnsOut()
-            
-            
-            
-            
             break
         case _btn_send!:
-            let _img:UIImage = _captureBgImage()
-            let _answerImg:UIImage = _drawingBoard!._captureImage()
             
-            MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media ,__block: { (__dict) -> Void in
-                
-                if __dict.objectForKey("recode") as! Int == 200{
-                    dispatch_async(dispatch_get_main_queue(), {
-                        ViewController._self!._showAlert("图片提交成功，可以再来一张!",__wait: 1.5)
-                        //self._reset()
-                        self._shouldBeClosed()
-                    })
+            let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+            
+            if let _accepted:Bool = _ud.objectForKey("EULA_accepted") as? Bool{
+               
+                if _accepted{
+                    _sentBingo()
                 }else{
+                    _showEULA()
                     
-                    if (__dict.objectForKey("recode") as? Int) < 0{
-                        dispatch_async(dispatch_get_main_queue(), {
-                            ViewController._self!._showAlert("链接失败，请检查网络",__wait: 3.5)
-                        })
-                        return
-                    }
-                    dispatch_async(dispatch_get_main_queue(), {
-                        ViewController._self!._showAlert("上传失败，请重试",__wait: 3.5)
-                    })
                 }
-            })
+                
+            }else{
+                _showEULA()
+                break
+            }
+            
             break
         default:
             break
         }
     }
+    func _showEULA(){
+        let _controller:EULA = EULA()
+        _controller._delegate = self
+        self.presentViewController(_controller, animated: true) { () -> Void in
+            
+        }
+    }
+    func _EULA_accepted(){
+        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        _ud.setObject(true, forKey: "EULA_accepted")
+        self._sentBingo()
+    }
+    
+    func _sentBingo(){
+        let _img:UIImage = self._captureBgImage()
+        let _answerImg:UIImage = self._drawingBoard!._captureImage()
+        
+        MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media ,__block: { (__dict) -> Void in
+            
+            if __dict.objectForKey("recode") as! Int == 200{
+                dispatch_async(dispatch_get_main_queue(), {
+                    ViewController._self!._showAlert("图片提交成功，可以再来一张!",__wait: 1.5)
+                    //self._reset()
+                    self._shouldBeClosed()
+                })
+            }else{
+                
+                if (__dict.objectForKey("recode") as? Int) < 0{
+                    dispatch_async(dispatch_get_main_queue(), {
+                        ViewController._self!._showAlert("链接失败，请检查网络",__wait: 3.5)
+                    })
+                    return
+                }
+                dispatch_async(dispatch_get_main_queue(), {
+                    ViewController._self!._showAlert("上传失败，请重试",__wait: 3.5)
+                })
+            }
+        })
+    }
+    
     
     func _setProfilePic(__str:String){
         _infoForImage?._setPic(__str)
@@ -235,10 +264,21 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     func _show(){
         MainAction._getProfile { (__dict) -> Void in
+            
+            var _hasAvatar:Bool = false
+            
             if let _avatar = __dict.objectForKey("avatar") as? String{
-                print(__dict)
-                self._infoForImage!._setPic(MainAction._imageUrl(_avatar))
+                
+                if _avatar == ""{
+                }else{
+                    _hasAvatar = true
+                    self._infoForImage!._setPic(MainAction._imageUrl(_avatar))
+                }
             }else{
+                
+            }
+            
+            if !_hasAvatar{
                 if __dict.objectForKey("sex") as? Int == 1{
                     self._infoForImage!._setPic("user-icon-m.jpg")
                 }else{

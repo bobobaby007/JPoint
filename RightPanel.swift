@@ -103,7 +103,6 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
             self._datained = true
         }
         
-        
     }
     func _tabelsIn(){
         if _tableIned{
