@@ -51,7 +51,7 @@ class InfoPanel:UIView {
         _likeL?.textColor = UIColor.whiteColor()
         
         
-        _btn_share = UIButton(frame: CGRect(x: frame.width-40, y: 0, width: 40, height: _IconW))
+        _btn_share = UIButton(frame: CGRect(x: frame.width-80, y: -10, width: 80, height: _IconW+20))
         _btn_share?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
         _btn_share?.titleLabel?.font = UIFont.systemFontOfSize(14)
         _btn_share?.setTitle("求助", forState: UIControlState.Normal)
@@ -80,6 +80,15 @@ class InfoPanel:UIView {
         addSubview(_btn_report!)
         
     }
+    
+    //作为我自己的图列里的样式
+    func _setToMyInfo(){
+        _btn_report?.hidden = true
+        _btn_share?.hidden = false
+        _btn_share?.setTitle("发给朋友", forState: UIControlState.Normal)
+    }
+    
+    
     func btnHander(sender:UIButton){
         
         switch sender{

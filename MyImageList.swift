@@ -158,6 +158,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         //print(__dict)
         let _cell:ImageListItem = _tableView?.dequeueReusableCellWithIdentifier("ImageListItem") as! ImageListItem
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: _cellHeight))
+        _cell._id = __dict.objectForKey("_id") as! String
         _cell._setInfos(CoreAction._dateDiff(__dict.objectForKey("create_at") as! String), __clickNum: __dict.objectForKey("view") as! Int, __bingoNum: __dict.objectForKey("over") as! Int)
         _cell._setText(__dict.objectForKey("question") as! String)
         _cell._parentDelegate = self
@@ -174,10 +175,14 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     }
     
     //---代理
-    func _needToTalk(__id: String) {
-        let _message:MessageWindow = MessageWindow()
-        self.presentViewController(_message, animated: true) { (comp) -> Void in
-            _message._getDatas()
+    func _needToTalk(_dict:NSDictionary) {
+        let _messageWindow:MessageWindow = MessageWindow()
+        _messageWindow._uid = _dict.objectForKey("_id") as! String
+        
+        self.presentViewController(_messageWindow, animated: true) { (comp) -> Void in
+        _messageWindow._setPorofileImg(MainAction._avatar(_dict))
+        _messageWindow._setName(MainAction._nickName(_dict))
+        _messageWindow._getDatas()
         }
     }
     func _showUser(__index: Int) {

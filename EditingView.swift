@@ -264,29 +264,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     func _show(){
         MainAction._getProfile { (__dict) -> Void in
-            
-            var _hasAvatar:Bool = false
-            
-            if let _avatar = __dict.objectForKey("avatar") as? String{
-                
-                if _avatar == ""{
-                }else{
-                    _hasAvatar = true
-                    self._infoForImage!._setPic(MainAction._imageUrl(_avatar))
-                }
-            }else{
-                
-            }
-            
-            if !_hasAvatar{
-                if __dict.objectForKey("sex") as? Int == 1{
-                    self._infoForImage!._setPic("user-icon-m.jpg")
-                }else{
-                    self._infoForImage!._setPic("user-icon-w.jpg")
-                }
-            }
-            
-            
+            self._infoForImage!._setPic(MainAction._avatar(__dict))
         }
         _btnsShow()
     }

@@ -9,13 +9,15 @@
 import Foundation
 import UIKit
 
-class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
+class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_delegate{
     var inited:Bool = false
     var _id:String = ""
     var _bgImg:PicView?
     var _rect:CGRect?
     var _height:CGFloat = 10
-    var _points:NSMutableArray?
+    var _points:NSMutableArray?//----bingo中的点
+    var _hotPoints:NSArray?//----热点图的点
+    
     var _pointsView:UIView?
     var _signer:UserSign?
     let _cornerRadius:CGFloat = 10
@@ -56,11 +58,12 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             _bgImg?.layer.shadowRadius = 5
             
             addSubview(_bgImg!)
-            _bgImg?.userInteractionEnabled = false
             
+            if _pointsView != nil{
+                addSubview(_pointsView!)
+            }
             
-            
-            
+            _bgImg?.userInteractionEnabled = false            
             _overShadow = UIImageView(image: UIImage(named: "shadowOver"))
             
             let _w:CGFloat = _rect!.width-2*_imageInset
@@ -71,20 +74,69 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             addSubview(_overShadow!)
             
             _infoPanel = InfoPanel(frame: CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30))
-            _infoPanel?.userInteractionEnabled = false
+            //_infoPanel?.userInteractionEnabled = false
+            _infoPanel?._delegate = self
+            _infoPanel?._setToMyInfo()
             addSubview(_infoPanel!)
             
             _textBubble = TextBubble(frame: CGRect(x: _imageInset, y: _bgImg!.frame.height+_imageInset+40, width: _rect!.width-2*_imageInset, height: 3))
             _textBubble?.userInteractionEnabled = false
            
-            
-            
-            
             inited = true
         }
     }
     
     
+    
+    func _getDatas(){
+        
+        MainAction._getImageDetails(_id) { (__dict) -> Void in
+            
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                //_MyImageList = __dict.objectForKey("info") as! NSArray
+                let _usrs:NSArray = __dict.objectForKey("bingos") as! NSArray
+                self._bingoUsers = self._checkUsers(_usrs)
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self._getUsers()
+                    self._getPoints()
+                })
+                
+                return
+            }else{
+                self._bingoUsers = []
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self._getUsers()
+                    self._getPoints()
+                })
+            }
+            //self._getPoints()
+        }
+        
+        MainAction._getImageAllClicks(_id) { (__dict) -> Void in
+            
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                //_MyImageList = __dict.objectForKey("info") as! NSArray
+                
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let _points:NSArray = __dict.objectForKey("info") as! NSArray
+                    self._hotPoints = self._getHotPoints(_points)
+                    
+                    print(self._hotPoints)
+                    
+                    self._HotPointsIn()
+                })
+                return
+            }else{
+                
+            }
+            //self._getPoints()
+        }
+        
+    }
     func _setInfos(__time:String,__clickNum:Int,__bingoNum:Int){
         _infoPanel?._setClick(__clickNum)
         _infoPanel?._setLike(__bingoNum)
@@ -102,47 +154,88 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         _bgImg?._refreshView()
         
     }
-    //-----载入点击的圈圈位置
+    //-----载入bingo中的圈圈位置
     func _getPoints(){
         if _pointsView == nil{
             _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
             _pointsView?.layer.cornerRadius = _cornerRadius
             _pointsView?.clipsToBounds = true
             _pointsView?.userInteractionEnabled = false
+            _pointsView?.backgroundColor = UIColor.clearColor()
         }
         addSubview(_pointsView!)
+        addSubview(_infoPanel!)
         for subview in _pointsView!.subviews{
             subview.removeFromSuperview()
         }
         
         _points = NSMutableArray()
-        for _:Int in 0...12{
-            let __p:NSDictionary = NSDictionary(objects: [CGFloat(random()%100),CGFloat(random()%100)], forKeys: ["x","y"])
-            _points?.addObject(__p)
+        for var i:Int = 0 ; i < _bingoUsers.count; ++i {
+                let __dict:NSDictionary = self._bingoUsers.objectAtIndex(i) as! NSDictionary
+                let _nat:NSDictionary = __dict.objectForKey("nat") as! NSDictionary
+                let __p:NSDictionary = NSDictionary(objects: [(_nat.objectForKey("x") as! CGFloat)/100,(_nat.objectForKey("y") as! CGFloat)/100], forKeys: ["x","y"])
+              self._points?.addObject(__p)
+            
         }
-        for _index:Int in 0...3{
-            _addPointAt(CGFloat(random()%100),__y: CGFloat(random()%100),__tag:_index)
+        
+        
+        
+    }
+    //载入热点图的点
+    
+    func _HotPointsIn(){
+        for var i:Int = 0; i < _hotPoints?.count; ++i {
+            let _dict:NSDictionary = _hotPoints?.objectAtIndex(i) as! NSDictionary
+            //print(_dict)
+           _addPointAt((_dict.objectForKey("x") as! CGFloat)/100,__y: (_dict.objectForKey("y") as! CGFloat)/100,__tag:i,__num:_dict.objectForKey("num") as! Int )
         }
     }
-    func _addPointAt(__x:CGFloat,__y:CGFloat,__tag:Int){
+    
+    
+    
+    
+    
+    func _addPointAt(__x:CGFloat,__y:CGFloat,__tag:Int,__num:Int){
+        if _pointsView == nil{
+            _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
+            _pointsView?.layer.cornerRadius = _cornerRadius
+            _pointsView?.clipsToBounds = true
+            _pointsView?.userInteractionEnabled = false
+            _pointsView?.backgroundColor = UIColor.clearColor()
+            
+        }
+       
+        addSubview(_pointsView!)
+        addSubview(_infoPanel!)
+        
+        
         let __p:CGPoint = CGPoint(x: _imageInset+__x*(_rect!.width-2*_imageInset)/100, y: _imageInset+__y*(_rect!.width-2*_imageInset)/100)
         let _r:CGFloat = 5 + CGFloat(random()%50)
         
         let _item:PointItem = PointItem()
-        _item._setupWidthFrame(CGRect(x: 0, y: 0, width: 2*_r, height: 2*_r), __number: 30,__r:_r)
-        
-        _item.transform = CGAffineTransformMakeScale(2, 2)
-        _item.alpha = 0
+        _item._setupWidthFrame(CGRect(x: 0, y: 0, width: 2*_r, height: 2*_r), __number: __num,__r:_r)
+        _item.userInteractionEnabled = false
+        //_item.transform = CGAffineTransformMakeScale(2, 2)
+        _item.alpha = 0.6
         _item.center = __p
         
-        UIView.animateWithDuration(0.4, delay:Double(0.01*CGFloat(random()%100)), options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            
-            _item.transform = CGAffineTransformMakeScale(1, 1)
-            _item.alpha = 0.6
-            }, completion: { (stop) -> Void in
-                
-        })
         _pointsView!.addSubview(_item)
+        
+//        
+//        UIView.animateWithDuration(0.4, delay:0.01+Double(0.01*Double(__tag)), options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+//            _item.transform = CGAffineTransformMakeScale(1, 1)
+//            _item.alpha = 0.6
+//            }, completion: { (stop) -> Void in
+//                
+//        })
+        
+        
+        
+        
+        
+        
+        
+        
     }
     func _showPoint(__dict:NSDictionary){
         let __p:CGPoint = CGPoint(x: _imageInset + (__dict.objectForKey("x") as! CGFloat)*(_rect!.width-2*_imageInset)/100, y: _imageInset+(__dict.objectForKey("y") as! CGFloat)*(_rect!.width-2*_imageInset)/100)
@@ -159,6 +252,8 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         
         
     }
+    
+    //----判断是否有bingo用户
     func _ifHaseUsers(){
         if self._bingoUsers.count == 0{
             if _label_noUserBingo == nil{
@@ -198,21 +293,26 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         
         for var _index:Int = 0; _index < _bingoUsers.count; ++_index {
             let _user:BingoUserItemAtMyList = BingoUserItemAtMyList()
+            
+            let __dict:NSDictionary = _bingoUsers.objectAtIndex(_index) as! NSDictionary
+            //print("__dict",__dict)
+            let _userDict:NSDictionary = __dict.objectForKey("author") as! NSDictionary
+            
             _user.initWidthFrame(CGRect(x: 0, y: 0, width: _w, height: _h))
             _user.frame = CGRect(x: (_w+_gap)*CGFloat(_index), y: 0, width: _w, height: _h)
             _user._index = _index
-            _user._id = String(_index)
+            _user._dict = _userDict
             _user._delegate = self
-            _user._setPic("profile")
-            _user._setName("小甜菜")
+            _user._setPic(MainAction._avatar(_userDict))
+            _user._setName(MainAction._nickName(_userDict))
             _usersScroller?.addSubview(_user)
             
         }
         _usersScroller?.contentSize = CGSize(width: CGFloat(_bingoUsers.count)*(_w+_gap), height: _h)
     }
-    //----代理
-    func _needToTalk(__id: String) {
-        _parentDelegate?._needToTalk(__id)
+    //----bingo用户代理
+    func _needToTalk(__dict: NSDictionary) {
+        _parentDelegate?._needToTalk(__dict)
     }
     
     func _showUser(__index: Int) {
@@ -229,6 +329,8 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         for _subV in _usersScroller!.subviews{
             _subV.removeFromSuperview()
         }
+        _usersScroller?.removeFromSuperview()
+        _usersScroller = nil
     }
     
     //-----获取bingo的用户
@@ -242,24 +344,86 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
         _overShadow?.hidden=true
         _textBubble!.frame = CGRect(x: _imageInset, y: _bgImg!.frame.height+_imageInset+15, width: _rect!.width-2*_imageInset, height: _textBubble!.frame.height)
         addSubview(_textBubble!)
+        addSubview(_infoPanel!)
+        _infoPanel?._btn_share?.hidden = false
         //print(_textBubble!._mySize)
          _infoPanel!.frame = CGRect(x: _imageInset+5, y: _textBubble!.frame.origin.y+_textBubble!.frame.height+10, width: _rect!.width-2*_imageInset-10, height: 30)
         _getDatas()
     }
     
-    func _getDatas(){
+    
+    //----------提取热点点
+    func _getHotPoints(__array:NSArray)->NSArray{
+        let _arr:NSMutableArray = []
         
-        MainAction._getImageDetails(_id) { (__dict) -> Void in
-            self._bingoUsers = []
-            //self._getPoints()
-            self._getUsers()
-            
+        for var i:Int = 0;i<__array.count; ++i{
+            let _dict:NSDictionary = __array.objectAtIndex(i) as! NSDictionary
+            let _nat:NSDictionary = _dict.objectForKey("nat") as! NSDictionary
+            let _p_i:CGPoint = CGPoint(x: _nat.objectForKey("x") as! CGFloat, y: _nat.objectForKey("y") as! CGFloat)
+            var _has:Bool = false
+            for var d:Int = 0; d<_arr.count; ++d{
+                let _dict_d:NSDictionary = _arr.objectAtIndex(d) as! NSDictionary
+                
+                
+                let _p_d:CGPoint = CGPoint(x: _dict_d.objectForKey("x") as! CGFloat, y: _dict_d.objectForKey("y") as! CGFloat)
+                //print(_p_d)
+                
+                let xDist:CGFloat = (_p_d.x - _p_i.x); //[2]
+                let yDist:CGFloat = (_p_d.y - _p_i.y); //[3]
+                let _distance:CGFloat = sqrt((xDist*xDist) + (yDist*yDist))
+                
+                if abs(_distance)<1000{
+                    let _newDict:NSMutableDictionary = NSMutableDictionary(dictionary: _dict_d)
+                    let _num:CGFloat = _newDict.objectForKey("num") as! CGFloat
+                    _newDict.setObject(_num+1.0, forKey: "num")
+                    
+                    _newDict.setObject((_p_d.x*_num+_p_i.x)/(_num+1.0), forKey: "x")
+                    _newDict.setObject((_p_d.y*_num+_p_i.y)/(_num+1.0), forKey: "y")
+                    _has = true
+                    _arr[d] = _newDict
+                    break
+                }else{
+                    
+                }
+            }
+            if _has{
+                
+            }else{
+                _arr.addObject(NSDictionary(objects: [_p_i.x,_p_i.y,1.0], forKeys: ["x","y","num"]))
+            }
         }
-        
-        
+        return _arr
     }
     
     
+    
+    //-----用户去重
+    func _checkUsers(__array:NSArray)->NSArray{
+        let _all:NSArray = NSArray(array: __array)
+        let _resultArray:NSMutableArray = []
+        
+        for var i:Int = 0; i<_all.count; ++i{
+            let _dict = _all.objectAtIndex(i) as! NSDictionary
+            var _hased:Bool = false
+            for var d:Int = 0; d<_resultArray.count; ++d{
+                let __dict = _resultArray.objectAtIndex(d) as! NSDictionary
+                if _dict.isEqualToDictionary(__dict as [NSObject : AnyObject]){
+                    //print("----",d,i)
+                    _hased =  true
+                    break
+                }
+                //print(d,i)
+                
+            }
+            if _hased{
+                
+            }else{
+               _resultArray.addObject(_dict)
+            }
+            //print(i)
+        }
+        return _resultArray
+    }
     func _close(){
         
         _overShadow?.hidden = false
@@ -288,16 +452,121 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate{
             
         }
         
+        
         _infoPanel!.frame = CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30)
 
+        _infoPanel?._btn_share?.hidden = true
+        //_infoPanel?.userInteractionEnabled = false
         
     }
+    //----信息条代理
+    func _report_this(__des: String) {
+        
+    }
+    func _share_this() {
+        
+        sendWXContentUser()
+        //sendWXContentFriend()
+    }
+    //---微信分享
+    func sendWXContentUser() {//分享给朋友！！
+        let _rect:CGRect = CGRect(x: 0, y: 0, width: self.frame.width-2*_imageInset, height: self.frame.width-2*_imageInset)
+        
+        let _bg_img:UIImage = CoreAction._captureImage(_bgImg!)
+        let _bgV:UIImageView = UIImageView(frame: _rect)
+        _bgV.image = _bg_img
+        
+        
+        let _points_img:UIImage = CoreAction._captureImage(_pointsView!)
+        let _pointsV:UIImageView = UIImageView(frame: _rect)
+        _pointsV.image = _points_img
+    
+        let _picV:UIView = UIView(frame: _rect)
+        _picV.addSubview(_bgV)
+        _picV.addSubview(_pointsV)
+        
+        
+        let _picImage:UIImage = CoreAction._captureImage(_picV)
+        
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        _thumbImage.image = _picImage
+        let _thumbImage_image = CoreAction._captureImage(_thumbImage)
+        
+        let message:WXMediaMessage = WXMediaMessage()
+        message.title = "哈哈，好玩，看大家都爱点哪里"
+        message.description = "哈哈，好玩，看大家都爱点哪里"
+        message.setThumbImage(_thumbImage_image);
+        let __img:WXImageObject = WXImageObject()
+        __img.imageData = UIImageJPEGRepresentation(_picImage,0.7)
+        
+        message.mediaObject = __img
+        let resp = GetMessageFromWXResp()
+        resp.message = message
+        WXApi.sendResp(resp);
+        
+//        let req = SendMessageToWXReq()
+//        req.scene = 1
+//        req.text = "哈哈，好玩，看大家都爱点哪里"
+//        req.bText = false
+//        req.message = message
+//        WXApi.sendReq(req);
+    }
+    
+//    func sendWXContentFriend() {//分享朋友圈
+//        let _rect:CGRect = CGRect(x: 0, y: 0, width: self.frame.width-2*_imageInset, height: self.frame.width-2*_imageInset)
+//        
+//        let _bg_img:UIImage = CoreAction._captureImage(_bgImg!)
+//        let _bgV:UIImageView = UIImageView(frame: _rect)
+//        _bgV.image = _bg_img
+//        
+//        
+//        let _points_img:UIImage = CoreAction._captureImage(_pointsView!)
+//        let _pointsV:UIImageView = UIImageView(frame: _rect)
+//        _pointsV.image = _points_img
+//        
+//        let _picV:UIView = UIView(frame: _rect)
+//        _picV.addSubview(_bgV)
+//        _picV.addSubview(_pointsV)
+//        
+//        
+//        let _picImage:UIImage = CoreAction._captureImage(_picV)
+//        
+//        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+//        _thumbImage.image = _picImage
+//        let _thumbImage_image = CoreAction._captureImage(_thumbImage)
+//        
+//        let message:WXMediaMessage = WXMediaMessage()
+//        //message.title = "我喜欢"+_ta+"，帮我找找"+_ta+"的兴趣点"
+//        //message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
+//        message.setThumbImage(_thumbImage_image);
+//        let __img:WXImageObject = WXImageObject()
+//        __img.imageData = UIImageJPEGRepresentation(_picImage,0.7)
+//        
+//        message.mediaObject = __img
+//        
+//        message.mediaTagName = "Bingo一下"
+//        let req = SendMessageToWXReq()
+//        req.scene = 1
+//        req.text = "哈哈，好玩，看大家都爱点哪里"
+//        req.bText = false
+//        req.message = message
+//        WXApi.sendReq(req);
+//    }
+    
+    
+    
+    
     
     func _setPic(__picUrl:String){
         _bgImg?._loadImage(__picUrl)
         //_bgImg?._refreshView()
     }
     func _setText(__str:String){
+        if __str==""{
+           _textBubble?.alpha = 0.4
+        }else{
+            _textBubble?.alpha = 1
+        }
         _textBubble?._setSay(__str)
     }
     override func setSelected(selected: Bool, animated: Bool) {

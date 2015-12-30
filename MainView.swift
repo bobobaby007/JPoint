@@ -69,7 +69,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
-    let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道","找亮点","点一下，看看跟我的兴趣点一致不","点点图片，bingo me!","猜我的兴趣点在哪里","点图片就对了","我想看看你点哪里","喜欢哪里点哪里，跟我一样有奖励"]
+    let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道","找亮点","点一下，看看跟我的兴趣点一致不","点点图片，bingo me!","猜我的兴趣点在哪里","点图片就对了","我想看看你点哪里","喜欢哪里点哪里，跟我一样有奖励","你的兴趣点在哪里","大家来点点"]
     
     var _shouldReceivePan:Bool = true
     
@@ -700,23 +700,18 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             if let _author:NSDictionary = _dict.objectForKey("author") as? NSDictionary{
                 _uid = _author.objectForKey("_id") as! String
-                if let _touxiang = _author.objectForKey("avatar") as? String{
-                    _avator = MainAction._imageUrl(_touxiang)
-                    print(_avator)
+                
+                
+                
+                if _dict.objectForKey("sex") as? Int == 1{
+                    _sex = 1
                 }else{
-                    if _dict.objectForKey("sex") as? Int == 1{
-                        _sex = 1
-                        _avator = "user-icon-m.jpg"
-                    }else{
-                        _sex = 0
-                        _avator = "user-icon-w.jpg"
-                    }
+                    _sex = 0
                 }
-                if let __nickname = _author.objectForKey("nickname") as? String{
-                    _nickname = __nickname
-                }else{
-                    _nickname = "someone"
-                }
+                
+                _avator = MainAction._avatar(_author)
+                _nickname = MainAction._nickName(_author)
+                
             }
             _profilePanel?._setPic(_avator)
             _profilePanel?._setName(_nickname)

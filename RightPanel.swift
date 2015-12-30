@@ -160,7 +160,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         
         UIApplication.sharedApplication().keyWindow!.rootViewController!.presentViewController(_messageWindow, animated: true) { (complete) -> Void in
             _messageWindow._setPorofileImg(_dict.objectForKey("image") as! String)
-            _messageWindow._setName(_dict.objectForKey("nickname") as! String)
+            _messageWindow._setName(MainAction._nickName(_dict))
             _messageWindow._getDatas()
         }
 //        let _viewC:MyImageList = MyImageList()

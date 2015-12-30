@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,Inputer_delegate{
-    var _uid:String = "bingome"
+    var _uid:String = "bingome"//----默认给bingome发送消息
     var _setuped:Bool = false
     var _tableView:UITableView?
     var _messages:NSMutableArray? = NSMutableArray()//---需要展示的最终数据，包括时间段

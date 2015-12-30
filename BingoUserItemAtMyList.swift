@@ -13,7 +13,7 @@ import Foundation
 import UIKit
 
 protocol BingoUserItemAtMyList_delegate:NSObjectProtocol{
-    func _needToTalk(__id:String)
+    func _needToTalk(__dict:NSDictionary)
     func _showUser(__index:Int)
 }
 
@@ -25,7 +25,7 @@ class BingoUserItemAtMyList: UIView {
     var _signImg:PicView?
     var _nameLabel:UILabel?
     var _index:Int?
-    var _id:String?
+    var _dict:NSDictionary?
     weak var _delegate:BingoUserItemAtMyList_delegate?
     
     func initWidthFrame(__frame:CGRect){
@@ -72,7 +72,7 @@ class BingoUserItemAtMyList: UIView {
             _delegate?._showUser(_index!)
             break
         case _signImg!:
-            _delegate?._needToTalk(_id!)
+            _delegate?._needToTalk(_dict!)
             break
         default:
             break
@@ -80,9 +80,10 @@ class BingoUserItemAtMyList: UIView {
         
     }
     func _setPic(__picUrl:String){
-        
-        _bgImg?._setImage(__picUrl)
-        _bgImg?._refreshView()
+        _bgImg?._setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"]), __block: { (__DICT) -> Void in
+            
+        })
+        //_bgImg?._refreshView()
     }
     func _setName(__str:String){
         _nameLabel?.text = __str

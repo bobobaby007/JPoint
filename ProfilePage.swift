@@ -233,15 +233,9 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         }else{
             self._text_name?.text = ""
         }
-        if let _avatar = __dict.objectForKey("avatar") as? String{
-            self._setProfileImg(MainAction._imageUrl(_avatar))
-        }else{
-            if __dict.objectForKey("sex") as? Int == 1{
-                self._setProfileImg("user-icon-m.jpg")
-            }else{
-                self._setProfileImg("user-icon-w.jpg")
-            }
-        }
+        
+        self._setProfileImg(MainAction._avatar(__dict))
+        
         
         }
     }

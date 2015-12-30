@@ -163,8 +163,8 @@ class CoreAction {
     static func _captureImage(__view:UIView)->UIImage{
        // let _scale:CGFloat = 2*UIScreen.mainScreen().scale
         
-        UIGraphicsBeginImageContextWithOptions(__view.frame.size,true,0.0);
-        
+        UIGraphicsBeginImageContextWithOptions(__view.frame.size,false,0.0);
+       
         __view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
         let img:UIImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();

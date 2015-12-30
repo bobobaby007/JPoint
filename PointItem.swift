@@ -20,14 +20,14 @@ class PointItem: UIView {
         _v.layer.borderWidth = 1.5
         addSubview(_v)
         
-        if __r > 30{
+        if __r > 20{
             
             let _lable:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: 150, height: 50))
             _lable.textAlignment = NSTextAlignment.Center
             _lable.center = CGPoint(x: 25, y: 15)
             _lable.textColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 1)
             //_lable.alpha = 0.5
-            _lable.text = "♡1.3万"
+            _lable.text = "\(__number)"
             _lable.font = UIFont.boldSystemFontOfSize(13)
             
             
@@ -46,8 +46,8 @@ class PointItem: UIView {
             _circleV.backgroundColor = UIColor.whiteColor()
             //_circleV.alpha = 0.7
             
-            addSubview(_rectView)
-            addSubview(_circleV)
+            //addSubview(_rectView)
+            //addSubview(_circleV)
             
         }
         

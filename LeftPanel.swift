@@ -141,25 +141,7 @@ class LeftPanel: UIViewController,MyImageList_delegate {
         MainAction._getProfile { (__dict) -> Void in
             
             
-            var _hasAvatar:Bool = false
-            
-            if let _avatar = __dict.objectForKey("avatar") as? String{
-                
-                if _avatar == ""{
-                }else{
-                    _hasAvatar = true
-                    self._setProfileImg((MainAction._imageUrl(_avatar)))
-                }
-            }else{
-                
-            }
-            if !_hasAvatar{
-                if __dict.objectForKey("sex") as? Int == 1{
-                    self._setProfileImg("user-icon-m.jpg")
-                }else{
-                    self._setProfileImg("user-icon-w.jpg")
-                }
-            }
+            self._setProfileImg(MainAction._avatar(__dict))
             
             
             if let _nickname = __dict.objectForKey("nickname") as? String{

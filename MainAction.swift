@@ -22,6 +22,7 @@ class MainAction {
     static let _URL_ClearReadRecord:String = "bingo/empty/"//-----清空我的阅读记录
     static let _URL_MyImageList:String = "my/list/"//－－－我的图列
     static let _URL_MyImageDetail = "my/bingo/" //--- 我的图列详情
+    static let _URL_MyImageClicks = "my/bingos/" //--- 我的图的所有点击
     static let _URL_Sent_Bingo:String = "bingo/check/"//----发送bingo地址
     static let _URL_Signup:String = "sign/up/" //----注册地址
     static let _URL_Login:String = "sign/in/"//登录地址
@@ -171,18 +172,23 @@ class MainAction {
     }
     //-----获取图列详情
     static func _getImageDetails(__picId:String, __block:(NSDictionary)->Void){
-        __block(NSDictionary())
-//        let url = _BasicDomain + "/" + _Version + "/" +  _URL_MyImageDetail
-//        let postString : String = "token=" + _token + "&bingo=" + __picId
-//        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
-//            let recode:Int = __dict.objectForKey("recode") as! Int
-//            if recode == 200{
-//                //_MyImageList = __dict.objectForKey("info") as! NSArray
-//            }else{
-//                
-//            }
-//            __block(__dict)
-//        }
+        //__block(NSDictionary())
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_MyImageDetail
+        let postString : String = "token=" + _token + "&bingo=" + __picId
+       // print(postString)
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            __block(__dict)
+        }
+    }
+    //-----获取我的图片的所有点击
+    static func _getImageAllClicks(__picId:String, __block:(NSDictionary)->Void){
+        //__block(NSDictionary())
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_MyImageClicks
+        let postString : String = "token=" + _token + "&bingo=" + __picId
+       // print(postString)
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            __block(__dict)
+        }
     }
     //---提交新的图片
     static func _postNewBingo(__image:UIImage,__question:String,__answer:UIImage,__type:String,__block:(NSDictionary)->Void){
@@ -257,11 +263,9 @@ class MainAction {
         
         
         if let ___dict:NSDictionary = NSDictionary(objects: [__dict.objectForKey("from")!,MessageCell._Type_Message,__dict.objectForKey("content")!,__dict.objectForKey("date")!], forKeys: ["uid","type","content","time"]){
-            
-            
-            
             _saveOneChat(___dict)
-            _addToBingoList(__dict.objectForKey("from") as! String, __type: MessageCell._Type_Message, __content: __dict.objectForKey("content") as! String, __nickname: __dict.objectForKey("nickname") as! String, __image: MainAction._imageUrl(__dict.objectForKey("avatar") as! String))
+            print("收到消息：",__dict)
+            _addToBingoList(__dict.objectForKey("from") as! String, __type: MessageCell._Type_Message, __content: __dict.objectForKey("content") as! String, __nickname:MainAction._nickName(__dict), __image: MainAction._avatar(__dict))
             
             NSNotificationCenter.defaultCenter().postNotificationName(_Notification_new_chat, object: nil, userInfo:___dict as [NSObject : AnyObject])
         }
@@ -276,29 +280,11 @@ class MainAction {
         
         let _content:String = MainAction._imageUrl(_bingo.objectForKey("image") as! String)+"||"+(_bingo.objectForKey("question") as! String)+"||"+(_bingo.objectForKey("_id") as! String)
         
-        var _avatar:String = ""
-        if let _a = _fromUser.objectForKey("avatar") as? String{
-            _avatar = MainAction._imageUrl(_a)
-        }else{
-            if _fromUser.objectForKey("sex") as? Int == 1{
-                _avatar = "user-icon-m.jpg"
-            }else{
-                _avatar = "user-icon-w.jpg"
-            }
-        }
-        
-        var _nickName:String = "someone"
-        if let _a = _fromUser.objectForKey("nickname") as? String{
-            _nickName = _a
-        }
-        
-        
-        
-        
-        
+        let _avatar:String = MainAction._avatar(_fromUser)
+        let _nickName:String = MainAction._nickName(_fromUser)
         if let ___dict:NSDictionary = NSDictionary(objects: [_fromUser.objectForKey("_id")!,MessageCell._Type_Bingo,_content,__dict.objectForKey("date")!], forKeys: ["uid","type","content","time"]){
             
-            print(___dict)
+            
             
             _saveOneChat(___dict)
             
@@ -315,7 +301,7 @@ class MainAction {
         print(__dict)
         if _socket != nil{
             _socket!.emit("message",NSDictionary(objects: [__dict.objectForKey("uid")!,MessageCell._Type_Message,__dict.objectForKey("content")!], forKeys: ["to","type","content"]))
-            print(_socket)
+           // print(_socket)
         }
         _saveOneChat(NSDictionary(objects: [__dict.objectForKey("uid")!,__dict.objectForKey("type")!,__dict.objectForKey("content")!,CoreAction._timeStrOfCurrent()], forKeys: ["uid","type","content","time"]))
         
@@ -423,7 +409,47 @@ class MainAction {
         let _url:String = _BasicDomain + "/uploadDir/" + __str
         return _url
     }
+    
+    //-----通过用户字典返回个人头像
+    static func _avatar(__dict:NSDictionary)->String {
+        var _url:String = "user-icon-w.jpg"
+        var _hasAvatar:Bool = false
+        if let _avatar = __dict.objectForKey("avatar") as? String{
+            if _avatar == ""{
+            }else{
+                _hasAvatar = true
+                _url = MainAction._imageUrl(_avatar)
+            }
+        }else{
+            
+        }
         
+        if !_hasAvatar{
+            if let _sex = __dict.objectForKey("sex") as? Int{
+                if _sex == 1{
+                    _url = "user-icon-m.jpg"
+                }else{
+                    _url = "user-icon-w.jpg"
+                }
+            }else{
+                _url = "user-icon-w.jpg"
+            }
+        }
+
+        return _url
+        
+    }
+    //-----通过用户字典返回昵称
+    static func _nickName(__dict:NSDictionary)->String{
+        
+        
+        if let __nickName = __dict.objectForKey("nickname") as? String{
+            return __nickName
+        }else{
+            return "someone"
+        }
+
+    }
 }
 
 
