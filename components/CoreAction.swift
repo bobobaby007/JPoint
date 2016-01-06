@@ -10,6 +10,16 @@ import Foundation
 import UIKit
 
 class CoreAction {
+    //---打印所有的字体
+    static func _printAllFonts(){
+        let fontFamilyNames = UIFont.familyNames()
+        for familyName in fontFamilyNames {
+            print("------------------------------")
+            print("Font Family Name = [\(familyName)]")
+            let names = UIFont.fontNamesForFamilyName(familyName)
+            print("Font Names = [\(names)]")
+        }
+    }
     //----从网页查找图片
     static func _getImagesFromUrl(__url:String,__block:(NSDictionary)->Void){
         let request = NSMutableURLRequest(URL: NSURL(string:__url)!)
