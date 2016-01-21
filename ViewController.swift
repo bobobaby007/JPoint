@@ -147,13 +147,11 @@ class ViewController: UIViewController {
                     self._mainView?.view.transform = _toTranMain!
                     self._rightPanel?.view.transform = _toTranRight!
                 }
-                
             }else{
                 if _currentPage=="mainView"{
                     _mainView?.panHander(sender)
                 }
             }
-    
             
             break
         case UIGestureRecognizerState.Ended:

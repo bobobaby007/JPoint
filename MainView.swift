@@ -693,8 +693,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _infoPanel?.center = CGPoint(x: _currentPicItem!.center.x,y:_currentPicItem!.center.y + _picItemW/2 + _gap + _infoH)
             _infoPanel?.alpha = 0
             _infoPanel?._setTime(CoreAction._dateDiff(_dict.objectForKey("create_at") as! String))
-            _infoPanel?._setClick(_dict.objectForKey("view") as! Int)
-            _infoPanel?._setLike(_dict.objectForKey("over") as! Int)
+            _infoPanel?._setClick(_dict.objectForKey("like") as! Int)//点击次数
+            _infoPanel?._setBingo(_dict.objectForKey("over") as! Int)//--点中次数
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH)
             self._profilePanel?.alpha = 0
             

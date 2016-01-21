@@ -64,6 +64,8 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                 
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = true
                 
+                _imgView?.image = nil
+                
                 ImageLoader.sharedLoader.imageForUrl(__pic.objectForKey("url") as! String, completionHandler: { (image, url) -> () in
                     // _setImage(image)
                     //println("")
@@ -95,6 +97,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
     }
     
     func _loadImage(__picUrl:String){
+        
         _setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"])) { (_dict) -> Void in
             
         }
@@ -145,8 +148,8 @@ class PicView: UIScrollView,UIScrollViewDelegate{
     }
     func _setImageByImage(_img:UIImage){
         
-        let _scaleW = _imgView!.frame.width/_img.size.width
-        let _scaleH = _imgView!.frame.height/_img.size.height
+        let _scaleW = self.bounds.width/_img.size.width
+        let _scaleH = self.bounds.height/_img.size.height
         
         var _scale = max(_scaleW,_scaleH)
         switch _scaleType{

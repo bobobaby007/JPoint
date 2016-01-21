@@ -133,7 +133,7 @@ class InfoPanel:UIView {
         _clickNum = __num
         _clickL?.text=String(__num)
     }
-    func _setLike(__num:Int){
+    func _setBingo(__num:Int){
         _likeNum = __num
         _likeL?.text=String(__num)
     }
@@ -143,7 +143,7 @@ class InfoPanel:UIView {
     }
     func _addOneLike(){
         ++_likeNum!
-        _setLike(_likeNum!)
+        _setBingo(_likeNum!)
         
     }
     required init?(coder aDecoder: NSCoder) {

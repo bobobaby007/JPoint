@@ -32,7 +32,7 @@ class LeftPanel: UIViewController,MyImageList_delegate {
             return
         }
         
-        self.view.backgroundColor = UIColor.blueColor()
+        self.view.backgroundColor = UIColor.whiteColor()
         _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
         _bgImg._refreshView()

@@ -21,14 +21,61 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            MainAction._addBingosTo("560dff20146092b1ab3f68fb", __type: "bingo", __content: "ssss",__nickname: "我",__image: "profile")
 //        }
 
+        
+        let settings: UIUserNotificationSettings = UIUserNotificationSettings( forTypes: [UIUserNotificationType.Badge,UIUserNotificationType.Alert,UIUserNotificationType.Sound], categories: nil )
+        
+        application.registerUserNotificationSettings( settings )
+        application.registerForRemoteNotifications()
+        
+        
+        
         //MainAction._signupQuick()
         //MainAction._getMyProfile()
        // MainAction._soketConnect()
         // Override point for customization after application launch.
         WXApi.registerApp("wx1fe07c97d3fbc1ae")//---注册微信分享
+        
         return true
     }
 
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+        // <>と" "(空白)を取る
+        let characterSet: NSCharacterSet = NSCharacterSet( charactersInString: "<>" )
+        
+        let deviceTokenString: String = ( deviceToken.description as NSString )
+            .stringByTrimmingCharactersInSet( characterSet )
+            .stringByReplacingOccurrencesOfString( " ", withString: "" ) as String
+        
+        print("deviceTokenString:", deviceTokenString )
+    }
+    
+    func application( application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError ) {
+        print( error.localizedDescription )
+    }
+    
+    
+    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+        application.registerForRemoteNotifications()
+    }
+    
+    //-----远程推送侦听
+    
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        print("消息－－－－－－：",userInfo)
+        ViewController._self?._showAlert("收到一条消息", __wait: 2)
+    }
+    
+    
+    //-------推送侦听
+    //---本地推送
+    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forLocalNotification notification: UILocalNotification, completionHandler: () -> Void) {
+        
+    }
+    
+    //-----远程推送
+    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+        
+    }
     
     
     

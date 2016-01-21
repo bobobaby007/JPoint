@@ -34,6 +34,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     
     var _bingoUsers:NSArray = []
     
+    var _maxNum:Int = 1 //----点过的范围内次数最多的点击数
     
     func initWidthFrame(__frame:CGRect){
         if inited{
@@ -58,12 +59,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             _bgImg?.layer.shadowRadius = 5
             
             addSubview(_bgImg!)
-            
-            if _pointsView != nil{
-                addSubview(_pointsView!)
-            }
-            
-            _bgImg?.userInteractionEnabled = false            
+            _bgImg?.userInteractionEnabled = false
             _overShadow = UIImageView(image: UIImage(named: "shadowOver"))
             
             let _w:CGFloat = _rect!.width-2*_imageInset
@@ -85,48 +81,37 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             inited = true
         }
     }
-    
-    
-    
     func _getDatas(){
-        
         MainAction._getImageDetails(_id) { (__dict) -> Void in
-            
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 //_MyImageList = __dict.objectForKey("info") as! NSArray
-                let _usrs:NSArray = __dict.objectForKey("bingos") as! NSArray
-                self._bingoUsers = self._checkUsers(_usrs)
-                
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let _usrs:NSArray = __dict.objectForKey("bingos") as! NSArray
+                    self._bingoUsers = self._checkUsers(_usrs)
                     self._getUsers()
                     self._getPoints()
                 })
-                
                 return
             }else{
-                self._bingoUsers = []
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self._bingoUsers = []
                     self._getUsers()
                     self._getPoints()
                 })
             }
             //self._getPoints()
         }
-        
+        //------获取所有的点击数据
         MainAction._getImageAllClicks(_id) { (__dict) -> Void in
             
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 //_MyImageList = __dict.objectForKey("info") as! NSArray
-                
-                
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     let _points:NSArray = __dict.objectForKey("info") as! NSArray
                     self._hotPoints = self._getHotPoints(_points)
-                    
                     print(self._hotPoints)
-                    
                     self._HotPointsIn()
                 })
                 return
@@ -135,11 +120,10 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             }
             //self._getPoints()
         }
-        
     }
     func _setInfos(__time:String,__clickNum:Int,__bingoNum:Int){
         _infoPanel?._setClick(__clickNum)
-        _infoPanel?._setLike(__bingoNum)
+        _infoPanel?._setBingo(__bingoNum)//-----点中次数
         _infoPanel?._setTime(__time)
     }
     
@@ -154,21 +138,8 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         _bgImg?._refreshView()
         
     }
-    //-----载入bingo中的圈圈位置
+    //-----载入bingo中的人的圈圈位置
     func _getPoints(){
-        if _pointsView == nil{
-            _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
-            _pointsView?.layer.cornerRadius = _cornerRadius
-            _pointsView?.clipsToBounds = true
-            _pointsView?.userInteractionEnabled = false
-            _pointsView?.backgroundColor = UIColor.clearColor()
-        }
-        addSubview(_pointsView!)
-        addSubview(_infoPanel!)
-        for subview in _pointsView!.subviews{
-            subview.removeFromSuperview()
-        }
-        
         _points = NSMutableArray()
         for var i:Int = 0 ; i < _bingoUsers.count; ++i {
                 let __dict:NSDictionary = self._bingoUsers.objectAtIndex(i) as! NSDictionary
@@ -177,50 +148,45 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
               self._points?.addObject(__p)
             
         }
-        
-        
-        
     }
-    //载入热点图的点
     
+    //载入热点图的点
     func _HotPointsIn(){
+        _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
+        _pointsView?.layer.cornerRadius = _cornerRadius
+        _pointsView?.clipsToBounds = true
+        _pointsView?.userInteractionEnabled = false
+        _pointsView?.backgroundColor = UIColor.clearColor()
+        //addSubview(_pointsView!)
+        self.insertSubview(_pointsView!, belowSubview: _infoPanel!)
+        
         for var i:Int = 0; i < _hotPoints?.count; ++i {
             let _dict:NSDictionary = _hotPoints?.objectAtIndex(i) as! NSDictionary
             //print(_dict)
-           _addPointAt((_dict.objectForKey("x") as! CGFloat)/100,__y: (_dict.objectForKey("y") as! CGFloat)/100,__tag:i,__num:_dict.objectForKey("num") as! Int )
+           _addPointAt((_dict.objectForKey("x") as! CGFloat)/10000,__y: (_dict.objectForKey("y") as! CGFloat)/10000,__tag:i,__num:_dict.objectForKey("num") as! Int )
         }
     }
     
     
     
-    
+    //----添加一个热点圈圈
     
     func _addPointAt(__x:CGFloat,__y:CGFloat,__tag:Int,__num:Int){
-        if _pointsView == nil{
-            _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
-            _pointsView?.layer.cornerRadius = _cornerRadius
-            _pointsView?.clipsToBounds = true
-            _pointsView?.userInteractionEnabled = false
-            _pointsView?.backgroundColor = UIColor.clearColor()
-            
-        }
-       
-        addSubview(_pointsView!)
-        addSubview(_infoPanel!)
+        let __p:CGPoint = CGPoint(x: __x*(_rect!.width-2*_imageInset), y: __y*(_rect!.width-2*_imageInset))
         
         
-        let __p:CGPoint = CGPoint(x: _imageInset+__x*(_rect!.width-2*_imageInset)/100, y: _imageInset+__y*(_rect!.width-2*_imageInset)/100)
-        let _r:CGFloat = 5 + CGFloat(random()%50)
+        let _r:CGFloat = 10 + 20 * CGFloat(__num/_maxNum)
+        
         
         let _item:PointItem = PointItem()
-        _item._setupWidthFrame(CGRect(x: 0, y: 0, width: 2*_r, height: 2*_r), __number: __num,__r:_r)
+        _item.frame = CGRect(x: __p.x, y: __p.y, width: 0, height: 0)
+        _item._setupWidthFrame(__p, __width: _rect!.width-2*_imageInset, __number: __num, __r: _r)
+        
         _item.userInteractionEnabled = false
         //_item.transform = CGAffineTransformMakeScale(2, 2)
         _item.alpha = 0.6
-        _item.center = __p
-        
+        //_item.center = __p
         _pointsView!.addSubview(_item)
-        
 //        
 //        UIView.animateWithDuration(0.4, delay:0.01+Double(0.01*Double(__tag)), options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
 //            _item.transform = CGAffineTransformMakeScale(1, 1)
@@ -352,10 +318,10 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     }
     
     
-    //----------提取热点点
+    //----------提取热点的点用来显示
     func _getHotPoints(__array:NSArray)->NSArray{
         let _arr:NSMutableArray = []
-        
+        _maxNum = 1
         for var i:Int = 0;i<__array.count; ++i{
             let _dict:NSDictionary = __array.objectAtIndex(i) as! NSDictionary
             let _nat:NSDictionary = _dict.objectForKey("nat") as! NSDictionary
@@ -363,8 +329,6 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             var _has:Bool = false
             for var d:Int = 0; d<_arr.count; ++d{
                 let _dict_d:NSDictionary = _arr.objectAtIndex(d) as! NSDictionary
-                
-                
                 let _p_d:CGPoint = CGPoint(x: _dict_d.objectForKey("x") as! CGFloat, y: _dict_d.objectForKey("y") as! CGFloat)
                 //print(_p_d)
                 
@@ -374,11 +338,15 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
                 
                 if abs(_distance)<1000{
                     let _newDict:NSMutableDictionary = NSMutableDictionary(dictionary: _dict_d)
-                    let _num:CGFloat = _newDict.objectForKey("num") as! CGFloat
-                    _newDict.setObject(_num+1.0, forKey: "num")
+                    let _num:Int = _newDict.objectForKey("num") as! Int
+                    if _num+1>_maxNum{
+                        _maxNum = _num+1
+                    }
                     
-                    _newDict.setObject((_p_d.x*_num+_p_i.x)/(_num+1.0), forKey: "x")
-                    _newDict.setObject((_p_d.y*_num+_p_i.y)/(_num+1.0), forKey: "y")
+                    _newDict.setObject(_num+1, forKey: "num")
+                    
+                    _newDict.setObject((_p_d.x*CGFloat(_num)+_p_i.x)/CGFloat(_num+1), forKey: "x")
+                    _newDict.setObject((_p_d.y*CGFloat(_num)+_p_i.y)/CGFloat(_num+1), forKey: "y")
                     _has = true
                     _arr[d] = _newDict
                     break
@@ -453,6 +421,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         }
         
         
+        
         _infoPanel!.frame = CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30)
 
         _infoPanel?._btn_share?.hidden = true
@@ -472,10 +441,12 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     func sendWXContentUser() {//分享给朋友！！
         let _rect:CGRect = CGRect(x: 0, y: 0, width: self.frame.width-2*_imageInset, height: self.frame.width-2*_imageInset)
         
-        let _bg_img:UIImage = CoreAction._captureImage(_bgImg!)
+       // let _bg_img:UIImage = CoreAction._captureImage(_bgImg!)
         let _bgV:UIImageView = UIImageView(frame: _rect)
-        _bgV.image = _bg_img
+        _bgV.image = _bgImg?._imgView?.image
         
+        let _stamp:UIImageView = UIImageView(frame: CGRect(x: 5, y: 5, width: 75.8, height: 23.2))
+        _stamp.image=UIImage(named: "logo_stamp")
         
         let _points_img:UIImage = CoreAction._captureImage(_pointsView!)
         let _pointsV:UIImageView = UIImageView(frame: _rect)
@@ -484,11 +455,12 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         let _picV:UIView = UIView(frame: _rect)
         _picV.addSubview(_bgV)
         _picV.addSubview(_pointsV)
+        _picV.addSubview(_stamp)
         
         
         let _picImage:UIImage = CoreAction._captureImage(_picV)
         
-        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
         _thumbImage.image = _picImage
         let _thumbImage_image = CoreAction._captureImage(_thumbImage)
         
@@ -502,6 +474,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         message.mediaObject = __img
         let resp = GetMessageFromWXResp()
         resp.message = message
+        //addSubview(_picV)
+        //print(resp)
+        
         WXApi.sendResp(resp);
         
 //        let req = SendMessageToWXReq()
