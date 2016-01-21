@@ -25,9 +25,9 @@ class ViewController: UIViewController {
     var _backButton:UIButton?
     
     
-    var _failPanelV:UIView?
-    let _failPanelH:CGFloat = 50
-    var _failLabel:UILabel?
+    var _alertPanelV:UIView?
+    let _alertPanelH:CGFloat = 50
+    var _alertLabel:UILabel?
     
     
     static var _self:ViewController?
@@ -323,21 +323,33 @@ class ViewController: UIViewController {
             
         }
     }
+    
+    
+    
     func _showAlertThen(__text:String,__wait:Double,__then:()->Void){
-        if _failPanelV == nil{
-            _failPanelV = UIView(frame: CGRect(x: 0, y: -_failPanelH-20, width: self.view.frame.width, height: _failPanelH+20))
-            _failPanelV?.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5)
-            _failLabel = UILabel(frame: CGRect(x: 5, y: 5+20, width: _failPanelV!.frame.width-10, height: _failPanelH))
-            _failLabel?.textAlignment = NSTextAlignment.Center
-            _failLabel?.textColor = UIColor.whiteColor()
-            _failLabel?.font = UIFont.systemFontOfSize(12)
-            _failPanelV?.addSubview(_failLabel!)
-            self.view.addSubview(_failPanelV!)
+        if _alertPanelV == nil{
+            _alertPanelV = UIView(frame: CGRect(x: 0, y: -_alertPanelH, width: self.view.frame.width, height: _alertPanelH))
+            
+            let _v:UIView = UIView(frame: CGRect(x: 0, y: -20, width: self.view.frame.width, height: _alertPanelH+20))
+            
+            _v.backgroundColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5)
+            _alertLabel = UILabel(frame: CGRect(x: 5, y: 5, width: _alertPanelV!.frame.width-10, height: _alertPanelH))
+            _alertLabel?.textAlignment = NSTextAlignment.Center
+            _alertLabel?.textColor = UIColor.whiteColor()
+            _alertLabel?.font = UIFont.systemFontOfSize(12)
+            _alertPanelV?.addSubview(_v)
+            _alertPanelV?.addSubview(_alertLabel!)
+            
+            self.view.addSubview(_alertPanelV!)
         }
-        _failLabel?.text = __text
+        _alertLabel?.text = __text
+        _alertPanelV?.layer.removeAllAnimations()
+        self._alertPanelV!.frame.origin = CGPoint(x: 0, y: -_alertPanelH-20)
+        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.2, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, self._failPanelH)
+            self._alertPanelV!.frame.origin = CGPoint(x: 0, y: 0)
             }) { (comp) -> Void in
+                
                 if __wait >= 0{
                     self._hideAlert(__wait, __then: { () -> Void in
                         __then()
@@ -348,7 +360,7 @@ class ViewController: UIViewController {
     }
     func _hideAlert(__wait:Double,__then:()->Void){
         UIView.animateWithDuration(0.2, delay: __wait, options: UIViewAnimationOptions.CurveEaseIn, animations: { () -> Void in
-            self._failPanelV!.transform = CGAffineTransformMakeTranslation(0, 0)
+            self._alertPanelV!.frame.origin = CGPoint(x: 0, y: -self._alertPanelH-20)
             }) { (comp) -> Void in
                 __then()
                 

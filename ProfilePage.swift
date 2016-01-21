@@ -221,7 +221,6 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     
     func _getProfile(){
      MainAction._getProfile { (__dict) -> Void in
-        
         self._profile_old = __dict
         if let _sex = __dict.objectForKey("sex") as? Int{
             self._seg_sex?.selectedSegmentIndex = _sex
@@ -235,8 +234,6 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         }
         
         self._setProfileImg(MainAction._avatar(__dict))
-        
-        
         }
     }
     
@@ -322,11 +319,13 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     }
     func _updateProfielOnline(){
         MainAction._getMyProfile { (__dict) -> Void in
-            if self._parentView != nil{
-                self._parentView?._refreshProfile()
-            }
+            
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
+                                    if self._parentView != nil{
+                                        self._parentView?._refreshProfile()
+                                    }
+
             })
         }
     }
@@ -334,10 +333,19 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         let _dict:NSMutableDictionary = NSMutableDictionary()
         _dict.setValue(_text_name?.text, forKey: "nickname")
         _dict.setValue(_seg_sex?.selectedSegmentIndex, forKey: "sex")
+        
+        
+        if self._parentView != nil{
+            
+            self._parentView?._setName(_text_name!.text!)
+        }
+        
         MainAction._uploadProfile(_dict) { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
+                
+                print(__dict)
                 dispatch_async(dispatch_get_main_queue(), {
-                   self._updateProfielOnline()
+                    self._updateProfielOnline()
                 })
             }else{
                 if (__dict.objectForKey("recode") as? Int) < 0{

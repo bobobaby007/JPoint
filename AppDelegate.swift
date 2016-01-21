@@ -62,7 +62,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
         print("消息－－－－－－：",userInfo)
-        ViewController._self?._showAlert("收到一条消息", __wait: 2)
+        if let __alert:NSDictionary = userInfo["aps"]!["alert"] as? NSDictionary{
+            ViewController._self?._showAlert(__alert.objectForKey("body") as! String, __wait: 2)
+        }
+        
     }
     
     

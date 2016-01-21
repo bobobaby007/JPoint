@@ -26,6 +26,7 @@ class MainAction {
     static let _URL_Sent_Bingo:String = "bingo/check/"//----发送bingo地址
     static let _URL_Signup:String = "sign/up/" //----注册地址
     static let _URL_Login:String = "sign/in/"//登录地址
+    static let _URL_CheckNewMessage:String = "message/unread/"//获取未读消息
     
     static let _URL_MyProfile:String = "my/"
     static let _URL_ChangeMyProfile:String = "my/info/"
@@ -154,6 +155,16 @@ class MainAction {
         }
 
     }
+    
+    //-----获取未读消息
+    static func _getNewMessages(__block:(NSDictionary)->Void){
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_CheckNewMessage
+        let postString : String = "token=" + _token
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            __block(__dict)
+        }
+    }
+    
     //-----获取我的图列
     static func _getMyImageList(__block:(NSDictionary)->Void){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_MyImageList
@@ -210,6 +221,7 @@ class MainAction {
             __block(__dict)
         }
     }
+    
     //------获取bingos聊天列表
     static func _getBingoChats(__block:(NSArray)->Void){
         if _ChatsList != nil{
@@ -406,7 +418,10 @@ class MainAction {
     }
     //-----获取图片完整url
     static func _imageUrl(__str:String)->String{
-        let _url:String = _BasicDomain + "/uploadDir/" + __str
+        //let _url:String = _BasicDomain + "/uploadDir/" + __str
+        
+        let _url:String = "http://disk.giccoo.com/BingoMe/" + __str
+        
         return _url
     }
     
@@ -435,14 +450,10 @@ class MainAction {
                 _url = "user-icon-w.jpg"
             }
         }
-
         return _url
-        
     }
     //-----通过用户字典返回昵称
     static func _nickName(__dict:NSDictionary)->String{
-        
-        
         if let __nickName = __dict.objectForKey("nickname") as? String{
             return __nickName
         }else{

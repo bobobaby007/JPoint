@@ -175,7 +175,10 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         let __p:CGPoint = CGPoint(x: __x*(_rect!.width-2*_imageInset), y: __y*(_rect!.width-2*_imageInset))
         
         
-        let _r:CGFloat = 10 + 20 * CGFloat(__num/_maxNum)
+        let _r:CGFloat = 10 + 20 * CGFloat(__num)/CGFloat(_maxNum)
+        
+        
+        print("半径：",_r,__num,_maxNum,CGFloat(__num/_maxNum))
         
         
         let _item:PointItem = PointItem()

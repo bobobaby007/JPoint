@@ -210,13 +210,22 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
     }
     
+    
+    func _getNewMessages(){
+        MainAction._getNewMessages { (__dict) -> Void in
+            print("新消息：",__dict)
+        }
+    }
+    
+    
+    
     func _checkProfile(){
         MainAction._getMyProfile { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
                 dispatch_async(dispatch_get_main_queue(), {
                     MainAction._soketConnect()
                     self._loadBingoList()
-                    
+                    self._getNewMessages()
                     
                     //----------上线需注释掉
                     
