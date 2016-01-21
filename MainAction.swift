@@ -85,6 +85,13 @@ class MainAction {
                 let _info:NSDictionary = __dict.objectForKey("info") as! NSDictionary
                 _userInfo = NSMutableDictionary(dictionary: _info)
                 _token = _info.objectForKey("token") as! String
+                
+                MainAction._checkDeviceToKen()
+                
+                
+                
+                
+                
                 __block(__dict)
             }else{
                 if recode>0{
@@ -122,6 +129,10 @@ class MainAction {
         }
         _socket!.connect()
     }
+    
+    
+    
+    
     
     //-----获取首页列表
     static func _getBingoList(__block:(NSDictionary)->Void){
@@ -161,9 +172,43 @@ class MainAction {
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_CheckNewMessage
         let postString : String = "token=" + _token
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
-            __block(__dict)
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+                 MainAction._recievedNewMessages(__dict)
+            }else{
+                
+            }
+            //__block(__dict)
         }
     }
+    
+    static func _recievedNewMessages(__dict:NSDictionary){
+        
+        let _messages:NSArray = __dict.objectForKey("info") as! NSArray
+        
+        for var i:Int = 0; i<_messages.count; ++i{
+            
+            let _message:NSDictionary = _messages.objectAtIndex(_messages.count-i-1) as! NSDictionary
+            let _from:NSDictionary = _message.objectForKey("author") as! NSDictionary
+            
+            
+            if let ___dict:NSDictionary = NSDictionary(objects: [_from.objectForKey("_id")!,MessageCell._Type_Message,_message.objectForKey("message")!,_message.objectForKey("create_at")!], forKeys: ["uid","type","content","time"]){
+                _saveOneChat(___dict)
+               // print("收到消息：",__dict)
+                _addToBingoList(_from.objectForKey("_id") as! String, __type: MessageCell._Type_Message, __content: _message.objectForKey("message") as! String, __nickname:MainAction._nickName(_from), __image: MainAction._avatar(_from))
+                
+                NSNotificationCenter.defaultCenter().postNotificationName(_Notification_new_chat, object: nil, userInfo:___dict as [NSObject : AnyObject])
+            }
+
+            
+            
+            
+        }
+        
+        
+    }
+
+    
     
     //-----获取我的图列
     static func _getMyImageList(__block:(NSDictionary)->Void){
@@ -253,7 +298,7 @@ class MainAction {
         }
         
     }
-    //------添加到bingo列表
+    //------添加到bingo列表------
     static func _addToBingoList(__uid:String,__type:String,__content:String,__nickname:String,__image:String){
         _getBingoChats { (array) -> Void in
             let _array:NSMutableArray = NSMutableArray(array: _ChatsList!)
@@ -265,6 +310,9 @@ class MainAction {
                     break
                 }
             }
+            
+            //-------注意这里的字典类型，包含了头像，从列表进入对话页面时，头像会带进对话页面
+            
             _array.insertObject(NSDictionary(objects: [__uid,__type,__content,__nickname,__image], forKeys: ["uid","type","content","nickname","image"]), atIndex: 0)
             _ChatsList = _array
             CoreAction._saveArrayToFile(_ChatsList!, __fileName: _Name_BingoChatsList)
@@ -273,6 +321,7 @@ class MainAction {
     //-----收到一条聊天记录
     static func _receiveOneChat(__dict:NSDictionary){
         
+        //
         
         if let ___dict:NSDictionary = NSDictionary(objects: [__dict.objectForKey("from")!,MessageCell._Type_Message,__dict.objectForKey("content")!,__dict.objectForKey("date")!], forKeys: ["uid","type","content","time"]){
             _saveOneChat(___dict)
@@ -397,6 +446,35 @@ class MainAction {
             __block(__dict)
         }
     }
+    
+    //------判断提交用于推送的 设备 token
+    
+    static func _checkDeviceToKen(){
+        
+        
+        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        if let _str:String = _ud.objectForKey("deviceTokenString") as? String{
+            MainAction._changeDeviceToken(_str)
+        }else{
+            let settings: UIUserNotificationSettings = UIUserNotificationSettings( forTypes: [UIUserNotificationType.Badge,UIUserNotificationType.Alert,UIUserNotificationType.Sound], categories: nil )
+            UIApplication.sharedApplication().registerUserNotificationSettings( settings )
+            UIApplication.sharedApplication().registerForRemoteNotifications()
+        }
+        
+        
+    }
+    
+    //------提交用于推送的 设备 token
+    static func _changeDeviceToken(__tokenString:String){
+        var postString : String = "token="+_token
+        postString = postString.stringByAppendingFormat("&device=ios&iOSPushToken=%@",__tokenString)
+        let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_ChangeMyProfile
+        CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
+           print("修改推送token完成：",__dict)
+        }
+    }
+
+    
     //------提交个人资料
     static func _uploadProfile(__dict:NSDictionary,__block:(NSDictionary)->Void){
         var postString : String = "token="+_token

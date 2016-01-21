@@ -214,6 +214,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func _getNewMessages(){
         MainAction._getNewMessages { (__dict) -> Void in
             print("新消息：",__dict)
+            print("＝＝＝＝＝")
         }
     }
     

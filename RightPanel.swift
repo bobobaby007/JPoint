@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
+class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,MessageWindow_delegate{
     var _setuped:Bool = false
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
@@ -92,6 +92,11 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         
         // Dispose of any resources that can be recreated.
     }
+    //---刷新
+    func _refresh(){
+        _datained=false
+        _getDatas()
+    }
     func _getDatas(){
         if _datained{
             return
@@ -159,6 +164,7 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
         _messageWindow._uid = _dict.objectForKey("uid") as! String
         
         UIApplication.sharedApplication().keyWindow!.rootViewController!.presentViewController(_messageWindow, animated: true) { (complete) -> Void in
+            _messageWindow._delegate = self
             _messageWindow._setPorofileImg(_dict.objectForKey("image") as! String)
             _messageWindow._setName(MainAction._nickName(_dict))
             _messageWindow._getDatas()
@@ -168,6 +174,12 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource{
 //            
 //        })
     }
+    //-----聊天窗口代理
+    func _messageWindow_close() {
+        _refresh()
+    }
+    
+    
     func btnHander(__sender:UIButton){
         switch __sender{
         case _btn_back!:

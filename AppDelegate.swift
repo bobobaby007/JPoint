@@ -20,13 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        MainAction._getBingoChats { (array) -> Void in
 //            MainAction._addBingosTo("560dff20146092b1ab3f68fb", __type: "bingo", __content: "ssss",__nickname: "我",__image: "profile")
 //        }
-
-        
-        let settings: UIUserNotificationSettings = UIUserNotificationSettings( forTypes: [UIUserNotificationType.Badge,UIUserNotificationType.Alert,UIUserNotificationType.Sound], categories: nil )
-        
-        application.registerUserNotificationSettings( settings )
-        application.registerForRemoteNotifications()
-        
         
         
         //MainAction._signupQuick()
@@ -37,7 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
-
+    
+//------
     func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
         // <>と" "(空白)を取る
         let characterSet: NSCharacterSet = NSCharacterSet( charactersInString: "<>" )
@@ -45,6 +39,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let deviceTokenString: String = ( deviceToken.description as NSString )
             .stringByTrimmingCharactersInSet( characterSet )
             .stringByReplacingOccurrencesOfString( " ", withString: "" ) as String
+        
+        
+        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        _ud.setValue(deviceTokenString, forKey: "deviceTokenString")
+        
+        MainAction._changeDeviceToken(deviceTokenString)
         
         print("deviceTokenString:", deviceTokenString )
     }

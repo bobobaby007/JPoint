@@ -9,6 +9,11 @@
 import Foundation
 import UIKit
 
+protocol MessageWindow_delegate:NSObjectProtocol{
+    func _messageWindow_close()
+}
+
+
 class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,Inputer_delegate{
     var _uid:String = "bingome"//----默认给bingome发送消息
     var _setuped:Bool = false
@@ -21,11 +26,11 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     var _datained:Bool = false
     var _topView:UIView?
     var _btn_back:UIButton?
-    weak var _parentView:ViewController?
+    weak var _delegate:MessageWindow_delegate?
 
     var _inputer:Inputer?
     var _profileImg:PicView?
-    var _prifileImageUrl:String = ""
+    var _profileImageUrl:String = ""
     var _nameLabel:UILabel?
     
     var _latestTime:NSTimeInterval?
@@ -217,14 +222,14 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         case MessageCell._Type_Time:
             break
         case MessageCell._Type_Bingo:
-            _cell._setPic(_prifileImageUrl)
+            _cell._setPic(_profileImageUrl)
             break
         case MessageCell._Type_Bingo_By_Me:
-            _cell._setPic(_prifileImageUrl)
+            _cell._setPic(_profileImageUrl)
             break
         case MessageCell._Type_Message:
-            //print(_prifileImageUrl)
-            _cell._setPic(_prifileImageUrl)
+            //print(_profileImageUrl)
+            _cell._setPic(_profileImageUrl)
         case MessageCell._Type_Message_By_Me:
             break
         default:
@@ -238,7 +243,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         return _cell
     }
     func _setPorofileImg(__str:String){
-        _prifileImageUrl = __str
+        _profileImageUrl = __str
         _profileImg?._setPic(NSDictionary(objects: [__str,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
           self._topView?.addSubview(self._profileImg!)
         })
@@ -267,7 +272,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         
         MainAction._sentOneChat(NSDictionary(objects: [_uid,MessageCell._Type_Message_By_Me,__dict.objectForKey("text") as! String], forKeys: ["uid","type","content"]))
         
-        MainAction._addToBingoList(_uid, __type: MessageCell._Type_Message_By_Me, __content: __dict.objectForKey("text") as! String, __nickname: _nameLabel!.text!, __image:_prifileImageUrl)
+        MainAction._addToBingoList(_uid, __type: MessageCell._Type_Message_By_Me, __content: __dict.objectForKey("text") as! String, __nickname: _nameLabel!.text!, __image:_profileImageUrl)
         
         _tableView?.reloadData()
         _refreshView()
@@ -277,6 +282,9 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     func btnHander(sender:UIButton){
         switch sender{
         case _btn_back!:
+            if _delegate != nil{
+                _delegate?._messageWindow_close()
+            }
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })
