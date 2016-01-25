@@ -152,7 +152,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     
     //载入热点图的点
     func _HotPointsIn(){
-        _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
+        if _pointsView == nil{
+            _pointsView = UIView(frame: CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: _rect!.width-2*_imageInset))
+        }
         _pointsView?.layer.cornerRadius = _cornerRadius
         _pointsView?.clipsToBounds = true
         _pointsView?.userInteractionEnabled = false
@@ -173,21 +175,14 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     
     func _addPointAt(__x:CGFloat,__y:CGFloat,__tag:Int,__num:Int){
         let __p:CGPoint = CGPoint(x: __x*(_rect!.width-2*_imageInset), y: __y*(_rect!.width-2*_imageInset))
-        
-        
         let _r:CGFloat = 10 + 20 * CGFloat(__num)/CGFloat(_maxNum)
-        
-        
-        print("半径：",_r,__num,_maxNum,CGFloat(__num/_maxNum))
-        
-        
         let _item:PointItem = PointItem()
         _item.frame = CGRect(x: __p.x, y: __p.y, width: 0, height: 0)
         _item._setupWidthFrame(__p, __width: _rect!.width-2*_imageInset, __number: __num, __r: _r)
         
         _item.userInteractionEnabled = false
         //_item.transform = CGAffineTransformMakeScale(2, 2)
-        _item.alpha = 0.6
+        //_item.alpha = 0.6
         //_item.center = __p
         _pointsView!.addSubview(_item)
 //        
@@ -448,9 +443,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         let _bgV:UIImageView = UIImageView(frame: _rect)
         _bgV.image = _bgImg?._imgView?.image
         
-        let _stamp:UIImageView = UIImageView(frame: CGRect(x: 5, y: 5, width: 75.8, height: 23.2))
+        let _stamp:UIImageView = UIImageView(frame: CGRect(x: 1, y: 1, width: 81, height: 30))
         _stamp.image=UIImage(named: "logo_stamp")
-        
+        //_stamp.alpha = 0.9
         let _points_img:UIImage = CoreAction._captureImage(_pointsView!)
         let _pointsV:UIImageView = UIImageView(frame: _rect)
         _pointsV.image = _points_img

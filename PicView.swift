@@ -64,7 +64,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                 
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = true
                 
-                _imgView?.image = nil
+                _imgView?.image = UIImage(named: "noPic.jpg")
                 
                 ImageLoader.sharedLoader.imageForUrl(__pic.objectForKey("url") as! String, completionHandler: { (image, url) -> () in
                     // _setImage(image)

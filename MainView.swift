@@ -51,9 +51,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _infoPanel:InfoPanel?
     var _infoH:CGFloat = 25
     
-    var _btn_list:UIButton?
-    var _btn_plus:UIButton?
-    var _btn_love:UIButton?
+    var _btn_list:ButtonCircle?
+    var _btn_plus:ButtonCircle?
+    var _btn_love:ButtonCircle?
     
     var _btnY:CGFloat = 80
     var _btnW:CGFloat = 60
@@ -88,7 +88,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _btn_needTo:UIButton?
     var _needTo:Int = 0 //----需要做的动作
     
-    
+    static var _self:MainView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,6 +98,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         if _setuped{
             return
         }
+        MainView._self = self
+        
         self.view.layer.shadowColor = UIColor.blackColor().CGColor
         self.view.layer.shadowOpacity = 0.5
         self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
@@ -110,10 +112,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _CentralY = self.view.frame.height/2
         _picItemW = self.view.frame.width-2*_gap
         _bottomY = self.view.frame.height+_picItemW/2
-
-        //_panGesture = UIPanGestureRecognizer(target: self, action: Selector("panHander:"))
         
-       // self.view.addGestureRecognizer(_panGesture!)
         self.view.addSubview(_bgView!)
         
         _editingViewC = EditingView()
@@ -125,56 +124,24 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self.view.addSubview(_editingViewC!.view)
         _editingViewC?.didMoveToParentViewController(self)
         
-        _btn_list = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        _btn_list = ButtonCircle(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_list?.center = CGPoint(x: 50, y: -_btnW)
         _btn_list?.backgroundColor = UIColor(red: 255/255, green: 94/255, blue: 94/255, alpha: 1)
-        //_btn_list?.layer.masksToBounds = true
-        _btn_list?.layer.cornerRadius = _btnW/2
-        _btn_list?.layer.shadowColor = UIColor.blackColor().CGColor
-        _btn_list?.layer.shadowOpacity = 0.2
-        _btn_list?.layer.shadowRadius = 5
+        _btn_list?._setIcon("icon_list.png")
         _btn_list?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_plus = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW*1, height: _btnW*1))
+        _btn_plus = ButtonCircle(frame: CGRect(x: 0, y: 0, width: _btnW*1, height: _btnW*1))
         _btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -_btnW)
         _btn_plus?.backgroundColor = UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
-        _btn_plus?.contentMode=UIViewContentMode.Center
-        //_btn_plus?.layer.masksToBounds = true
-        //_btn_plus?.layer.borderColor = UIColor.whiteColor().CGColor
-        //_btn_plus?.layer.borderWidth = 2
-        _btn_plus?.layer.cornerRadius = 1*_btnW/2
-        _btn_plus?.layer.shadowColor = UIColor.blackColor().CGColor
-        _btn_plus?.layer.shadowOpacity = 0.2
-        _btn_plus?.layer.shadowRadius = 5
+        _btn_plus?._setIcon("icon_plus.png")
         _btn_plus?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_love = UIButton(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        _btn_love = ButtonCircle(frame: CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         _btn_love?.backgroundColor = UIColor(red: 255/255, green: 222/255, blue: 42/255, alpha: 1)
         _btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -_btnW)
-        //_btn_love?.layer.masksToBounds = true
-        _btn_love?.layer.cornerRadius = _btnW/2
-        _btn_love?.layer.shadowColor = UIColor.blackColor().CGColor
-        _btn_love?.layer.shadowOpacity = 0.2
-        _btn_love?.layer.shadowRadius = 5
+        _btn_love?._setIcon("icon_love.png")
         _btn_love?.addTarget(self, action: Selector("buttonHander:"), forControlEvents: UIControlEvents.TouchUpInside)
-       
-        var _img:UIImage = UIImage(named: "icon_list.png")!
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
-        _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
-        _btn_list?.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
-        UIGraphicsEndImageContext()
-       
-        _img = UIImage(named: "icon_plus.png")!
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*8, height: _btnW*8), false, 1)
-        _img.drawInRect(CGRect(x: _btnW*2, y: _btnW*2, width: _btnW*4, height: _btnW*4))
-        _btn_plus?.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
-        UIGraphicsEndImageContext()
         
-        _img = UIImage(named: "icon_love.png")!
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
-        _img.drawInRect(CGRect(x: _btnW/2-1, y: _btnW/2, width: _btnW, height: _btnW))
-        _btn_love?.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
-        UIGraphicsEndImageContext()
         
         
         self.view.addSubview(_btn_list!)
@@ -208,8 +175,23 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //_showIndex(0)
         
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_chatChanged, object: nil)
     }
     
+    //--------有未读消息
+    func _receivedNotification(notification: NSNotification){
+        _checkIfHasNewMessage()
+    }
+    //-----获取在线好友列表－－－暂时不需要
+    func _getFriendsList(){
+        MainAction._getMyFriends { (__dict) -> Void in
+            print("好友列表：",__dict)
+            print("＝＝＝＝＝")
+            dispatch_async(dispatch_get_main_queue(), {
+                self._getNewMessages()
+            })
+        }
+    }
     
     func _getNewMessages(){
         MainAction._getNewMessages { (__dict) -> Void in
@@ -226,8 +208,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                 dispatch_async(dispatch_get_main_queue(), {
                     MainAction._soketConnect()
                     self._loadBingoList()
+                    //self._getFriendsList()
                     self._getNewMessages()
-                    
                     //----------上线需注释掉
                     
                     MainAction._clearMyReadRecord()
@@ -554,31 +536,36 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }
 
         })
-        
-        
     }
     //=--------bingo成功
     func _bingo(__x:Int,__y:Int){
         MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right:"yes") { (__dict) -> Void in
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
-                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    MainAction._addToBingoList(self._uid, __type: MessageCell._Type_Bingo_By_Me, __content: "[bingo]", __nickname: self._nickname, __avatar: self._avator,__isNew: true)
+                })
             }else{
                 ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
             }
-            
         }
        // MainAction._addBingosTo(self._uid,__content: "[Bingo]", __nickname: self._nickname, __image: self._avator)
-        
-        
-        
-        
        // MainAction._saveOneChat(<#T##__dict: NSDictionary##NSDictionary#>)
         
         //MainAction._saveOneChat(<#T##__dict: NSDictionary##NSDictionary#>)
         self._showBingo(self._nickname, __image: self._avator)
     }
     
+    //----判断是否有新消息
+    func _checkIfHasNewMessage(){
+        if let _mess:NSDictionary = MainAction._lastUnreadMessage() {
+            _btn_love?._showPic(_mess.objectForKey("image") as! String)
+            _btn_love?._hasNew(true)
+        }else{
+            _btn_love?._showIcon()
+            _btn_love?._hasNew(false)
+        }
+    }
     
     //-----提交bingo数据
     

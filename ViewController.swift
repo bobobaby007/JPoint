@@ -38,7 +38,7 @@ class ViewController: UIViewController {
         //print(CoreAction._version())
         _showMainView()
         // Do any additional setup after loading the view, typically from a nib.
-        MainAction._deleteChatHistory("bingome")
+       // MainAction._deleteChatHistory("bingome")
         //let _:NSTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "timerHander", userInfo: nil, repeats: false)
     }
     
@@ -292,7 +292,6 @@ class ViewController: UIViewController {
     func _showMainView(){
         _currentPage = "mainView"
         self._mainView?.view.userInteractionEnabled = true
-        
         
         
         UIView.animateWithDuration(0.2, animations: { () -> Void in

@@ -107,7 +107,7 @@ class Inputer: UIView,UITextViewDelegate {
         
        // _barView?.userInteractionEnabled=true
         _inputText?.text = ""
-        _refresshView()
+        _refreshView()
         
         _setuped = true
         
@@ -129,6 +129,38 @@ class Inputer: UIView,UITextViewDelegate {
         }
     }
     
+    //-----键盘侦听
+    func keyboardHander(notification:NSNotification){
+        let _name = notification.name
+        let _info = notification.userInfo
+        let _frame:CGRect = (_info![UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+        
+        _keboardFrame = _frame
+        
+        
+        switch _name{
+        case UIKeyboardWillHideNotification:
+            
+            break
+        case UIKeyboardDidHideNotification:
+            //_delegate?._inputer_closed()
+            break
+        case UIKeyboardWillShowNotification:
+            if _keboardFrame!.height>216{
+                
+                _isOpened = true
+                
+                _delegate?._inputer_opened()
+            }
+            break
+        default:
+            break
+        }
+        _refreshView()
+        // print(_info)
+    }
+
+    
     func keyboardWillAppear(notification:NSNotification) {
        
         let userInfo = notification.userInfo!
@@ -143,17 +175,10 @@ class Inputer: UIView,UITextViewDelegate {
         
         _keboardFrame = keyboardScreenEndFrame
         
-        if keyboardScreenEndFrame.height>216{
-            print("chage")
-            _isOpened = true
-            _refresshView()
-            _delegate?._inputer_opened()
-        }
+        
     }
-    func keyboardWillHide() {
-       _keboardFrame = CGRect(x: 0,y: self.frame.height,width: self.frame.width,height: 0)
-    }
-    func _refresshView(){
+    
+    func _refreshView(){
         var _h:CGFloat = _inputText!.contentSize.height
         if _h < _heightOfClosed-15{
             _h = _heightOfClosed-15
@@ -161,8 +186,8 @@ class Inputer: UIView,UITextViewDelegate {
         if _h>200{
             _h = 200
         }
-        UIView.beginAnimations("open", context: nil)
-        UIView.setAnimationDuration(0.3)
+        //UIView.beginAnimations("open", context: nil)
+        //UIView.setAnimationDuration(0.3)
         _barView?.frame = CGRect(x: 0, y: _keboardFrame!.origin.y-_h-15, width: self.frame.width, height: _h+15)
         //UIView.setAnimationCurve(UIViewAnimationCurve.EaseOut)
         //self.hidden=false
@@ -172,7 +197,7 @@ class Inputer: UIView,UITextViewDelegate {
        
         _inputBg!.frame = CGRect(x: 15, y: _textOriginY, width: self.frame.width-90+5, height: _inputText!.frame.height)
         
-        UIView.commitAnimations()
+      //  UIView.commitAnimations()
         
 
     }
@@ -181,14 +206,17 @@ class Inputer: UIView,UITextViewDelegate {
     override func willMoveToSuperview(newSuperview: UIView?) {
        // print(" i in")
         if newSuperview != nil{
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillAppear:"), name: UIKeyboardWillShowNotification, object: nil)
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide"), name: UIKeyboardWillHideNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardHander:"), name: UIKeyboardWillShowNotification, object: nil)
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardHander:"), name: UIKeyboardWillHideNotification, object: nil)
+             NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardHander:"), name: UIKeyboardDidHideNotification, object: nil)
         }
         
     }
     override func removeFromSuperview() {
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardDidHideNotification, object: nil)
+        
         super.removeFromSuperview()
     }
     
@@ -232,7 +260,7 @@ class Inputer: UIView,UITextViewDelegate {
             _inputText!.text=_str.substringToIndex(_maxNum)
         }
         
-        _refresshView()
+        _refreshView()
         _delegate?._inputer_changed(NSDictionary(object: (_inputText?.text)!, forKey: "text"))
         //_desAlert?.text=String(_n)+"/"+String(_maxNum)
     }
@@ -243,7 +271,7 @@ class Inputer: UIView,UITextViewDelegate {
     }
     func _reset(){
         _inputText?.text=""
-        _refresshView()
+        _refreshView()
         //_close()
     }
     func tapHander(__tap:UITapGestureRecognizer){
@@ -252,7 +280,7 @@ class Inputer: UIView,UITextViewDelegate {
     func _close(){
         _isOpened = false
         _inputText?.resignFirstResponder()
-        _refresshView()
+        _refreshView()
         self.superview!.removeGestureRecognizer(_tapC!)
         
         _delegate?._inputer_closed()
@@ -264,7 +292,12 @@ class Inputer: UIView,UITextViewDelegate {
     }
     
     func _getHeightOfBar()->CGFloat?{
-        return _barView!.frame.height+_keboardFrame!.height
+        if _isOpened{
+            return _barView!.frame.height+_keboardFrame!.height
+        }else{
+            return _barView!.frame.height
+        }
+        
     }
     
     

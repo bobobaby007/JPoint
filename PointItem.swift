@@ -16,16 +16,17 @@ class PointItem: UIView {
         _v.layer.cornerRadius = __r
         _v.backgroundColor = UIColor.clearColor()
         _v.center = CGPoint(x: 0, y: 0)
-        _v.layer.borderColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 1).CGColor
-        _v.layer.borderWidth = 1.5
+        _v.layer.borderColor = UIColor.whiteColor().CGColor
+        _v.alpha = 0.6
+        _v.layer.borderWidth = 1
         
         
-        let _v_in:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 2*__r-3, height: 2*__r-3))
-        _v_in.layer.cornerRadius = __r-1.5
+        let _v_in:UIView = UIView(frame: CGRect(x: 0, y: 0, width: 2*__r+3, height: 2*__r+3))
+        _v_in.layer.cornerRadius = __r+1.5
         _v_in.backgroundColor = UIColor.clearColor()
         _v_in.center = CGPoint(x: 0, y: 0)
-        _v_in.layer.borderColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 0.5).CGColor
-        _v_in.layer.borderWidth = 2
+        _v_in.layer.borderColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 0.4).CGColor
+        _v_in.layer.borderWidth = 1
         
         addSubview(_v)
         addSubview(_v_in)
@@ -36,12 +37,12 @@ class PointItem: UIView {
             var _rectView:UIView
             
             
-            _rectView = UIView(frame: CGRect(x:0, y: 0, width: 30, height: 15))
+            _rectView = UIView(frame: CGRect(x:0, y: 0, width: 34, height: 15))
             _rectView.layer.cornerRadius = 2
-            //_rectView.layer.borderColor = UIColor.whiteColor().CGColor
+            //_rectView.layer.borderColor = UIColor(white: 1, alpha: 0.4).CGColor
             //_rectView.layer.borderWidth = 1
             
-            _rectView.backgroundColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 1)
+            _rectView.backgroundColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 0.6)
             
             
             let _lable:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: _rectView.frame.width, height: _rectView.frame.height))
@@ -49,7 +50,7 @@ class PointItem: UIView {
             //_lable.center = CGPoint(x: 25, y: 0)
             _lable.textColor = UIColor.whiteColor()
             //_lable.alpha = 0.5
-            _lable.text = "☉\(__number)"
+            _lable.text = "\(_numToString(__number))"
             _lable.font = UIFont.boldSystemFontOfSize(9)
 
             
@@ -62,7 +63,7 @@ class PointItem: UIView {
             _circleV.layer.cornerRadius = 2.5
             //_circleV.layer.borderColor = UIColor.whiteColor().CGColor
             //_circleV.layer.borderWidth = 1
-            _circleV.backgroundColor = UIColor(red: 182/255, green: 58/255, blue: 213/255, alpha: 1)
+            _circleV.backgroundColor = UIColor.whiteColor()
             //_circleV.alpha = 0.7
             
             
@@ -97,4 +98,21 @@ class PointItem: UIView {
         //_v.alpha = 0
 
     }
+    
+    func _numToString(__num:Int)->String{
+        
+        if __num>10000{
+            let _n:Int = __num/1000
+          return "\(String(CGFloat(_n)/10))万"
+        }
+        if __num>1000{
+            let _n:Int = __num/100
+            return "\(String(CGFloat(_n)/10))k"
+        }
+        if __num>100{
+            return "\(String(__num))"
+        }
+        return "☉\(String(__num))"
+    }
+    
 }

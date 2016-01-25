@@ -123,7 +123,7 @@ class Settings:UIViewController{
         _label_version.font = UIFont.systemFontOfSize(16)
         _label_version.textColor = UIColor(white: 0.6, alpha: 1)
         _label_version.textAlignment = NSTextAlignment.Center
-        _label_version.text = "1.04版本"
+        _label_version.text = "1.06版本"
         
         
         let _label_intro:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: 300, height: 20))

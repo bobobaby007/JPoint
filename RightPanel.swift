@@ -102,7 +102,6 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
             return
         }
         MainAction._getBingoChats { (array) -> Void in
-            
             self._tabelsIn()
             self._tableView?.reloadData()
             self._datained = true
@@ -118,7 +117,8 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
             _tableView?.registerClass(ChatCell.self, forCellReuseIdentifier: "ChatCell")
             _tableView?.dataSource = self
             _tableView?.delegate = self
-            _tableView?.tableFooterView = UIView()
+            let _footV:UIView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 30))
+            _tableView?.tableFooterView = _footV
             //_tableView?.separatorStyle = UITableViewCellSeparatorStyle.None
             _tableView?.separatorColor = UIColor.whiteColor()
             
@@ -145,6 +145,12 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
         _cell._setName(_dict.objectForKey("nickname") as! String)
         _cell._setContent(_dict.objectForKey("content") as! String)
         
+        if let _isNew:Bool = _dict.objectForKey("isnew") as? Bool{
+            _cell._setAlert(_isNew)
+        }else{
+            _cell._setAlert(false)
+        }
+        
         
         if (indexPath.row == MainAction._ChatsList!.count-1) {
             _cell.separatorInset = UIEdgeInsetsMake(0, 1000, 0, 0)
@@ -159,6 +165,9 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
         _tableView?.deselectRowAtIndexPath(indexPath, animated: false)
         
         let _dict:NSDictionary = MainAction._ChatsList!.objectAtIndex(indexPath.row) as! NSDictionary
+        
+        MainAction._readedAtFriend(_dict.objectForKey("uid") as! String)
+        
         
         let _messageWindow:MessageWindow = MessageWindow()
         _messageWindow._uid = _dict.objectForKey("uid") as! String

@@ -16,13 +16,14 @@ class ChatCell: UITableViewCell {
     var _nameLabel:UILabel?
     var _contentLabel:UILabel?
     var _uid:String?
-    
+    var _alertSign:UIView?
+    var _myFrame:CGRect?
     func initWidthFrame(__frame:CGRect){
         if inited{
             
             
         }else{
-            
+            _myFrame = __frame
             
             self.backgroundColor = UIColor.clearColor()
             self.clipsToBounds = true
@@ -48,7 +49,7 @@ class ChatCell: UITableViewCell {
             
             addSubview(_nameLabel!)
             
-            _contentLabel = UILabel(frame: CGRect(x: 90, y: 60, width: __frame.width, height: 20))
+            _contentLabel = UILabel(frame: CGRect(x: 90, y: 60, width: __frame.width-90-60, height: 20))
             _contentLabel?.textColor = UIColor.whiteColor()
             _contentLabel?.font = UIFont.systemFontOfSize(13)
             addSubview(_contentLabel!)
@@ -60,6 +61,24 @@ class ChatCell: UITableViewCell {
 //    override func setSelected(selected: Bool, animated: Bool) {
 //       
 //    }
+    func _setAlert(__has:Bool){
+        if __has{
+            if _alertSign == nil{
+               _alertSign = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+                _alertSign?.backgroundColor = MainAction._MyColor
+                _alertSign?.layer.borderColor = UIColor.whiteColor().CGColor
+                _alertSign?.layer.borderWidth = 2
+                _alertSign?.layer.cornerRadius = 10
+                _alertSign?.center = CGPoint(x: _myFrame!.width-60, y: _profileImg!.center.y)
+            }
+            addSubview(_alertSign!)
+        }else{
+            if _alertSign != nil{
+                _alertSign?.removeFromSuperview()
+                _alertSign = nil
+            }
+        }
+    }
     func _setId(__id:String){
         _uid = __id
     }
