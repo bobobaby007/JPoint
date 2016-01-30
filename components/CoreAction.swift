@@ -279,6 +279,10 @@ class CoreAction {
         string = string.stringByReplacingOccurrencesOfString("+", withString: "%2B")
         return string
     }
+    
+    
+    
+    
     //----发送参数到url
     static func _sendToUrl(__postString:String,__url:String,__block:(NSDictionary)->Void){
         //print("sending====",__url,__postString)

@@ -19,8 +19,12 @@ class MainAction {
     static let _Version:String = "v1"
     static let _URL_PostBingo:String = "bingo/send/"//---发布图片地址
     static let _URL_BingoList:String = "bingo/list/"//----获取首页列表
+    static let _URL_BingoReaded:String = "bingo/read/"//---已读图
     static let _URL_ClearReadRecord:String = "bingo/empty/"//-----清空我的阅读记录
     static let _URL_MyImageList:String = "my/list/"//－－－我的图列
+    static let _URL_RemoveImage:String = "my/bingoRemove/"//－－－删除我的图
+    
+    
     static let _URL_MyImageDetail = "my/bingo/" //--- 我的图列详情
     static let _URL_MyImageClicks = "my/bingos/" //--- 我的图的所有点击
     static let _URL_Sent_Bingo:String = "bingo/check/"//----发送bingo地址
@@ -55,12 +59,51 @@ class MainAction {
     
     static var _MyColor:UIColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 1)
     
-    
-    
-    static func _getToken()->String{
-        return _token
+    //-----判断是否登录
+    static func _isLogined()->Bool{
+        
+        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        if let _tok:String = _ud.valueForKey("token") as? String {
+            _token = _tok
+            if _token == ""{
+                return false
+            }else{
+                return true
+            }
+        }else{
+            return false
+        }
     }
-    //------快速注册
+    static func _saveToken(__token:String){
+        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+        _ud.setObject(__token, forKey: "token")
+        _token = __token
+    }
+    
+    //-----注册－－手机号注册
+    static func _signup(__mob:String,__code:String, __pass:String,__nickname:String, __block:(NSDictionary)->Void){
+        CoreAction._sendToUrl("type=default&mobile=\(__mob)&password=\(__pass)&code=\(__code)&nickname=\(__nickname)", __url: _BasicDomain+_Version+"/"+_URL_Signup) { (__dict) -> Void in
+            print("注册成功:",__dict)
+            if __dict.objectForKey("recode") as! Int == 200{
+                MainAction._saveToken(__dict.objectForKey("token") as! String)
+            }
+            __block(__dict)
+        }
+    }
+    //-----登录
+    static func _login(__mob:String, __pass:String, __block:(NSDictionary)->Void){
+        CoreAction._sendToUrl("mobile=\(__mob)&password=\(__pass)", __url: _BasicDomain+_Version+"/"+_URL_Login ) { (__dict) -> Void in
+            print("登录成功：",__dict)
+            if __dict.objectForKey("recode") as! Int == 200{
+                let _user:NSDictionary = __dict.objectForKey("userinfo") as! NSDictionary
+                MainAction._saveToken(_user.objectForKey("token") as! String)
+            }
+            __block(__dict)
+        }
+    }
+    
+    
+    //------快速注册---取消
     static func _signupQuick(__block:(NSDictionary)->Void){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_Signup
         let postString : String = "type=quick" + "&openid=" + UIDevice.currentDevice().identifierForVendor!.UUIDString
@@ -81,7 +124,7 @@ class MainAction {
             }
         }
     }
-    //------快速登录
+    //------快速登录－－－取消
     static func _loginQuick(__block:(NSDictionary)->Void){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_Login
         let postString : String = "type=quick" + "&openid=" + UIDevice.currentDevice().identifierForVendor!.UUIDString
@@ -103,6 +146,9 @@ class MainAction {
           }
         }
     }
+    
+    
+    
     //-----socket
     static func _soketConnect(){
         if _socket == nil{
@@ -162,8 +208,15 @@ class MainAction {
         }
     }
     
+    //----标记为已读
     
-    
+    static func _readedBingo(__bingoId:String,__block:(NSDictionary)->Void){
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_BingoReaded
+        let postString : String = "token=" + _token + "&reads=\(__bingoId)"
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            __block(__dict)
+        }
+    }
     //----清空我的阅读记录＝＝＝＝＝＝＝＝＝＝＝＝＝正式上线需去掉调用
     static func _clearMyReadRecord(){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_ClearReadRecord
@@ -224,7 +277,6 @@ class MainAction {
             let _message:NSDictionary = _messages.objectAtIndex(_messages.count-i-1) as! NSDictionary
             let _from:NSDictionary = _message.objectForKey("author") as! NSDictionary
             
-            
             if let ___dict:NSDictionary = NSDictionary(objects: [_from.objectForKey("_id")!,MessageCell._Type_Message,_message.objectForKey("message")!,_message.objectForKey("create_at")!], forKeys: ["uid","type","content","time"]){
                 //_saveOneChat(___dict)
                // print("收到消息：",__dict)
@@ -247,6 +299,19 @@ class MainAction {
             }else{
                 
             }
+            __block(__dict)
+        }
+    }
+    
+    
+    
+    //-----获取图列详情
+    static func _removeImage(__picId:String, __block:(NSDictionary)->Void){
+        //__block(NSDictionary())
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_RemoveImage
+        let postString : String = "token=" + _token + "&bingo=" + __picId
+        // print(postString)
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
             __block(__dict)
         }
     }
@@ -311,6 +376,7 @@ class MainAction {
             __block(_ChatsList!)
         }
     }
+    
     //------刷新未读消息数量－－－－目前只根据未读人数返回
     static func _unreadNum()->Int{
         var _num:Int = 0
@@ -604,6 +670,9 @@ class MainAction {
             __block(__dict)
         }
     }
+    
+    
+    
     //-----获取图片完整url
     static func _imageUrl(__str:String)->String{
         //let _url:String = _BasicDomain + "/uploadDir/" + __str

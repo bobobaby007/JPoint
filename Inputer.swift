@@ -112,14 +112,14 @@ class Inputer: UIView,UITextViewDelegate {
         _setuped = true
         
         
-        
-        
     }
     //-----改变点击方式
     override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
         let _hitView = super.hitTest(point, withEvent: event)
+        print("_hitView:",_hitView,point)
         if _hitView==self{
-            if _isOpened{
+            if _isOpened && point.y<self.frame.height-_keboardFrame!.height{
+               
                 _close()
             }
             
@@ -134,6 +134,8 @@ class Inputer: UIView,UITextViewDelegate {
         let _name = notification.name
         let _info = notification.userInfo
         let _frame:CGRect = (_info![UIKeyboardFrameEndUserInfoKey] as! NSValue).CGRectValue()
+        
+        print(_name)
         
         _keboardFrame = _frame
         
@@ -160,6 +162,7 @@ class Inputer: UIView,UITextViewDelegate {
         // print(_info)
     }
 
+    /*
     
     func keyboardWillAppear(notification:NSNotification) {
        
@@ -176,7 +179,7 @@ class Inputer: UIView,UITextViewDelegate {
         _keboardFrame = keyboardScreenEndFrame
         
         
-    }
+    }*/
     
     func _refreshView(){
         var _h:CGFloat = _inputText!.contentSize.height
@@ -275,9 +278,11 @@ class Inputer: UIView,UITextViewDelegate {
         //_close()
     }
     func tapHander(__tap:UITapGestureRecognizer){
+        print("__tap:",__tap)
         _close()
     }
     func _close(){
+        
         _isOpened = false
         _inputText?.resignFirstResponder()
         _refreshView()

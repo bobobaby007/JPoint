@@ -68,7 +68,7 @@ class Settings:UIViewController{
         
         _nameLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 30))
         _nameLabel?.textAlignment = NSTextAlignment.Center
-        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: _barH/2+6)
+        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: _barH/2+7)
         _nameLabel?.font = UIFont.boldSystemFontOfSize(20)
         _nameLabel?.textColor = UIColor.whiteColor()
         _nameLabel?.text = "设置"
@@ -114,7 +114,7 @@ class Settings:UIViewController{
         _label_appName.textColor = UIColor.whiteColor()
         _label_appName.center = CGPoint(x: self.view.frame.width/2+30, y: self.view.frame.height - 100)
         _label_appName.font = UIFont.boldSystemFontOfSize(20)
-        _label_appName.text = "Bingome"
+        _label_appName.text = "BingoMe"
         
         
         

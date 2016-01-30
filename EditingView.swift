@@ -12,7 +12,9 @@ import AssetsLibrary
 import AVFoundation
 
 protocol EditingView_delegate:NSObjectProtocol{
-    func _edingImageIn()
+    func _editingImageIn()
+    func _editingClearImage()
+    func _editingSent(__dict:NSDictionary)
 }
 
 class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate,DrawingBoard_delagate,EULA_delegate{
@@ -46,6 +48,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     var _infoForImage:InfoForImage?//----用户信息
     
+    var _isSending:Bool = false
     var _tipsV:UIButton?
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -228,16 +231,26 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     
     func _sentBingo(){
+        
+        if _isSending{
+            return
+        }
+        _isSending = true
+        
         let _img:UIImage = self._captureBgImage()
         let _answerImg:UIImage = self._drawingBoard!._captureImage()
         
         MainAction._postNewBingo(_img, __question: _infoForImage!._getQuestion(), __answer: _answerImg, __type: MainAction._Post_Type_Media ,__block: { (__dict) -> Void in
             
+            self._isSending = false
+         
             if __dict.objectForKey("recode") as! Int == 200{
                 dispatch_async(dispatch_get_main_queue(), {
                     ViewController._self!._showAlert("图片提交成功，可以再来一张!",__wait: 1.5)
+                    self._delagate?._editingSent(__dict.objectForKey("info") as! NSDictionary)
                     //self._reset()
-                    self._shouldBeClosed()
+                    self._clearImage()
+                    
                 })
             }else{
                 
@@ -249,6 +262,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
                 }
                 dispatch_async(dispatch_get_main_queue(), {
                     ViewController._self!._showAlert("上传失败，请重试",__wait: 3.5)
+                    
+                    print("上传失败，请重试:",__dict)
                 })
             }
         })
@@ -434,6 +449,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _hideTips()
         _removeDrawing()
         self._label_cancel?.alpha = 0
+        
+        
     }
     
     func _drawingBoardIn(){
@@ -464,17 +481,23 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     func _shouldBeClosed()->Bool{
         if _hasImg{
-            _bgImageV!.image = UIImage()
-            _hasImg = false
-            _bottomBtnsOut()
-            _btnsShow()
-            _infoForImage?._setSay((_infoForImage?._placeHold)!)
-            
-            _removeDrawing()
-            _hideTips()
+            _clearImage()
             return false
         }
         return true
+    }
+    
+    //----清除图片
+    
+    func _clearImage(){
+        _bgImageV!.image = UIImage()
+        _hasImg = false
+        _bottomBtnsOut()
+        _btnsShow()
+        _infoForImage?._setSay((_infoForImage?._placeHold)!)
+        _removeDrawing()
+        _hideTips()
+        _delagate!._editingClearImage()
     }
     //---截取背景图
     func _captureBgImage()->UIImage{
@@ -489,19 +512,18 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func didImageIn(){
         _btnsHide()
         _hasImg = true
-        _delagate?._edingImageIn()
+        _delagate?._editingImageIn()
         _drawingBoardIn()
         _drawingBoard!._setEnabled(true)
         _showTips("在图片上涂鸦你的兴趣点")
     }
     
-    
     //---- 涂鸦板代理
-    
     func _drawingBoardDidStartDraw() {
         _bottomBtnsIn()
         _hideTips()
     }
+    
     //------展示提示
     func _showTips(__text:String){
         if _tipsV == nil{

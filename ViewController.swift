@@ -16,12 +16,12 @@ class ViewController: UIViewController {
     var _setuped:Bool =  false
     var _currentPage:String = "mainView"//leftPanel/rightPanel
     
-    var _touchPoint:CGPoint?
+    var _touchPoint:CGPoint?//---开始点击的位置
     var _isChanging:Bool = false
     var _startTransOfMainView:CGAffineTransform?
     var _startTransOfRightView:CGAffineTransform?
     
-    let _distanceToSwape:CGFloat = 60
+    let _distanceToSwape:CGFloat = 100
     var _backButton:UIButton?
     
     
@@ -54,6 +54,7 @@ class ViewController: UIViewController {
         self.view.backgroundColor = UIColor.blackColor()
         self.addChildViewController(_mainView!)
         self.view.addSubview(_mainView!.view)
+        _startTransOfRightView = CGAffineTransformMake(0, 0, 0, 0, 0, 0)
         //_mainView?._loadBingoList()
         _panG = UIPanGestureRecognizer(target: self, action: "panHander:")
         self.view.addGestureRecognizer(_panG!)
@@ -80,15 +81,20 @@ class ViewController: UIViewController {
             _touchPoint = sender.locationInView(self.view)
             _startTransOfMainView = _mainView?.view.transform
             
-            if (_touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0){//----左向右滑动
+            
+            
+            if (_offset.x>_offset.y  && _offset.x>0){//----左向右滑动
                 if _currentPage=="mainView"{
                  _leftIn()
                 }
-                _startTransOfRightView =  _rightPanel?.view.transform
+                if _rightPanel != nil{
+                    _startTransOfRightView =  _rightPanel?.view.transform
+                }
+                
                 _isChanging = true
                 return
             }
-            if (_touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0){//----右向左滑动
+            if (_offset.x<_offset.y && _offset.x<0){//----右向左滑动
                 if _currentPage=="mainView"{
                     _rightIn()
                 }
@@ -105,7 +111,7 @@ class ViewController: UIViewController {
             if _isChanging{
                 var _toTranMain:CGAffineTransform? = _startTransOfMainView
                 var _toTranRight:CGAffineTransform? = _startTransOfRightView
-                if _touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0{//----左向右滑动
+                if  _offset.x>_offset.y  && _offset.x>0{//----左向右滑动
                     if _currentPage=="mainView"{
                         _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, min(_offset.x,self.view.frame.width), 0)
                     }
@@ -121,15 +127,15 @@ class ViewController: UIViewController {
                     }
                     //return
                 }
-                if _touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0{//----右向左滑动
+                if  _offset.x<_offset.y && _offset.x<0{//----右向左滑动
                     if _currentPage=="mainView"{
                         _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
-                        var _offRight:CGFloat = _offset.x*1.5+self._distanceToSwape/2
+                        var _offRight:CGFloat = _offset.x*1.5//+self._distanceToSwape/2
                         if _offRight < -self.view.frame.width+self._distanceToSwape/2{
                             _offRight = -self.view.frame.width+self._distanceToSwape/2
                         }
                         
-                        _rightPanel?.view.layer.shadowOffset = CGSize(width: _offset.x/10, height: 0)
+                        _rightPanel?.view.layer.shadowOffset = CGSize(width: _offset.x, height: 0)
                         
                         
                        _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offRight, 0)
@@ -156,11 +162,10 @@ class ViewController: UIViewController {
             break
         case UIGestureRecognizerState.Ended:
             
-            
             if _isChanging{
                 switch _currentPage{
                 case "leftPanel":
-                    if _touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0{//----右向左滑动
+                    if  _touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0{//----右向左滑动
                         if _offset.x < -100{
                             _showMainView()
                             break
@@ -178,13 +183,13 @@ class ViewController: UIViewController {
                     _showRight()
                     break
                 case "mainView":
-                    if _touchPoint!.x < _distanceToSwape && _offset.x>_offset.y  && _offset.x>0{//----左向右滑动
+                    if  _offset.x>_offset.y  && _offset.x>0{//----左向右滑动
                         if _offset.x>100{
                             _showLeft()
                             break
                         }
                     }
-                    if _touchPoint!.x > self.view.frame.width-_distanceToSwape && _offset.x<_offset.y && _offset.x<0{//----右向左滑动
+                    if  _offset.x<_offset.y && _offset.x<0{//----右向左滑动
                         if _offset.x < -100{
                             _showRight()
                             break
@@ -250,6 +255,7 @@ class ViewController: UIViewController {
         
         self._mainView?.view.userInteractionEnabled = false
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            
             self._mainView?.view.transform = CGAffineTransformMakeTranslation(self.view.frame.width-self._distanceToSwape/2, 0)
 
             }) { (comp) -> Void in
@@ -272,10 +278,10 @@ class ViewController: UIViewController {
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._mainView?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape, 0)
             
-            self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
-            self._rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape, height: 0)
-            
-            
+            if self._rightPanel != nil{
+                self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
+                self._rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape, height: 0)
+            }
             }) { (complete) -> Void in
             
             if self._leftPanel != nil&&self._currentPage=="rightPanel"{
@@ -283,7 +289,6 @@ class ViewController: UIViewController {
                 self._leftPanel?.removeFromParentViewController()
                 self._leftPanel = nil
             }
-            
             self._backButton!.frame = CGRect(x: 0, y: 0, width: self._distanceToSwape/2, height: self.view.frame.height)
             self.view.addSubview(self._backButton!)
         }
@@ -293,11 +298,15 @@ class ViewController: UIViewController {
         _currentPage = "mainView"
         self._mainView?.view.userInteractionEnabled = true
         
-        
         UIView.animateWithDuration(0.2, animations: { () -> Void in
+            
                 self._mainView?.view.transform = CGAffineTransformMakeTranslation(0, 0)
-                self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)
-                self._rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+            
+                if self._rightPanel != nil{
+                    self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)
+                    self._rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+                }
+            
             }) { (com) -> Void in
                 if self._leftPanel != nil&&self._currentPage=="mainView"{
                     self._leftPanel?.view.removeFromSuperview()
@@ -313,6 +322,12 @@ class ViewController: UIViewController {
        self._backButton?.removeFromSuperview()
     }
     
+    func _showLogMain(){
+        let _logMain:Log_Main = Log_Main()
+        self.presentViewController(_logMain, animated: true) { () -> Void in
+            
+        }
+    }
     
     
     //-----提示面板普通弹出

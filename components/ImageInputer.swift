@@ -41,7 +41,11 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
     var _btn_save:UIButton?
     var _btn_cancel:UIButton?
     
+    var _bg:UIView?
+    var _imageIned:Bool = false
+    
     weak var _delegate:ImageInputerDelegate?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,7 +58,9 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
             return
         }
     
-        self.view.backgroundColor = UIColor(white: 0, alpha: 0.9)
+        self.view.backgroundColor = UIColor.clearColor()
+        _bg = UIView(frame: self.view.frame)
+        _bg?.backgroundColor = UIColor(white: 0, alpha: 0.9)
         
         _imageW = self.view.frame.width
         
@@ -111,12 +117,12 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         _btn_cancel?.setTitle("取消", forState: UIControlState.Normal)
         _btn_cancel?.titleLabel?.textAlignment = NSTextAlignment.Left
         
-        
-        
+        self.view.addSubview(_bg!)
+        self.view.addSubview(_btn_cancel!)
         self.view.addSubview(_btn_camera!)
         self.view.addSubview(_btn_photo!)
-        self.view.addSubview(_btn_save!)
-        self.view.addSubview(_btn_cancel!)
+        
+        
         
         _setuped = true
         
@@ -138,6 +144,8 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         _imagePicker!.delegate = self
         _imagePicker!.sourceType = UIImagePickerControllerSourceType.Camera
         
+        
+        
         _parentViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
         //UIApplication.sharedApplication().keyWindow?.rootViewController!.presentViewController(_imagePicker!, animated: true, completion:nil)
     }
@@ -157,7 +165,7 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
     
     
     func buttonAction(__sender:UIButton){
-        
+        print(__sender)
         
         switch __sender{
         case _btn_camera!:
@@ -170,9 +178,25 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
             
             break
         case _btn_cancel!:
-            _delegate?._imageInputer_canceled()
+            if _imageIned{
+                self.view.addSubview(_bg!)
+                self.view.addSubview(_btn_cancel!)
+                self.view.addSubview(_btn_camera!)
+                self.view.addSubview(_btn_photo!)
+                
+                _bgImageV!.removeFromSuperview()
+                _bordV?.removeFromSuperview()
+
+                _imageIned = false
+            }else{
+                _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
+                _delegate?._imageInputer_canceled()
+            }
+            
+            
             break
         case _btn_save!:
+            _imagePicker?.dismissViewControllerAnimated(true, completion:nil)
             _delegate?._imageInputer_saved()
             break
         
@@ -181,29 +205,58 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         }
     }
     //---picker代理
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
-        _bgImageV?._setImageByImage(image)
-        _bgImageV?.setZoomScale(1, animated: false)
-        _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
-        
-        self.view.addSubview(_bgImageV!)
-        self.view.addSubview(_bordV!)
-        
-        _btn_save?.hidden = false
-        _hideBtns()
-    }
+//    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage!, editingInfo: [NSObject : AnyObject]!) {
+//        _bgImageV?._setImageByImage(image)
+//        _bgImageV?.setZoomScale(1, animated: false)
+//       // _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
+//        
+//        _imagePicker!.view.addSubview(_bg!)
+//        _imagePicker!.view.addSubview(_btn_save!)
+//        _imagePicker!.view.addSubview(_btn_cancel!)
+//        _imagePicker!.view.addSubview(_bgImageV!)
+//        _imagePicker!.view.addSubview(_bordV!)
+//        _imageIned = true
+//        
+//        _btn_save?.hidden = false
+//        _hideBtns()
+//    }
     func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
         // var _alassetsl:ALAssetsLibrary = ALAssetsLibrary()
         let image:UIImage = (info[UIImagePickerControllerOriginalImage] as? UIImage)!
         _bgImageV?._setImageByImage(image)
         _bgImageV?.setZoomScale(1, animated: false)
-        _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
         
         
-        self.view.addSubview(_bgImageV!)
-        self.view.addSubview(_bordV!)
+        
+        //_imagePicker?.dismissViewControllerAnimated(true, completion: nil)
+        
+        
+        
+        if _imagePicker?.sourceType == UIImagePickerControllerSourceType.Camera{
+            _imagePicker?.dismissViewControllerAnimated(true, completion: nil)
+            
+            self.view.addSubview(_bg!)
+            
+            self.view.addSubview(_btn_cancel!)
+            self.view.addSubview(_bgImageV!)
+            self.view.addSubview(_bordV!)
+            self.view.addSubview(_btn_save!)
+            
+        }else{
+            _imagePicker!.view.addSubview(_bg!)
+            _imagePicker!.view.addSubview(_btn_cancel!)
+            _imagePicker!.view.addSubview(_bgImageV!)
+            _imagePicker!.view.addSubview(_bordV!)
+            _imagePicker!.view.addSubview(_btn_save!)
+            
+            _imageIned = true
+        }
         
         _btn_save?.hidden = false
+        
+     
+       
+        
         _hideBtns()        
     }
     

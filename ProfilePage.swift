@@ -141,7 +141,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         
         _nameLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 30))
         _nameLabel?.textAlignment = NSTextAlignment.Center
-        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: _barH/2+6)
+        _nameLabel?.center = CGPoint(x:self.view.frame.width/2 , y: _barH/2+7)
         _nameLabel?.font = UIFont.boldSystemFontOfSize(20)
         _nameLabel?.textColor = UIColor.whiteColor()
         _nameLabel?.text = "编辑资料"
@@ -150,7 +150,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         _btn_save = UIButton(frame: CGRect(x: 10, y: 20, width: 100, height: 40))
         _btn_save?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
-        _btn_save?.center = CGPoint(x: self.view.frame.width-30, y: _barH/2+6)
+        _btn_save?.center = CGPoint(x: self.view.frame.width-30, y: _barH/2+7)
         _btn_save?.setTitle("保存", forState: UIControlState.Normal)
         
         _topView?.addSubview(_nameLabel!)

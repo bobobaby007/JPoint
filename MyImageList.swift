@@ -13,7 +13,7 @@ protocol MyImageList_delegate: NSObjectProtocol{
     func _gotoPostOnePic()
 }
 
-class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,BingoUserItemAtMyList_delegate{
+class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,BingoUserItemAtMyList_delegate,UIAlertViewDelegate{
     var _setuped:Bool = false
     var _tableView:UITableView?
     var _btn_back:UIButton?
@@ -35,6 +35,8 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     let _barH:CGFloat = 60
     
     var _btn_noImage:UIButton?
+    
+    var _currentIndex:NSIndexPath?
     
     weak var _delegate:MyImageList_delegate?
     override func viewDidLoad() {
@@ -129,7 +131,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
                 _btn_noImage?.setBackgroundImage(UIImage(named: "btn_circle.png"), forState: UIControlState.Normal)
                 _btn_noImage?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
                 _btn_noImage?.setTitleColor(UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 0.5), forState: UIControlState.Normal)
-                _btn_noImage?.setTitle("您还没有发布过图片\n现在发布,看谁能猜中你的心思", forState: UIControlState.Normal)
+                _btn_noImage?.setTitle("现在发布图片,\n看谁能猜中你的心思", forState: UIControlState.Normal)
                 _btn_noImage?.backgroundColor = UIColor(white: 1, alpha: 0.5)
                 self.view.addSubview(_btn_noImage!)
             }
@@ -140,6 +142,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             }
         }
     }
+    
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         if indexPath .isEqual(_selectedIndex){
@@ -188,6 +191,62 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     func _showUser(__index: Int) {
         
     }
+    //---左滑动作
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        let _deleteAction:UITableViewRowAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "删除") { (__action, __index) -> Void in
+            self._toDelete(__index)
+        }
+        
+        _deleteAction.backgroundColor = UIColor.clearColor()
+        
+        return [_deleteAction]
+    }
+    
+    
+    //----删除
+    
+    func _toDelete(__index:NSIndexPath){
+        _currentIndex = __index
+        let _alert:UIAlertView = UIAlertView()
+        _alert.delegate=self
+        _alert.title="确定删除该图片？"
+        _alert.addButtonWithTitle("确定")
+        _alert.addButtonWithTitle("取消")
+        _alert.show()
+    }
+    
+    
+    //-----提示按钮代理
+    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+        if buttonIndex==0{
+            deleteCell(_currentIndex!)
+        }
+    }
+    //----删除相册
+    func deleteCell(index:NSIndexPath)->Void{
+        let __dict:NSDictionary = _imagesArray.objectAtIndex(index.row) as! NSDictionary
+        let _newArray:NSMutableArray = NSMutableArray(array: _imagesArray)
+        _newArray.removeObjectAtIndex(index.row)
+        _imagesArray = _newArray
+        
+        
+        MainAction._removeImage(__dict.objectForKey("_id") as! String) { (__dict) -> Void in
+            
+        }
+        
+        
+        _selectedIndex = NSIndexPath(forItem: -1, inSection: 0)
+        
+        _tableView?.deleteRowsAtIndexPaths([index], withRowAnimation: UITableViewRowAnimation.Left)
+        
+        _ifHasImages()
+        if _imagesArray.count <= 0{
+            UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.LightContent
+            UIApplication.sharedApplication().statusBarHidden=false
+            self._tableView?.frame = CGRect(x: 0, y: self._barH, width: self.view.frame.width, height: self.view.frame.height-self._barH)
+            self._topView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self._barH)
+        }
+    }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath .isEqual(_selectedIndex){ //---恢复
            _selectedIndex = nil
@@ -215,12 +274,8 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             })
            
         }
-        
-        
-        
         _tableView?.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
         _tableView?.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Top, animated: true)
-        
     }
     
     func btnHander(sender:UIButton){
