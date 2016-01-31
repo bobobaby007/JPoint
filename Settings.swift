@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class Settings:UIViewController{
+class Settings:UIViewController,UIAlertViewDelegate{
     var _setuped:Bool = false
     var _topView:UIView?
     let _barH:CGFloat = 60
@@ -22,6 +22,7 @@ class Settings:UIViewController{
     let _central_w:CGFloat = 250
     
     var _profile_old:NSDictionary?
+    var _btn_logOut:UIButton?
     
     var _btn_contact:UIButton?
     var _btn_clearCache:UIButton?
@@ -73,9 +74,6 @@ class Settings:UIViewController{
         _nameLabel?.textColor = UIColor.whiteColor()
         _nameLabel?.text = "设置"
         
-        
-       
-        
         _topView?.addSubview(_nameLabel!)
         
         // _tableView?.tableHeaderView = _topView
@@ -98,6 +96,16 @@ class Settings:UIViewController{
         _line = UIView(frame: CGRect(x: (self.view.frame.width - _central_w)/2, y: 240, width: _central_w, height: 1))
         _line.backgroundColor = UIColor.whiteColor()
         self.view.addSubview(_line)
+        
+        
+        _btn_logOut = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+        _btn_logOut?.center = CGPoint(x: self.view.frame.width/2, y:280)
+        _btn_logOut?.setTitle("退出帐号", forState: UIControlState.Normal)
+        _btn_logOut?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+        _line = UIView(frame: CGRect(x: (self.view.frame.width - _central_w)/2, y: 300, width: _central_w, height: 1))
+        _line.backgroundColor = UIColor.whiteColor()
+        self.view.addSubview(_line)
+        self.view.addSubview(_btn_logOut!)
         
         
         self.view.addSubview(_btn_contact!)
@@ -123,7 +131,7 @@ class Settings:UIViewController{
         _label_version.font = UIFont.systemFontOfSize(16)
         _label_version.textColor = UIColor(white: 0.6, alpha: 1)
         _label_version.textAlignment = NSTextAlignment.Center
-        _label_version.text = "1.06版本"
+        _label_version.text = "\(MainAction._versionString)版本"
         
         
         let _label_intro:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: 300, height: 20))
@@ -165,7 +173,6 @@ class Settings:UIViewController{
             self.presentViewController(_alertV, animated: true, completion: { () -> Void in
                 
                 })
-            
             break
         case _btn_contact!:
             let _viewC:MessageWindow = MessageWindow()
@@ -177,11 +184,34 @@ class Settings:UIViewController{
             })
             
             break
+        case _btn_logOut!:
+            self._toLogOut()
         default:
             break
             
         }
     }
+    func _toLogOut(){
+        
+        let _alert:UIAlertView = UIAlertView()
+        _alert.delegate=self
+        //_alert.title=""
+        _alert.message = "退出帐号将清空本地聊天列表\n确定要退出吗？"
+        _alert.addButtonWithTitle("确定")
+        _alert.addButtonWithTitle("取消")
+        _alert.show()
+    }
+    //-----提示按钮代理
+    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+        if buttonIndex==0{
+            self.dismissViewControllerAnimated(true, completion: { () -> Void in
+                MainAction._logOut()
+                ViewController._self?._showLogMain()
+            })
+        }
+    }
+    
+    
     func _checkIfChanged()->Bool{
         
         

@@ -196,6 +196,13 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
         case _btn_send!:
             
+            if ViewController._self!._checkUserInfo(){
+                
+            }else{
+                return
+            }
+            
+            
             let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
             
             if let _accepted:Bool = _ud.objectForKey("EULA_accepted") as? Bool{
@@ -204,7 +211,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
                     _sentBingo()
                 }else{
                     _showEULA()
-                    
                 }
                 
             }else{
@@ -273,17 +279,11 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func _setProfilePic(__str:String){
         _infoForImage?._setPic(__str)
     }
-    
-    
     //---——展示
-    
     func _show(){
-        MainAction._getProfile { (__dict) -> Void in
-            self._infoForImage!._setPic(MainAction._avatar(__dict))
-        }
+        self._infoForImage!._setPic(MainAction._avatar( MainAction._Profile()))
         _btnsShow()
     }
-    
     func _bottomBtnsIn(){
         self._btn_clear!.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!)
         self._btn_send!.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!)

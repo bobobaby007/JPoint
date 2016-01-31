@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class Log_signin: UIViewController{
+class Log_resetPassw: UIViewController{
     let _gap:CGFloat=15
     var _setuped:Bool=false
     var _topBar:UIView?
@@ -58,8 +58,8 @@ class Log_signin: UIViewController{
         _btn_cancel?.setImage(UIImage(named: "icon_back"), forState: UIControlState.Normal)
         _btn_cancel?.addTarget(self, action: "clickAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
-//        let _white:UIView = UIView(frame: CGRect(x: 0, y: _barH+_gap , width: self.view.frame.width, height: 4*_buttonH))
-//        _white.backgroundColor = UIColor(white: 1, alpha: 0.1)
+        //        let _white:UIView = UIView(frame: CGRect(x: 0, y: _barH+_gap , width: self.view.frame.width, height: 4*_buttonH))
+        //        _white.backgroundColor = UIColor(white: 1, alpha: 0.1)
         
         //self.view.addSubview(_white)
         
@@ -108,21 +108,16 @@ class Log_signin: UIViewController{
         _txt_password?.textColor = UIColor.whiteColor()
         //_txt_password?.font = _font_cell_title_normal
         _txt_password?.secureTextEntry = true
-        _txt_password?.placeholder = "设置密码"
+        _txt_password?.placeholder = "输入新密码"
         _txt_password?.addTarget(self, action: "textHander:", forControlEvents: UIControlEvents.EditingChanged)
         self.view.addSubview(_txt_password!)
         
         
-        
-
-        
-        
-        
         _title_label=UILabel(frame:CGRect(x: 50, y: 12, width: self.view.frame.width-100, height: 60))
         _title_label?.textColor=UIColor.whiteColor()
-//        _title_label?.font = _font_topbarTitle
+        //        _title_label?.font = _font_topbarTitle
         _title_label?.textAlignment=NSTextAlignment.Center
-        _title_label?.text="注册"
+        _title_label?.text="重设密码"
         self.view.addSubview(_topBar!)
         
         _btn_Contenter = UIView(frame: CGRect(x: 0, y: self.view.frame.height-_buttonH, width: 0, height: _buttonH))
@@ -130,11 +125,11 @@ class Log_signin: UIViewController{
         _btn_Contenter?.backgroundColor = UIColor(white: 0, alpha: 0.2)
         
         _btn_go = UIButton(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: _buttonH))
-//        _btn_go?.backgroundColor = _color_yellow
-//        _btn_go?.setTitleColor(_color_white_title, forState: UIControlState.Normal)
-//        _btn_go?.titleLabel?.font = _font_cell_title
+        //        _btn_go?.backgroundColor = _color_yellow
+        //        _btn_go?.setTitleColor(_color_white_title, forState: UIControlState.Normal)
+        //        _btn_go?.titleLabel?.font = _font_cell_title
         _btn_go?.addTarget(self, action: "clickAction:", forControlEvents: UIControlEvents.TouchUpInside)
-        _btn_go?.setTitle("注册", forState: UIControlState.Normal)
+        _btn_go?.setTitle("重设", forState: UIControlState.Normal)
         _btn_go?.clipsToBounds = true
         
         self.view.addSubview(_btn_Contenter!)
@@ -199,15 +194,15 @@ class Log_signin: UIViewController{
             break
         }
         _refreshView()
-       // print(_info)
+        // print(_info)
     }
     //-----倒计时
     func timerHander(timer:NSTimer){
-       // print(timer)
+        // print(timer)
         _currentSecond += 1
         _btn_getSmscode?.setTitle(String(60-_currentSecond)+"s", forState: UIControlState.Normal)
         if _currentSecond>=60{
-//            _btn_getSmscode?.titleLabel?.font = _font_cell_title_normal
+            //            _btn_getSmscode?.titleLabel?.font = _font_cell_title_normal
             _btn_getSmscode?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
             _btn_getSmscode?.setTitle("获取验证码", forState: UIControlState.Normal)
             _btn_getSmscode?.enabled = true
@@ -229,12 +224,12 @@ class Log_signin: UIViewController{
     func _go(){
         MainAction._signup(_txt_mobile!.text!,__code: _txt_smscode!.text!, __pass: _txt_password!.text!) { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
-               Log_Main._self?._hide()
+                Log_Main._self?._hide()
             }else{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
                     _alerter.show()
-
+                    
                 })
             }
         }

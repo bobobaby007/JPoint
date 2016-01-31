@@ -35,13 +35,6 @@ class Log_Main: UIViewController {
         if _inited{
             return
         }
-        
-        
-        
-        
-        
-        
-        
         Log_Main._self = self
         _navigateController = UINavigationController()
         _navigateController?.navigationBarHidden = true

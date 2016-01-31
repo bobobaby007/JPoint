@@ -131,19 +131,28 @@ class LeftPanel: UIViewController,MyImageList_delegate {
         _btn_settings?.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
         self.view.addSubview(_btn_settings!)
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_logOk, object: nil)
         
-        _setName("Vicky")
+         NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_getProfileOk, object: nil)
+        
+        
         
         //self.view.addSubview(_uiV)
         _setuped = true
     }
+    
+    //----
+    func _receivedNotification(notification:NSNotification){
+        _refreshProfile()
+    }
+    
+    
     func _refreshProfile(){
-        MainAction._getProfile { (__dict) -> Void in
-            self._setProfile(__dict)
-        }
+        self._setProfile(MainAction._Profile())
     }
     
     func _setProfile(__dict:NSDictionary){
+        
         self._setProfileImg(MainAction._avatar(__dict))
         if let _nickname = __dict.objectForKey("nickname") as? String{
             self._setName(_nickname)
@@ -164,7 +173,6 @@ class LeftPanel: UIViewController,MyImageList_delegate {
     }
     func _setName(__str:String){
         if __str == "" {
-            
             _label_name?.textColor = UIColor.grayColor()
             _label_name?.text = "呀，还没有名字！"
             
@@ -172,8 +180,6 @@ class LeftPanel: UIViewController,MyImageList_delegate {
             _label_name?.textColor = UIColor.whiteColor()
             _label_name?.text = __str
         }
-        
-        
     }
     
     //-----我的发布代理

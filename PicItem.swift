@@ -69,6 +69,14 @@ class PicItem: UIView {
         _testIt(_location)
     }
     func _testIt(__p:CGPoint){
+        
+        if ViewController._self!._checkUserInfo(){
+            
+        }else{
+            return
+        }
+        
+        
         _clickSign = ClickSign(frame: CGRect(x: __p.x, y: __p.y, width: 0, height: 0))
         addSubview(_clickSign!)
         _clickSign?._show()

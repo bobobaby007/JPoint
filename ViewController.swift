@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,UIAlertViewDelegate {
     var _mainView:MainView?
     var _leftPanel:LeftPanel?
     var _rightPanel:RightPanel?
@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     var _startTransOfMainView:CGAffineTransform?
     var _startTransOfRightView:CGAffineTransform?
     
-    let _distanceToSwape:CGFloat = 100
+    let _distanceToSwape:CGFloat = 60
     var _backButton:UIButton?
     
     
@@ -67,6 +67,32 @@ class ViewController: UIViewController {
     func btnHander(sender:UIButton){
         _showMainView()
     }
+    
+    
+    func _checkUserInfo()->Bool{
+        let _str:String = MainAction._checkUserOk()
+        if _str == ""{
+            return true
+        }else{
+            let _alerter:UIAlertView = UIAlertView(title: "", message: _str, delegate: self, cancelButtonTitle: "再看看", otherButtonTitles: "去设置")
+            _alerter.show()
+            return false
+        }
+    }
+    
+    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
+        switch buttonIndex{
+        case 1:
+            let _viewC:ProfilePage = ProfilePage()
+            self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+                
+            })
+            break
+        default:
+            break
+        }
+    }
+    
     
     func panHander(sender:UIPanGestureRecognizer){
 
@@ -321,7 +347,7 @@ class ViewController: UIViewController {
         }
        self._backButton?.removeFromSuperview()
     }
-    
+    //－－－展示登录注册页面
     func _showLogMain(){
         let _logMain:Log_Main = Log_Main()
         self.presentViewController(_logMain, animated: true) { () -> Void in

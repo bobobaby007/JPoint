@@ -193,7 +193,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             let _message:NSDictionary = __array.objectAtIndex(__array.count-i-1) as! NSDictionary
             let _from:NSDictionary = _message.objectForKey("author") as! NSDictionary
             var _mssageType:String = MessageCell._Type_Message
-            if _from.objectForKey("_id") as! String == MainAction._userInfo?.objectForKey("_id") as! String{
+            if _from.objectForKey("_id") as! String == MainAction._profileDict?.objectForKey("_id") as! String{
                 _mssageType = MessageCell._Type_Message_By_Me
             }
             if let ___dict:NSDictionary = NSDictionary(objects: [_message.objectForKey("_id") as! String,_from.objectForKey("_id")!,_mssageType,_message.objectForKey("message")!,_message.objectForKey("create_at")!], forKeys: ["_id","uid","type","content","time"]){

@@ -10,13 +10,34 @@ import Foundation
 import UIKit
 
 class MainAction {
+    static var _tokenDefault:String?
+    static var _token:String{
+        get{
+            if _tokenDefault != nil{
+                return _tokenDefault!
+            }else{
+            let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+            if let _tok:String = _ud.valueForKey("token") as? String {
+                _tokenDefault = _tok
+                return _tokenDefault!
+                }
+            }
+            return ""
+        }
+        set{
+            _tokenDefault = newValue
+            let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
+            _ud.setObject(_tokenDefault!, forKey: "token")
+        }
+    }
+    static let _versionString:String = "1.06" //-----app版本号，注意更新，以便提醒用户更新
     
-    static var _token:String = "firstTest"
+    
     //static let _BasicDomain:String = "http://192.168.1.108:9999" //"http://192.168.1.108:9999" // "http://bingome.giccoo.com"//---
     static let _BasicDomain:String = "http://bingome.giccoo.com"
     //static let _URL_Socket:String = "http://192.168.1.108:9999"//"http://bingome.giccoo.com"  //http://192.168.1.108:9999   http://bingome.giccoo.com
     static let _URL_Socket:String = "http://bingome.giccoo.com"
-    static let _Version:String = "v1"
+    static let _Version:String = "v1" //----服务器后台版本号
     static let _URL_PostBingo:String = "bingo/send/"//---发布图片地址
     static let _URL_BingoList:String = "bingo/list/"//----获取首页列表
     static let _URL_BingoReaded:String = "bingo/read/"//---已读图
@@ -30,6 +51,7 @@ class MainAction {
     static let _URL_Sent_Bingo:String = "bingo/check/"//----发送bingo地址
     static let _URL_Signup:String = "sign/up/" //----注册地址
     static let _URL_Login:String = "sign/in/"//登录地址
+    static let _URL_Sms:String = "sign/sms/"//获取验证码
     static let _URL_CheckNewMessage:String = "message/unread/"//获取未读消息
     static let _URL_ChatHistory:String = "message/log/"//聊天记录
     static let _URL_BingoHistoryOfFriend:String = "message/bingo/"//好友对我的bingo记录
@@ -46,62 +68,93 @@ class MainAction {
     static var _BingoList:NSArray = []   //首页列表
     static var _MyImageList:NSArray = [] //我的图列数组
     static var _ChatsList:NSArray?//---bingo聊天列表
-    static var _profileDict:NSDictionary?
-    static var _userInfo:NSMutableDictionary?
+    static var _profileDict:NSDictionary?{
+        didSet{
+            CoreAction._saveDictToFile(_profileDict!, __fileName: "Profile")
+        }
+    }
+    //static var _userInfo:NSMutableDictionary?
     static var _socket:SocketIOClient?
     
     static var _Prefix_Chat:String = "chatHistory_" //----聊天记录文件名前缀
     static var _Name_BingoChatsList = "BingoChatsList" //----聊天记录列表文件名
     
     static var _Notification_new_chat:String = "Notification_new_chat"//新的聊天消息
-    static var _Notification_new_bingo:String = "Notification_new_bingo"//新的聊天消息
+    static var _Notification_new_bingo:String = "Notification_new_bingo"//新的bingo
     static var _Notification_chatChanged:String = "Notification_chatChanged"//---消息列表有变化
+    static var _Notification_logOk:String = "Notification_logOk"//---登录成功
+    static var _Notification_getProfileOk:String = "Notification_getProfileOk"//---获取在线用户信息完成
     
     static var _MyColor:UIColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 1)
     
     //-----判断是否登录
     static func _isLogined()->Bool{
-        
-        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
-        if let _tok:String = _ud.valueForKey("token") as? String {
-            _token = _tok
-            if _token == ""{
+        if _token == ""{
                 return false
             }else{
                 return true
-            }
-        }else{
-            return false
         }
+        
     }
-    static func _saveToken(__token:String){
-        let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
-        _ud.setObject(__token, forKey: "token")
-        _token = __token
-    }
-    
     //-----注册－－手机号注册
-    static func _signup(__mob:String,__code:String, __pass:String,__nickname:String, __block:(NSDictionary)->Void){
-        CoreAction._sendToUrl("type=default&mobile=\(__mob)&password=\(__pass)&code=\(__code)&nickname=\(__nickname)", __url: _BasicDomain+_Version+"/"+_URL_Signup) { (__dict) -> Void in
-            print("注册成功:",__dict)
+    static func _signup(__mob:String,__code:String, __pass:String,__block:(NSDictionary)->Void){
+        CoreAction._sendToUrl("type=default&mobile=\(__mob)&password=\(__pass)&code=\(__code)", __url: _BasicDomain+"/"+_Version+"/"+_URL_Signup) { (__dict) -> Void in
+            print("手机号注册:",__dict)
             if __dict.objectForKey("recode") as! Int == 200{
-                MainAction._saveToken(__dict.objectForKey("token") as! String)
+                let _user:NSDictionary = __dict.objectForKey("info") as! NSDictionary
+                _token = _user.objectForKey("token") as! String
+                 _profileDict = _user
+                
+                NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_logOk, object: nil)
             }
             __block(__dict)
         }
     }
+    
     //-----登录
     static func _login(__mob:String, __pass:String, __block:(NSDictionary)->Void){
-        CoreAction._sendToUrl("mobile=\(__mob)&password=\(__pass)", __url: _BasicDomain+_Version+"/"+_URL_Login ) { (__dict) -> Void in
+        CoreAction._sendToUrl("mobile=\(__mob)&password=\(__pass)", __url: _BasicDomain+"/"+_Version+"/"+_URL_Login ) { (__dict) -> Void in
             print("登录成功：",__dict)
             if __dict.objectForKey("recode") as! Int == 200{
-                let _user:NSDictionary = __dict.objectForKey("userinfo") as! NSDictionary
-                MainAction._saveToken(_user.objectForKey("token") as! String)
+                let _user:NSDictionary = __dict.objectForKey("info") as! NSDictionary
+                _token = _user.objectForKey("token") as! String
+                _profileDict = _user
+                NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_logOk, object: nil)
             }
             __block(__dict)
         }
     }
-    
+    //----退出登录
+    static func _logOut(){
+        _token = ""
+        _ChatsList=nil
+       // CoreAction._copyDefaultFile(_Name_BingoChatsList, __toFile: _Name_BingoChatsList)
+    }
+    //----判断用户是否OK，不需要设置用户信息
+    static func _checkUserOk()->String{
+        var _str:String = ""
+        if let nickname = _profileDict?.objectForKey("nickname") as? String{
+            if nickname == ""{
+                _str = _str + "你需要一个昵称"
+            }
+        }
+        
+        if let avatar = _profileDict?.objectForKey("avatar") as? String{
+            if avatar == ""{
+                if _str != ""{
+                    _str = _str + "\n"
+                }
+                _str = _str + "还需要一个头像，让大家认识你"
+            }
+        }
+        return _str
+    }
+    //-----获取验证码
+    static func _getSms(__mob:String){
+        CoreAction._sendToUrl("mobile=\(__mob)", __url: _BasicDomain+"/"+_Version+"/"+_URL_Sms ) { (__dict) -> Void in
+            print("获取验证码：",__dict)
+        }
+    }
     
     //------快速注册---取消
     static func _signupQuick(__block:(NSDictionary)->Void){
@@ -111,7 +164,7 @@ class MainAction {
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 let _info:NSDictionary = __dict.objectForKey("info") as! NSDictionary
-                _userInfo = NSMutableDictionary(dictionary: _info)
+                //_userInfo = NSMutableDictionary(dictionary: _info)
                 _token = _info.objectForKey("token") as! String
                 MainAction._checkDeviceToKen()
                 __block(__dict)
@@ -132,9 +185,8 @@ class MainAction {
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 let _info:NSDictionary = __dict.objectForKey("info") as! NSDictionary
-                _userInfo = NSMutableDictionary(dictionary: _info)
+               // _userInfo = NSMutableDictionary(dictionary: _info)
                 _token = _info.objectForKey("token") as! String
-                
                 MainAction._checkDeviceToKen()
                 __block(__dict)
             }else{
@@ -224,7 +276,6 @@ class MainAction {
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
             //__block(__dict)
         }
-
     }
     //-----获取我的好友列表
     static func _getMyFriends(__block:(NSDictionary)->Void){
@@ -364,13 +415,7 @@ class MainAction {
         }else{
             //CoreAction._deleteFile("BingoChatsList")
             CoreAction._copyDefaultFile(_Name_BingoChatsList, __toFile: _Name_BingoChatsList)
-            
-            //        if CoreAction._fileExistAtDocument("BingoChatsList"){
-            //
-            //        }else{
-            //            CoreAction._copyDefaultFile("BingoChatsList", __toFile: "BingoChatsList")
-            //        }
-            
+                        
             let _array = CoreAction._getArrayFromFile(_Name_BingoChatsList)
             _ChatsList = _array!
             __block(_ChatsList!)
@@ -589,21 +634,20 @@ class MainAction {
  
     }
     
-    //------获取本地个人资料
-    static func _getProfile(__block:(NSDictionary)->Void){
+    //------本地个人资料
+    static func _Profile()->NSDictionary{
         if _profileDict != nil{
-            __block(_profileDict!)
-            return
+            return _profileDict!
+           
         }else{
             //CoreAction._deleteFile("Profile")
-            
             if CoreAction._fileExistAtDocument("Profile"){
     
             }else{
                 CoreAction._copyDefaultFile("Profile", __toFile: "Profile")
             }
             _profileDict = CoreAction._getDictFromFile("Profile")
-            __block(_profileDict!)
+            return  _profileDict!
         }
     }
     
@@ -616,6 +660,7 @@ class MainAction {
                 _profileDict = __dict.objectForKey("info") as? NSDictionary
                 CoreAction._saveDictToFile(_profileDict!, __fileName: "Profile")
                 //print("_profileDict:",_profileDict)
+                NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_getProfileOk, object: nil)
             }
             __block(__dict)
         }
@@ -657,6 +702,7 @@ class MainAction {
         postString = postString.stringByAppendingFormat("&nickname=%@&sex=%d",__dict.objectForKey("nickname") as! String, __dict.objectForKey("sex") as! Int)
         let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_ChangeMyProfile
         CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
+           
             __block(__dict)
         }
     }

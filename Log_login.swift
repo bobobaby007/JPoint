@@ -31,6 +31,7 @@ class Log_login:UIViewController{
     var _currentSecond:Int = 0
     
     let _barH:CGFloat = 64
+    var _btn_resetPassw:UIButton?
     override func viewDidLoad() {
         
         setup()
@@ -56,8 +57,8 @@ class Log_login:UIViewController{
         //_blurV?.alpha = 0.5
         _blurV.frame = _topBar!.bounds
         _topBar?.addSubview(_blurV)
-        _btn_cancel=UIButton(frame: CGRect(x: 10, y: 20, width: 30, height: 30))
-        _btn_cancel?.center = CGPoint(x: 30, y: _barH/2+6)
+        _btn_cancel=UIButton(frame: CGRect(x: 10, y: 22, width: 30, height: 30))
+        _btn_cancel?.center = CGPoint(x: 30, y: _barH/2+8)
         _btn_cancel?.setImage(UIImage(named: "icon_back"), forState: UIControlState.Normal)
         _btn_cancel?.addTarget(self, action: "clickAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
@@ -93,6 +94,16 @@ class Log_login:UIViewController{
         _txt_password?.addTarget(self, action: "textHander:", forControlEvents: UIControlEvents.EditingChanged)
         self.view.addSubview(_txt_password!)
        
+        
+        _btn_resetPassw = UIButton(frame: CGRect(x: _gap, y: _barH+_gap+2*_buttonH, width: self.view.frame.width-3*_gap, height: _buttonH))
+        _btn_resetPassw?.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        _btn_resetPassw?.titleLabel?.font = UIFont.systemFontOfSize(12)
+        _btn_resetPassw?.titleLabel?.textAlignment = NSTextAlignment.Left
+        _btn_resetPassw?.setTitleColor(UIColor(white: 1, alpha: 0.8), forState: UIControlState.Normal)
+        _btn_resetPassw?.setTitle("忘记密码？", forState: UIControlState.Normal)
+        _btn_resetPassw?.addTarget(self, action: "clickAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.view.addSubview(_btn_resetPassw!)
+        
         
         _title_label=UILabel(frame:CGRect(x: 50, y: 12, width: self.view.frame.width-100, height: 60))
         _title_label?.textColor=UIColor.whiteColor()
@@ -184,18 +195,18 @@ class Log_login:UIViewController{
     }
     //----登录
     func _go(){
-//        MainInterface._login(_txt_mobile!.text!, __pass: _txt_password!.text!) { (__dict) -> Void in
-//            if __dict.objectForKey("recode") as! Int == 200{
-//                Log_Main._self?._hide()
-//            }else{
-//                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-//                    let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
-//                    _alerter.show()
-//                    
-//                })
-//                
-//            }
-//        }
+        MainAction._login(_txt_mobile!.text!, __pass: _txt_password!.text!) { (__dict) -> Void in
+            if __dict.objectForKey("recode") as! Int == 200{
+                Log_Main._self?._hide()
+            }else{
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
+                    _alerter.show()
+                    
+                })
+                
+            }
+        }
     }
     func _refreshView(){
         _btn_Contenter?.frame.origin = CGPoint(x: 0, y: _keyboardPointY-_buttonH)
@@ -217,6 +228,10 @@ class Log_login:UIViewController{
             self.navigationController?.popViewControllerAnimated(true)
         case _btn_go!:
             _go()
+            break
+        case _btn_resetPassw!:
+            let _v:Log_resetPassw = Log_resetPassw()
+            self.navigationController?.pushViewController(_v, animated: true)
             break
         default:
             print(sender)

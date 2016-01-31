@@ -220,21 +220,21 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     }
     
     func _getProfile(){
-     MainAction._getProfile { (__dict) -> Void in
+        let __dict:NSDictionary = MainAction._Profile()
+        
         self._profile_old = __dict
+        print("用户信息：",__dict)
         if let _sex = __dict.objectForKey("sex") as? Int{
             self._seg_sex?.selectedSegmentIndex = _sex
         }else{
-            self._seg_sex?.selectedSegmentIndex = 0
+            self._seg_sex?.selectedSegmentIndex = -1
         }
         if let _nickname = __dict.objectForKey("nickname") as? String{
             self._text_name?.text = _nickname
         }else{
             self._text_name?.text = ""
         }
-        
         self._setProfileImg(MainAction._avatar(__dict))
-        }
     }
     
     
@@ -282,7 +282,7 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     func _imageInputer_saved() {
         _imageChanged = true
         MainAction._changeAvatar(_imageInputer!._captureBgImage()) { (__dict) -> Void in
-            self._updateProfielOnline()
+           // self._updateProfielOnline()
         }
         self._btn_profile!.setImage(self._imageInputer!._captureBgImage(), forState: UIControlState.Normal)
         self._imageInputer!.view.removeFromSuperview()
@@ -317,39 +317,28 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
     func _checkIfChanged()->Bool{
         return false
     }
-    func _updateProfielOnline(){
-        MainAction._getMyProfile { (__dict) -> Void in
-            
-            self.dismissViewControllerAnimated(true, completion: { () -> Void in
-                
-                                    if self._parentView != nil{
-                                        self._parentView?._refreshProfile()
-                                    }
-
-            })
-        }
-    }
     func _saveProfile(){
         let _dict:NSMutableDictionary = NSMutableDictionary()
         _dict.setValue(_text_name?.text, forKey: "nickname")
+        
+        
+        
         _dict.setValue(_seg_sex?.selectedSegmentIndex, forKey: "sex")
         
         
-        if self._parentView != nil{
-            
-            self._parentView?._setName(_text_name!.text!)
-        }
-        
         MainAction._uploadProfile(_dict) { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
-                
-                print(__dict)
                 dispatch_async(dispatch_get_main_queue(), {
-                    self._updateProfielOnline()
+                    MainAction._getMyProfile { (__dict) -> Void in
+                        self.dismissViewControllerAnimated(true, completion: { () -> Void in
+                            if self._parentView != nil{
+                                self._parentView?._refreshProfile()
+                            }
+                        })
+                    }
                 })
             }else{
                 if (__dict.objectForKey("recode") as? Int) < 0{
-                    
                     dispatch_async(dispatch_get_main_queue(), {
                         self._showAlert("链接失败，请检查网络",__wait: 1.5)
                     })
@@ -362,7 +351,6 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         }
         
     }
-    
     //-----提示面板普通弹出
     
     func _showAlert(__text:String,__wait:Double){
