@@ -17,13 +17,21 @@ protocol EditingView_delegate:NSObjectProtocol{
     func _editingSent(__dict:NSDictionary)
 }
 
-class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate,DrawingBoard_delagate,EULA_delegate{
+class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,ImageInputerDelegate,DrawingBoard_delagate,EULA_delegate,MyAlerter_delegate{
+    
+    var _imageAction:String = "setPic" //----setPic/setWelfare
+    var _alerter:MyAlerter?
+    
     let _gap:CGFloat = 10
     let _btnW:CGFloat = 60
     var _setuped:Bool = false
     var _cornerRadius:CGFloat = 20
     var _btn_camera:UIButton?
     var _btn_photo:UIButton?
+    var _btn_welfare:UIButton?
+    
+    var _hasWelfare:Bool = false
+    
     var _btn_clear:UIButton?
     var _btn_send:UIButton?
     var _btn_closeH:CGFloat?
@@ -50,6 +58,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     var _isSending:Bool = false
     var _tipsV:UIButton?
+    
+    var _sentDict:NSDictionary? //----刚刚发送成功后返回的
+    
+    var _welfareImg:UIImage?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -94,6 +106,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btn_send?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
         
+        
+        
         self._btn_clear!.transform = CGAffineTransformMakeScale(0, 0)
         self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
         
@@ -133,11 +147,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _imageContainer?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
         
         
-        
-        
-        
-        
-        
         //_imageContainer.layer.masksToBounds = true
         _imageContainer!.backgroundColor = UIColor(white: 1, alpha: 0)
         _imageContainer!.layer.cornerRadius = _cornerRadius
@@ -159,6 +168,18 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _infoForImage?.center = CGPoint(x: self.view.frame.width/2, y: (self.view.frame.height-_imageW)/4+_infoForImage!.frame.height/2)
         
         
+        _btn_welfare = UIButton(frame:CGRect(x: _imageContainer!.frame.origin.x+_imageContainer!.frame.width-_btnW/2-5, y: _imageContainer!.frame.origin.y+5, width: _btnW/2, height: _btnW/2))
+        _btn_welfare?.clipsToBounds = true
+        _btn_welfare?.layer.cornerRadius = _btnW/4
+        _btn_welfare?.backgroundColor = UIColor(white: 0, alpha: 0.6)
+        _btn_welfare?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_welfare?.layer.borderWidth = 1
+        
+        
+        _btn_welfare?.setTitle("福利", forState: UIControlState.Normal)
+        _btn_welfare?.titleLabel?.font = UIFont.systemFontOfSize(10)
+        _btn_welfare?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        
         
     
         self.view.addSubview(_imageContainer!)
@@ -168,6 +189,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self.view.addSubview(_btn_send!)
         self.view.addSubview(_btn_clear!)
         self.view.addSubview(_infoForImage!)
+        self.view.addSubview(_btn_welfare!)
         
         self.view.layer.shadowColor = UIColor.blackColor().CGColor
         self.view.layer.shadowOpacity = 0.2
@@ -179,20 +201,26 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     func buttonAction(__sender:UIButton){
         switch __sender{
         case _btn_camera!:
+             _imageAction = "setPic"
             _openImageInputer()
+            _imageInputer?._setType(ImageInputer._ShowingType_cut)
             _imageInputer?._hideBtns()
             _imageInputer?._openCamera()
             break
         case _btn_photo!:
+            _imageAction = "setPic"
             _openImageInputer()
+            _imageInputer?._setType(ImageInputer._ShowingType_cut)
             _imageInputer?._hideBtns()
             _imageInputer?._openPhotoLibrary()
-            
             break
         case _btn_clear!:
             _drawingBoard?._clear()
             _btnsHide()
             _bottomBtnsOut()
+            break
+        case _btn_welfare!:
+            _openWelfareAction()
             break
         case _btn_send!:
             
@@ -201,7 +229,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             }else{
                 return
             }
-            
             
             let _ud:NSUserDefaults = NSUserDefaults.standardUserDefaults()
             
@@ -223,6 +250,56 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
         }
     }
+    
+    //----弹出福利选择
+    func _openWelfareAction(){
+        if _alerter == nil{
+            _alerter = MyAlerter()
+            _alerter?._delegate = self
+        }
+        
+        
+        ViewController._self!.addChildViewController(_alerter!)
+        ViewController._self!.view.addSubview(_alerter!.view)
+        if _hasWelfare{
+            _alerter?._setMenus(["替换图片","清除图片"])
+        }else{
+            _alerter?._setMenus(["添加图片(Bingo后发送)"])
+        }
+        
+        _alerter?._show()
+    }
+    //----弹出选择按钮代理
+    func _myAlerterClickAtMenuId(__id: Int) {
+        switch __id{
+        case 0:
+             _imageAction = "setWelfare"
+            _openImageInputer()
+            _imageInputer?._hideBtns()
+            _imageInputer?._setType(ImageInputer._ShowingType_fullSize)
+            _imageInputer?._openPhotoLibrary()
+            break
+        case 1:
+            _clearWelfare()
+            break
+        case 2://
+            
+            break
+        default:
+            break
+        }
+    }
+    
+    func _myAlerterStartToClose(){
+        
+    }
+    func _myAlerterDidClose(){
+        
+    }
+    func _myAlerterDidShow(){
+        
+    }
+    
     func _showEULA(){
         let _controller:EULA = EULA()
         _controller._delegate = self
@@ -252,11 +329,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
          
             if __dict.objectForKey("recode") as! Int == 200{
                 dispatch_async(dispatch_get_main_queue(), {
-                    ViewController._self!._showAlert("图片提交成功，可以再来一张!",__wait: 1.5)
-                    self._delagate?._editingSent(__dict.objectForKey("info") as! NSDictionary)
-                    //self._reset()
-                    self._clearImage()
                     
+                    self._sentDict = __dict.objectForKey("info") as! NSDictionary
+                    
+                    self._checkWelfare()
                 })
             }else{
                 
@@ -274,7 +350,41 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             }
         })
     }
-    
+    func _checkWelfare(){
+        if _hasWelfare{
+            MainAction._uploadWelfareOfPic(_welfareImg!, __bingoId: _sentDict?.objectForKey("_id") as! String, __block: { (__dict) -> Void in
+                if __dict.objectForKey("recode") as! Int == 200{
+                    dispatch_async(dispatch_get_main_queue(), {
+                        self._sentOk()
+                    })
+                }else{
+                    
+                    if (__dict.objectForKey("recode") as? Int) < 0{
+                        dispatch_async(dispatch_get_main_queue(), {
+                            ViewController._self!._showAlert("链接失败，请检查网络",__wait: 3.5)
+                        })
+                        return
+                    }
+                    dispatch_async(dispatch_get_main_queue(), {
+                        ViewController._self!._showAlert("上传失败，请重试",__wait: 3.5)
+                        
+                        print("上传失败，请重试:",__dict)
+                    })
+                }
+            })
+        }else{
+            self._sentOk()
+        }
+        
+    }
+    //--发送成功
+    func _sentOk(){
+        ViewController._self!._showAlert("图片提交成功，可以再来一张!",__wait: 1.5)
+        self._delagate?._editingSent(_sentDict!)
+        //self._reset()
+        self._clearImage()
+        self._clearWelfare()
+    }
     
     func _setProfilePic(__str:String){
         _infoForImage?._setPic(__str)
@@ -433,12 +543,27 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     }
     
     func _imageInputer_saved() {
-        _bgImageV!.image = _imageInputer!._captureBgImage()
-        _imageInputer?.view.removeFromSuperview()
-        _imageInputer?.removeFromParentViewController()
-        _imageInputer = nil
-        
-        didImageIn()
+        switch _imageAction{
+            case "setPic":
+                _bgImageV!.image = _imageInputer!._captureBgImage()
+                _imageInputer?.view.removeFromSuperview()
+                _imageInputer?.removeFromParentViewController()
+                _imageInputer = nil
+                
+                didImageIn()
+            break
+            case "setWelfare":
+                _welfareImg = _imageInputer?._originalImage()
+                _btn_welfare?.setImage(_welfareImg!, forState: UIControlState.Normal)
+                _btn_welfare?.setTitle("", forState: UIControlState.Normal)
+                _imageInputer?.view.removeFromSuperview()
+                _imageInputer?.removeFromParentViewController()
+                _imageInputer = nil
+                _hasWelfare = true
+            break
+        default:
+            break
+        }
     }
     
     //----
@@ -484,6 +609,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _clearImage()
             return false
         }
+        if _hasWelfare{
+            _clearWelfare()
+        }
         return true
     }
     
@@ -498,6 +626,14 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _removeDrawing()
         _hideTips()
         _delagate!._editingClearImage()
+    }
+    
+    //----清除福利
+    func _clearWelfare(){
+        _btn_welfare?.setImage(UIImage(), forState: UIControlState.Normal)
+        _btn_welfare?.setTitle("福利", forState: UIControlState.Normal)
+        _welfareImg = nil
+        _hasWelfare = false
     }
     //---截取背景图
     func _captureBgImage()->UIImage{
@@ -515,6 +651,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _delagate?._editingImageIn()
         _drawingBoardIn()
         _drawingBoard!._setEnabled(true)
+        
+        self.view.addSubview(_btn_welfare!)
         _showTips("在图片上涂鸦你的兴趣点")
     }
     

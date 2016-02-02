@@ -38,7 +38,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     
     var _lastMessageId:String = ""//---最后一条聊天记录的id
     
-    var _needChatsNum:Int = 20 //----需要获取的聊天记录数量
+    var _needChatsNum:Int = 50 //----需要获取的聊天记录数量
     
     var _messagesArray:NSMutableArray = [] //---获取的聊天记录原始数据
     override func viewDidLoad() {
@@ -131,21 +131,8 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     }
     //--------接受到消息
     func _receivedNotification(notification: NSNotification){
-        let __dict:NSDictionary = notification.userInfo! as NSDictionary
-        if let __uid:String = __dict.objectForKey("uid") as? String{
-            if __uid == _uid{
-                _addMessage(__dict.objectForKey("type") as! String, __content: __dict.objectForKey("content") as! String)
-                
-                
-                MainAction._addToBingoList(_uid, __type: __dict.objectForKey("type") as! String, __content: __dict.objectForKey("content") as! String, __nickname: _nameLabel!.text!, __avatar:_profileImageUrl,__isNew: false)
-                
-                _tableView?.reloadData()
-                _refreshView()
-                let _cell:MessageCell = _tableView?.cellForRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0)) as! MessageCell
-                //_cell._type = __dict.objectForKey("type") as? String
-                _cell._justSent()
-            }
-        }
+       // print("接受到消息")
+        _getNewMessageFrom("")
     }
     
     override func didReceiveMemoryWarning() {
@@ -159,8 +146,8 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     func _getDatas(){
         //---获取在线数据
         
-        _getNewMessageFrom("")
-        _getBingos()
+        _getNewMessageFrom(_lastMessageId)
+        //_getBingos()
         //----获取本地数据
         /*
         _messages = NSMutableArray()
@@ -180,7 +167,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     //-----获取消息，从某条消息开始
     func _getNewMessageFrom(__messId:String){
         MainAction._getChatHistoryOnline(_uid, __fromChatId: __messId, __num: 20) { (__array) -> Void in
-            //print(__array)
+            print(__array)
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 self._dealWithOnlineData(self._formatArray(__array))
             })
@@ -193,9 +180,23 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             let _message:NSDictionary = __array.objectAtIndex(__array.count-i-1) as! NSDictionary
             let _from:NSDictionary = _message.objectForKey("author") as! NSDictionary
             var _mssageType:String = MessageCell._Type_Message
-            if _from.objectForKey("_id") as! String == MainAction._profileDict?.objectForKey("_id") as! String{
-                _mssageType = MessageCell._Type_Message_By_Me
+            
+            
+            if let _type = _message.objectForKey("type") as? String{
+                _mssageType = _type
             }
+            
+            if _from.objectForKey("_id") as! String == MainAction._profileDict?.objectForKey("_id") as! String{
+                
+                if  _mssageType == MessageCell._Type_Message{
+                    _mssageType = MessageCell._Type_Message_By_Me
+                }
+                if  _mssageType == MessageCell._Type_Bingo{
+                    _mssageType = MessageCell._Type_Bingo_By_Me
+                }
+            }
+            
+            
             if let ___dict:NSDictionary = NSDictionary(objects: [_message.objectForKey("_id") as! String,_from.objectForKey("_id")!,_mssageType,_message.objectForKey("message")!,_message.objectForKey("create_at")!], forKeys: ["_id","uid","type","content","time"]){
                 _allMessage.addObject(___dict)
             }
@@ -207,6 +208,9 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     //处理在线获取到的数据
     func _dealWithOnlineData(__array:NSArray){
         self._addNewMessages(__array)
+        
+        
+        
         self._tableView?.reloadData()
         self._refreshView()
     }
@@ -219,16 +223,6 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             }
             
             let _type:String = _dict.objectForKey("type") as! String
-            switch _type{
-            case MessageCell._Type_Bingo:
-                break
-            case MessageCell._Type_Message:
-                break
-            case MessageCell._Type_Message_By_Me:
-                break
-            default:
-                break
-            }
             _addMessage(_type, __content: _dict.objectForKey("content") as! String)
         }
         
@@ -241,6 +235,8 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         case MessageCell._Type_Time:
             _h = 30
         case MessageCell._Type_Bingo:
+            _h = 200
+        case MessageCell._Type_Bingo_By_Me:
             _h = 200
         case MessageCell._Type_Message:
             _h = max(80,MessageCell._getHighByStr(__content))
@@ -262,6 +258,12 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             _tableView?.scrollToRowAtIndexPath(NSIndexPath(forRow: _messages!.count-1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: false)
         }
         
+        if let _mess:NSDictionary = _messagesArray.objectAtIndex(_messagesArray.count-1) as? NSDictionary{
+            MainAction._addToBingoList(_uid, __type: _mess.objectForKey("type") as! String, __content: _mess.objectForKey("content") as! String, __nickname: _nameLabel!.text!, __avatar:_profileImageUrl,__isNew: false)
+        }
+        
+        
+        
     }
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return _messages!.count
@@ -274,9 +276,14 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         let _cell:MessageCell = _tableView?.dequeueReusableCellWithIdentifier("MessageCell") as! MessageCell
         let _dict:NSDictionary = _messages?.objectAtIndex(indexPath.row) as! NSDictionary
         
-        
         let _type:String = _dict.objectForKey("type") as! String
-        _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60),__type:_type)
+        
+        _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60),__type: _type)
+        
+        
+        
+        _cell._setDict(_dict)
+        
         switch _type{
         case MessageCell._Type_Time:
             break
@@ -295,9 +302,6 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             break
         }
         
-        
-        
-        _cell._setContent(_dict.objectForKey("content") as! String)
         
         return _cell
     }
@@ -341,7 +345,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         
         MainAction._sentOneChat(_mess)
         
-        MainAction._addToBingoList(_uid, __type: _mess.objectForKey("type") as! String, __content: _mess.objectForKey("content") as! String, __nickname: _nameLabel!.text!, __avatar:_profileImageUrl,__isNew: false)
+        
         
         
         _tableView?.reloadData()

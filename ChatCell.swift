@@ -18,6 +18,7 @@ class ChatCell: UITableViewCell {
     var _uid:String?
     var _alertSign:UIView?
     var _myFrame:CGRect?
+    var _bingoIcon:UIImageView?
     func initWidthFrame(__frame:CGRect){
         if inited{
             
@@ -53,6 +54,15 @@ class ChatCell: UITableViewCell {
             _contentLabel?.textColor = UIColor.whiteColor()
             _contentLabel?.font = UIFont.systemFontOfSize(13)
             addSubview(_contentLabel!)
+            
+            
+            
+            _bingoIcon = UIImageView(image: UIImage(named: "icon_bing_at_message.png"))
+            _bingoIcon?.backgroundColor = UIColor.clearColor()
+            _bingoIcon?.frame = CGRect(x: 45, y: 38, width: 160, height: 50)
+            _bingoIcon?.contentMode = UIViewContentMode.ScaleAspectFit
+            
+            addSubview(_bingoIcon!)
             //_setPic("profile")
             inited = true
         }
@@ -61,6 +71,38 @@ class ChatCell: UITableViewCell {
 //    override func setSelected(selected: Bool, animated: Bool) {
 //       
 //    }
+    func _setDict(_dict:NSDictionary){
+        let _type:String = _dict.objectForKey("type") as! String
+        
+        var _content:String = _dict.objectForKey("content") as! String
+        _bingoIcon?.hidden = true
+        
+        
+        switch _type{
+        case MessageCell._Type_Bingo:
+            _content = ""
+            _bingoIcon?.hidden = false
+            break
+        case MessageCell._Type_Bingo_By_Me:
+            _content = ""
+            _bingoIcon?.hidden = false
+            break
+        default:
+            break
+        }
+        
+        _setId(_dict.objectForKey("uid") as! String)
+        _setPic(_dict.objectForKey("image") as! String)
+        _setName(_dict.objectForKey("nickname") as! String)
+        _setContent(_content)
+    
+        if let _isNew:Bool = _dict.objectForKey("isnew") as? Bool{
+            _setAlert(_isNew)
+        }else{
+            _setAlert(false)
+        }
+    }
+    
     func _setAlert(__has:Bool){
         if __has{
             if _alertSign == nil{

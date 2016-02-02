@@ -116,7 +116,7 @@ class Inputer: UIView,UITextViewDelegate {
     //-----改变点击方式
     override func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
         let _hitView = super.hitTest(point, withEvent: event)
-        print("_hitView:",_hitView,point)
+        //print("_hitView:",_hitView,point)
         if _hitView==self{
             if _isOpened && point.y<self.frame.height-_keboardFrame!.height{
                

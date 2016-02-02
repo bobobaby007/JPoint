@@ -14,6 +14,7 @@ protocol PicItemDelegate:NSObjectProtocol{
     func _clicked()
     func _bingo(__x:Int,__y:Int)
     func _bingoFailed(__x:Int,__y:Int)
+    func _bingoByMySelf()
 }
 
 class PicItem: UIView {
@@ -66,9 +67,19 @@ class PicItem: UIView {
         if _location.y > _imageV?.frame.height{
             return
         }
+        
+        if let _autor:NSDictionary = _dict?.objectForKey("author") as? NSDictionary{
+            if _autor.objectForKey("_id") as! String == MainAction._profileDict?.objectForKey("_id") as! String{
+                _delegate?._bingoByMySelf()
+                return
+            }
+        }
+        
         _testIt(_location)
     }
     func _testIt(__p:CGPoint){
+        
+        
         
         if ViewController._self!._checkUserInfo(){
             

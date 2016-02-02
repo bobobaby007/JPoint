@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_delegate{
+class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_delegate,MyAlerter_delegate{
+    var _indexPath:NSIndexPath?
     var inited:Bool = false
     var _id:String = ""
     var _bgImg:PicView?
@@ -35,6 +36,11 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     var _bingoUsers:NSArray = []
     
     var _maxNum:Int = 1 //----点过的范围内次数最多的点击数
+    
+    
+    var _dict:NSDictionary?
+    
+    var _alerter:MyAlerter?
     
     func initWidthFrame(__frame:CGRect){
         if inited{
@@ -72,7 +78,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             _infoPanel = InfoPanel(frame: CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30))
             //_infoPanel?.userInteractionEnabled = false
             _infoPanel?._delegate = self
-            _infoPanel?._setToMyInfo()
+            //_infoPanel?._setToMyInfo()
             addSubview(_infoPanel!)
             
             _textBubble = TextBubble(frame: CGRect(x: _imageInset, y: _bgImg!.frame.height+_imageInset+40, width: _rect!.width-2*_imageInset, height: 3))
@@ -120,11 +126,6 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             }
             //self._getPoints()
         }
-    }
-    func _setInfos(__time:String,__clickNum:Int,__bingoNum:Int){
-        _infoPanel?._setClick(__clickNum)
-        _infoPanel?._setBingo(__bingoNum)//-----点中次数
-        _infoPanel?._setTime(__time)
     }
     
     func _changeToHeight(__height:CGFloat){
@@ -309,7 +310,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         _textBubble!.frame = CGRect(x: _imageInset, y: _bgImg!.frame.height+_imageInset+15, width: _rect!.width-2*_imageInset, height: _textBubble!.frame.height)
         addSubview(_textBubble!)
         addSubview(_infoPanel!)
-        _infoPanel?._btn_share?.hidden = false
+        //_infoPanel?._btn_share?.hidden = false
         //print(_textBubble!._mySize)
          _infoPanel!.frame = CGRect(x: _imageInset+5, y: _textBubble!.frame.origin.y+_textBubble!.frame.height+10, width: _rect!.width-2*_imageInset-10, height: 30)
         _getDatas()
@@ -412,31 +413,63 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             _signer = nil
         }
         if _textBubble != nil{
-            
            // _textBubble?.transform = CGAffineTransformMakeScale(0, 0)
             _textBubble?.removeFromSuperview()
-            
         }
         
-        
-        
         _infoPanel!.frame = CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30)
-
-        _infoPanel?._btn_share?.hidden = true
+        
         //_infoPanel?.userInteractionEnabled = false
         
     }
     //----信息条代理
-    func _report_this(__des: String) {
+    func _moreAction(){
+        if _alerter == nil{
+            _alerter = MyAlerter()
+            _alerter?._delegate = self
+        }
+        
+        print("信息条代理")
+        
+       MyImageList._self!.addChildViewController(_alerter!)
+       MyImageList._self!.view!.addSubview(_alerter!.view)
+        
+        _alerter?._setMenus(["分享图片给朋友","发给朋友来玩","分享到微信朋友圈","删除图片"])
+        
+        _alerter?._show()
+    }
+    //----弹出选择按钮代理
+    func _myAlerterClickAtMenuId(__id: Int) {
+        switch __id{
+        case 0:
+            sendWXImageToUser()
+            break
+        case 1:
+            sendWXContentUser()
+            break
+        case 2:
+            sendWXContentFriend()
+            break
+        case 3://
+            MyImageList._self?._toDelete(_indexPath!)
+            break
+        default:
+            break
+        }
+    }
+    
+    
+    func _myAlerterStartToClose(){
         
     }
-    func _share_this() {
+    func _myAlerterDidClose(){
         
-        sendWXContentUser()
-        //sendWXContentFriend()
+    }
+    func _myAlerterDidShow(){
+        
     }
     //---微信分享
-    func sendWXContentUser() {//分享给朋友！！
+    func sendWXImageToUser() {//分享给朋友！图片！
         let _rect:CGRect = CGRect(x: 0, y: 0, width: self.frame.width-2*_imageInset, height: self.frame.width-2*_imageInset)
         
        // let _bg_img:UIImage = CoreAction._captureImage(_bgImg!)
@@ -463,7 +496,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         let _thumbImage_image = CoreAction._captureImage(_thumbImage)
         
         let message:WXMediaMessage = WXMediaMessage()
-        message.title = "哈哈，好玩，看大家都爱点哪里"
+        message.title = "都爱点哪里"
         message.description = "哈哈，好玩，看大家都爱点哪里"
         message.setThumbImage(_thumbImage_image);
         let __img:WXImageObject = WXImageObject()
@@ -485,50 +518,76 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
 //        WXApi.sendReq(req);
     }
     
-//    func sendWXContentFriend() {//分享朋友圈
-//        let _rect:CGRect = CGRect(x: 0, y: 0, width: self.frame.width-2*_imageInset, height: self.frame.width-2*_imageInset)
-//        
-//        let _bg_img:UIImage = CoreAction._captureImage(_bgImg!)
-//        let _bgV:UIImageView = UIImageView(frame: _rect)
-//        _bgV.image = _bg_img
-//        
-//        
-//        let _points_img:UIImage = CoreAction._captureImage(_pointsView!)
-//        let _pointsV:UIImageView = UIImageView(frame: _rect)
-//        _pointsV.image = _points_img
-//        
-//        let _picV:UIView = UIView(frame: _rect)
-//        _picV.addSubview(_bgV)
-//        _picV.addSubview(_pointsV)
-//        
-//        
-//        let _picImage:UIImage = CoreAction._captureImage(_picV)
-//        
-//        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
-//        _thumbImage.image = _picImage
-//        let _thumbImage_image = CoreAction._captureImage(_thumbImage)
-//        
-//        let message:WXMediaMessage = WXMediaMessage()
-//        //message.title = "我喜欢"+_ta+"，帮我找找"+_ta+"的兴趣点"
-//        //message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
-//        message.setThumbImage(_thumbImage_image);
-//        let __img:WXImageObject = WXImageObject()
-//        __img.imageData = UIImageJPEGRepresentation(_picImage,0.7)
-//        
-//        message.mediaObject = __img
-//        
-//        message.mediaTagName = "Bingo一下"
-//        let req = SendMessageToWXReq()
-//        req.scene = 1
-//        req.text = "哈哈，好玩，看大家都爱点哪里"
-//        req.bText = false
-//        req.message = message
-//        WXApi.sendReq(req);
-//    }
+    
+    func sendWXContentUser() {//分享给朋友！！
+        let _image:UIImage = _bgImg!._imgView!.image!
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
+        _thumbImage.image = _image
+        let _pic:UIImage = CoreAction._captureImage(_thumbImage)
+        
+        
+        
+        let message:WXMediaMessage = WXMediaMessage()
+        var _str:String = _dict!.objectForKey("question") as! String
+        if _str == ""{
+            _str = MainAction._defaultQuestions[random()%MainAction._defaultQuestions.count] as! String
+        }
+        message.title = "快来 BingoMe"
+        message.description = "\(_str)"
+        message.setThumbImage(_pic);
+        let ext:WXWebpageObject = WXWebpageObject();
+        ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict!.objectForKey("_id") as! String)&uid=\(MainAction._profileDict!.objectForKey("_id") as! String)"
+        message.mediaObject = ext
+        let resp = GetMessageFromWXResp()
+        resp.message = message
+        WXApi.sendResp(resp);
+    }
+    
+    func sendWXContentFriend() {//分享朋友圈
+        let _image:UIImage = _bgImg!._imgView!.image!
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
+        _thumbImage.image = _image
+        let _pic:UIImage = CoreAction._captureImage(_thumbImage)
+        
+        let message:WXMediaMessage = WXMediaMessage()
+        
+        
+        var _str:String = _dict!.objectForKey("question") as! String
+        if _str == ""{
+            _str = MainAction._defaultQuestions[random()%MainAction._defaultQuestions.count] as! String
+        }
+        
+        message.title = "快来 BingoMe"
+        message.description = "\(_str)"
+        message.setThumbImage(_pic);
+        
+        let ext:WXWebpageObject = WXWebpageObject();
+        ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict!.objectForKey("_id") as! String)&uid=\(MainAction._profileDict!.objectForKey("_id") as! String)"
+        message.mediaObject = ext
+        message.mediaTagName = "Bingo一下"
+        let req = SendMessageToWXReq()
+        req.scene = 1
+        req.text = "来，点一下"
+        req.bText = false
+        req.message = message
+        WXApi.sendReq(req);
+    }
     
     
     
+    func _setDict(__dict:NSDictionary){
+        _dict = __dict
+        _id = __dict.objectForKey("_id") as! String
+        _setInfos(CoreAction._dateDiff(__dict.objectForKey("create_at") as! String), __clickNum: __dict.objectForKey("view") as! Int, __bingoNum: __dict.objectForKey("over") as! Int)
+        _setText(__dict.objectForKey("question") as! String)
+        _setPic(MainAction._imageUrl(__dict.objectForKey("image") as! String))
+    }
     
+    func _setInfos(__time:String,__clickNum:Int,__bingoNum:Int){
+        _infoPanel?._setClick(__clickNum)
+        _infoPanel?._setBingo(__bingoNum)//-----点中次数
+        _infoPanel?._setTime(__time)
+    }
     
     func _setPic(__picUrl:String){
         _bgImg?._loadImage(__picUrl)

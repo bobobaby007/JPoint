@@ -29,6 +29,7 @@ class ViewController: UIViewController,UIAlertViewDelegate {
     let _alertPanelH:CGFloat = 50
     var _alertLabel:UILabel?
     
+    var _alertType:String = "newVersion"//    newVersion/setupProfile
     
     static var _self:ViewController?
     override func viewDidLoad() {
@@ -37,10 +38,24 @@ class ViewController: UIViewController,UIAlertViewDelegate {
         setup()
         //print(CoreAction._version())
         _showMainView()
+        
         // Do any additional setup after loading the view, typically from a nib.
        // MainAction._deleteChatHistory("bingome")
         //let _:NSTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: "timerHander", userInfo: nil, repeats: false)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "notificationHander:", name: MainAction._Notification_needToLog, object: nil)
     }
+    
+    func notificationHander(notification:NSNotification){
+        switch notification.name{
+        case MainAction._Notification_needToLog:
+            _showLogMain()
+            break
+        default:
+            break
+        }
+    }
+    
+    
     
     func timerHander(){
         MainAction._receiveOneChat(NSDictionary(objects: [MessageCell._Type_Message,"bingome","为啥给你呢好噶时光萨嘎色噶速度，水电工翁","2015-11-09T06:10:26.795Z"], forKeys: ["type","from","content","time"]))
@@ -68,25 +83,48 @@ class ViewController: UIViewController,UIAlertViewDelegate {
         _showMainView()
     }
     
-    
+    //-----判断用户信息是否完整
     func _checkUserInfo()->Bool{
         let _str:String = MainAction._checkUserOk()
-        if _str == ""{
+        if _str == ""{//----为没有需要设置的属性
             return true
         }else{
+            self._alertType = "setupProfile"
             let _alerter:UIAlertView = UIAlertView(title: "", message: _str, delegate: self, cancelButtonTitle: "再看看", otherButtonTitles: "去设置")
             _alerter.show()
             return false
         }
     }
-    
+    //-----判断版本号
+    func _checkVersion(){
+        MainAction._getVersion { (__dict) -> Void in
+//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//            self._alertType = "newVersion"
+//                let _alerter:UIAlertView = UIAlertView(title: "BingoMe 有新版本了！", message: "", delegate: self, cancelButtonTitle: "再看看", otherButtonTitles: "去更新")
+//                _alerter.show()
+//            })
+        }
+    }
+    //-----提示条
     func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
         switch buttonIndex{
         case 1:
-            let _viewC:ProfilePage = ProfilePage()
-            self.presentViewController(_viewC, animated: true, completion: { () -> Void in
-                
-            })
+            
+            switch _alertType{
+                case "setupProfile":
+                    let _viewC:ProfilePage = ProfilePage()
+                    self.presentViewController(_viewC, animated: true, completion: { () -> Void in
+                        
+                    })
+                break
+                case "newVersion":
+                    UIApplication.sharedApplication().openURL(NSURL(string: "https://appsto.re/cn/gG6d_.i")!)
+                default:
+                    
+                break
+            }
+            
+            
             break
         default:
             break
@@ -349,6 +387,8 @@ class ViewController: UIViewController,UIAlertViewDelegate {
     }
     //－－－展示登录注册页面
     func _showLogMain(){
+        
+        
         let _logMain:Log_Main = Log_Main()
         self.presentViewController(_logMain, animated: true) { () -> Void in
             

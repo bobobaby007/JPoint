@@ -167,7 +167,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         _imgView?.image=_img
         
         //_imgView?.center = CGPoint(x: self.frame.width/2, y: self.frame.height/2)
-        //self.setContentOffset(CGPoint(x: (_imgView!.frame.width-self.frame.width)/2, y: (_imgView!.frame.height-self.frame.height)/2), animated: false)
+        self.setContentOffset(CGPoint(x: (_imgView!.frame.width-self.frame.width)/2, y: (_imgView!.frame.height-self.frame.height)/2), animated: false)
         
         //print(self.frame)
         

@@ -81,6 +81,8 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
         
         _setuped=true
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_new_chat, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_new_bingo, object: nil)
+    
     }
     //--------接受到消息
     func _receivedNotification(notification: NSNotification){
@@ -140,16 +142,9 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
         
         let _dict:NSDictionary = MainAction._ChatsList!.objectAtIndex(indexPath.row) as! NSDictionary
         
-        _cell._setId(_dict.objectForKey("uid") as! String)
-        _cell._setPic(_dict.objectForKey("image") as! String)
-        _cell._setName(_dict.objectForKey("nickname") as! String)
-        _cell._setContent(_dict.objectForKey("content") as! String)
+        _cell._setDict(_dict)
         
-        if let _isNew:Bool = _dict.objectForKey("isnew") as? Bool{
-            _cell._setAlert(_isNew)
-        }else{
-            _cell._setAlert(false)
-        }
+        
         
         
         if (indexPath.row == MainAction._ChatsList!.count-1) {

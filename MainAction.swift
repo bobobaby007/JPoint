@@ -8,9 +8,11 @@
 
 import Foundation
 import UIKit
+import AssetsLibrary
 
 class MainAction {
     static var _tokenDefault:String?
+    static var _location:String?
     static var _token:String{
         get{
             if _tokenDefault != nil{
@@ -30,18 +32,24 @@ class MainAction {
             _ud.setObject(_tokenDefault!, forKey: "token")
         }
     }
-    static let _versionString:String = "1.06" //-----app版本号，注意更新，以便提醒用户更新
     
+    static let _versionString:String = "1.06" //-----本地app版本号，注意更新，以便提醒用户更新
     
     //static let _BasicDomain:String = "http://192.168.1.108:9999" //"http://192.168.1.108:9999" // "http://bingome.giccoo.com"//---
     static let _BasicDomain:String = "http://bingome.giccoo.com"
     //static let _URL_Socket:String = "http://192.168.1.108:9999"//"http://bingome.giccoo.com"  //http://192.168.1.108:9999   http://bingome.giccoo.com
     static let _URL_Socket:String = "http://bingome.giccoo.com"
     static let _Version:String = "v1" //----服务器后台版本号
+    
+    static let _URL_GetVersion = "config/version" //---获取当前在线app版本地址
     static let _URL_PostBingo:String = "bingo/send/"//---发布图片地址
+    
     static let _URL_BingoList:String = "bingo/list/"//----获取首页列表
-    static let _URL_BingoReaded:String = "bingo/read/"//---已读图
+    static let _URL_BingoInfo:String = "bingo/info/"//---Bingo详情
+    static let _URL_Welfare:String = "bingo/welfare/"//---Bingo详情
+    static let _URL_BingoReaded:String = "bingo/read/"//---已读图,标记为已读
     static let _URL_ClearReadRecord:String = "bingo/empty/"//-----清空我的阅读记录
+    
     static let _URL_MyImageList:String = "my/list/"//－－－我的图列
     static let _URL_RemoveImage:String = "my/bingoRemove/"//－－－删除我的图
     
@@ -84,8 +92,32 @@ class MainAction {
     static var _Notification_chatChanged:String = "Notification_chatChanged"//---消息列表有变化
     static var _Notification_logOk:String = "Notification_logOk"//---登录成功
     static var _Notification_getProfileOk:String = "Notification_getProfileOk"//---获取在线用户信息完成
+    static var _Notification_needToLog:String = "Notification_needToLog"//---需要登录
     
     static var _MyColor:UIColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 1)
+    
+    
+    
+    //----一般处理访问链接错误相应
+    static func _checkRespon(__dict:NSDictionary)->Bool{
+        let recode:Int = __dict.objectForKey("recode") as! Int
+        if recode == 202{
+                NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_needToLog, object: nil)
+            return false
+        }
+        return true
+    }
+    
+    //----获取版本号
+    static func _getVersion(__block:(NSDictionary)->Void){
+        CoreAction._sendToUrl("myVersion=\(_versionString)", __url: _BasicDomain+"/"+_Version+"/"+_URL_GetVersion) { (__dict) -> Void in
+            print("在线版本号：",__dict)
+            if __dict.objectForKey("recode") as! Int == 200{
+                
+            }
+            __block(__dict)
+        }
+    }
     
     //-----判断是否登录
     static func _isLogined()->Bool{
@@ -104,8 +136,6 @@ class MainAction {
                 let _user:NSDictionary = __dict.objectForKey("info") as! NSDictionary
                 _token = _user.objectForKey("token") as! String
                  _profileDict = _user
-                
-                NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_logOk, object: nil)
             }
             __block(__dict)
         }
@@ -119,7 +149,6 @@ class MainAction {
                 let _user:NSDictionary = __dict.objectForKey("info") as! NSDictionary
                 _token = _user.objectForKey("token") as! String
                 _profileDict = _user
-                NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_logOk, object: nil)
             }
             __block(__dict)
         }
@@ -130,7 +159,7 @@ class MainAction {
         _ChatsList=nil
        // CoreAction._copyDefaultFile(_Name_BingoChatsList, __toFile: _Name_BingoChatsList)
     }
-    //----判断用户是否OK，不需要设置用户信息
+    //----判断用户是否OK，需要设置用户信息
     static func _checkUserOk()->String{
         var _str:String = ""
         if let nickname = _profileDict?.objectForKey("nickname") as? String{
@@ -166,7 +195,7 @@ class MainAction {
                 let _info:NSDictionary = __dict.objectForKey("info") as! NSDictionary
                 //_userInfo = NSMutableDictionary(dictionary: _info)
                 _token = _info.objectForKey("token") as! String
-                MainAction._checkDeviceToKen()
+               
                 __block(__dict)
             }else{
                 if recode>0{
@@ -187,7 +216,7 @@ class MainAction {
                 let _info:NSDictionary = __dict.objectForKey("info") as! NSDictionary
                // _userInfo = NSMutableDictionary(dictionary: _info)
                 _token = _info.objectForKey("token") as! String
-                MainAction._checkDeviceToKen()
+               
                 __block(__dict)
             }else{
                 if recode>0{
@@ -244,13 +273,7 @@ class MainAction {
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_BingoList
         let postString : String = "token=" + _token
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
-            print("0000000")
-            
             let recode:Int = __dict.objectForKey("recode") as! Int
-            
-            print("0000000000===",recode)
-            
-            
             if recode == 200{
                 _BingoList = __dict.objectForKey("info") as! NSArray
             }else{
@@ -269,6 +292,19 @@ class MainAction {
             __block(__dict)
         }
     }
+     //----bingo详情
+    
+    static func _getBingoInfo(__bingoId:String,__block:(NSDictionary)->Void){
+        let url = _BasicDomain + "/" + _Version + "/" +  _URL_BingoInfo + __bingoId
+        
+        let postString : String = "token=" + _token
+        CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            __block(__dict)
+        }
+    }
+
+    
+    
     //----清空我的阅读记录＝＝＝＝＝＝＝＝＝＝＝＝＝正式上线需去掉调用
     static func _clearMyReadRecord(){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_ClearReadRecord
@@ -311,6 +347,7 @@ class MainAction {
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_CheckNewMessage
         let postString : String = "token=" + _token
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            //_checkRespon(__dict)
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                  MainAction._recievedNewMessages(__dict)
@@ -328,10 +365,10 @@ class MainAction {
             let _message:NSDictionary = _messages.objectAtIndex(_messages.count-i-1) as! NSDictionary
             let _from:NSDictionary = _message.objectForKey("author") as! NSDictionary
             
-            if let ___dict:NSDictionary = NSDictionary(objects: [_from.objectForKey("_id")!,MessageCell._Type_Message,_message.objectForKey("message")!,_message.objectForKey("create_at")!], forKeys: ["uid","type","content","time"]){
+            if let ___dict:NSDictionary = NSDictionary(objects: [_from.objectForKey("_id")!,_message.objectForKey("type") as! String,_message.objectForKey("message")!,_message.objectForKey("create_at")!], forKeys: ["uid","type","content","time"]){
                 //_saveOneChat(___dict)
                // print("收到消息：",__dict)
-                _addToBingoList(_from.objectForKey("_id") as! String, __type: MessageCell._Type_Message, __content: _message.objectForKey("message") as! String, __nickname:MainAction._nickName(_from), __avatar: MainAction._avatar(_from),__isNew: true)
+                _addToBingoList(_from.objectForKey("_id") as! String, __type: _message.objectForKey("type") as! String, __content: _message.objectForKey("message") as! String, __nickname:MainAction._nickName(_from), __avatar: MainAction._avatar(_from),__isNew: true)
                 
                 NSNotificationCenter.defaultCenter().postNotificationName(_Notification_new_chat, object: nil, userInfo:___dict as [NSObject : AnyObject])
             }
@@ -343,6 +380,9 @@ class MainAction {
         let postString : String = "token=" + _token
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
             //print(__dict.objectForKey("reason"))
+            
+            _checkRespon(__dict)
+            
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 //_MyImageList = __dict.objectForKey("info") as! NSArray
@@ -356,13 +396,14 @@ class MainAction {
     
     
     
-    //-----获取图列详情
+    //-----删除我的图
     static func _removeImage(__picId:String, __block:(NSDictionary)->Void){
         //__block(NSDictionary())
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_RemoveImage
         let postString : String = "token=" + _token + "&bingo=" + __picId
         // print(postString)
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
+            _checkRespon(__dict)
             __block(__dict)
         }
     }
@@ -396,10 +437,18 @@ class MainAction {
             __block(__dict)
         }
     }
+    //---提交图片福利
+    static func _uploadWelfareOfPic(__image:UIImage,__bingoId:String,__block:(NSDictionary)->Void){
+        let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_Welfare
+        CoreAction._sendToUrl("token=\(_token)&bingo=\(__bingoId)&type=image&welfare=\(CoreAction._imageToString(__image))", __url: _url) { (__dict) -> Void in
+            print("提交图片福利:",__dict)
+            __block(__dict)
+        }
+    }
     //---举报
     static func _report(__to:String,__bingoId:String,__description:String,__block:(NSDictionary)->Void){
         var postString : String = "token=" + _token
-        postString = postString.stringByAppendingFormat("&bingo=%@&to=%@&description=%@",__to,__bingoId,__description)
+        postString = postString.stringByAppendingFormat("&to=%@&bingo=%@&description=%@",__to,__bingoId,__description)
         let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_Report
         CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
             //print(__dict)
@@ -463,6 +512,7 @@ class MainAction {
         //postString = postString.stringByAppendingFormat("&id=%@&x=%d&y=%d&right=%@",__picId,__x,__y,__right)
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
             //print(__dict.objectForKey("reason"))
+            
             __block(__dict)
         }
         
@@ -485,6 +535,9 @@ class MainAction {
     
     //------添加到bingo列表------
     static func _addToBingoList(__uid:String,__type:String,__content:String,__nickname:String,__avatar:String,__isNew:Bool){
+        
+        
+        
         let _dict:NSDictionary = NSDictionary(objects: [__uid,__type,__content,__nickname,__avatar,__isNew], forKeys: ["uid","type","content","nickname","image","isnew"])
         
         _getBingoChats { (array) -> Void in
@@ -520,22 +573,18 @@ class MainAction {
     //-----收到一条bingo消息
     static func _receiveBingo(__dict:NSDictionary){
         print("＝＝＝收到一条bingo：",__dict)
+        //return
         let _fromUser:NSDictionary = __dict.objectForKey("from") as! NSDictionary
         
-        let _bingo:NSDictionary = __dict.objectForKey("bingo") as! NSDictionary
+       // let _bingo:NSDictionary = __dict.objectForKey("bingo") as! NSDictionary
         
-        let _content:String = MainAction._imageUrl(_bingo.objectForKey("image") as! String)+"||"+(_bingo.objectForKey("question") as! String)+"||"+(_bingo.objectForKey("_id") as! String)
+       // let _content:String = _bingo.objectForKey("message") as! String
         
         let _avatar:String = MainAction._avatar(_fromUser)
         let _nickName:String = MainAction._nickName(_fromUser)
-        if let ___dict:NSDictionary = NSDictionary(objects: [_fromUser.objectForKey("_id")!,MessageCell._Type_Bingo,_content,__dict.objectForKey("date")!], forKeys: ["uid","type","content","time"]){
-            
-            
-            
+        if let ___dict:NSDictionary = NSDictionary(objects: [_fromUser.objectForKey("_id")!,MessageCell._Type_Bingo,"[bingo]",__dict.objectForKey("date")!], forKeys: ["uid","type","content","time"]){
             //_saveOneChat(___dict)
-            
            // return
-            
             _addToBingoList(_fromUser.objectForKey("_id") as! String, __type: MessageCell._Type_Bingo, __content:"[bingo]", __nickname: _nickName, __avatar: _avatar,__isNew: true)
             
             NSNotificationCenter.defaultCenter().postNotificationName(_Notification_new_bingo, object: nil, userInfo:___dict as [NSObject : AnyObject])
@@ -656,11 +705,17 @@ class MainAction {
         let postString : String = "token=" + _token
         let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_MyProfile
         CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
+            if !_checkRespon(__dict){
+                return
+            }
             if __dict.objectForKey("recode") as! Int == 200{
                 _profileDict = __dict.objectForKey("info") as? NSDictionary
                 CoreAction._saveDictToFile(_profileDict!, __fileName: "Profile")
                 //print("_profileDict:",_profileDict)
                 NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_getProfileOk, object: nil)
+                
+                
+                _checkDeviceToKen()
             }
             __block(__dict)
         }
@@ -685,12 +740,13 @@ class MainAction {
         //}
     }
     
-    //------提交用于推送的 设备 token
+    //------提交用于推送的 设备 token 在 AppDelegate.swift 里侦听注册成功后发送
     static func _changeDeviceToken(__tokenString:String){
         var postString : String = "token="+_token
         postString = postString.stringByAppendingFormat("&device=ios&iOSPushToken=%@",__tokenString)
         let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_ChangeMyProfile
         CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
+            _checkRespon(__dict)
            print("修改推送token完成：",__dict)
         }
     }
@@ -762,6 +818,9 @@ class MainAction {
         }
 
     }
+    
+    
+    static let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道","找亮点","点一下，看看跟我的兴趣点一致不","点点图片，bingo me!","猜我的兴趣点在哪里","点图片就对了","我想看看你点哪里","喜欢哪里点哪里，跟我一样有奖励","你的兴趣点在哪里","大家来点点","点一下，没准就bingo上了呢","点一下图片，然后随缘了，哈"]
 }
 
 

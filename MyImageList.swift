@@ -39,7 +39,10 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     var _currentIndex:NSIndexPath?
     
     weak var _delegate:MyImageList_delegate?
+    
+    static var _self:MyImageList?
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         setup()
         
@@ -48,6 +51,9 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         if _setuped{
             return
         }
+        
+        MyImageList._self = self
+        
         self.automaticallyAdjustsScrollViewInsets = false
         _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         
@@ -161,9 +167,12 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         //print(__dict)
         let _cell:ImageListItem = _tableView?.dequeueReusableCellWithIdentifier("ImageListItem") as! ImageListItem
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: _cellHeight))
-        _cell._id = __dict.objectForKey("_id") as! String
-        _cell._setInfos(CoreAction._dateDiff(__dict.objectForKey("create_at") as! String), __clickNum: __dict.objectForKey("view") as! Int, __bingoNum: __dict.objectForKey("over") as! Int)
-        _cell._setText(__dict.objectForKey("question") as! String)
+        _cell._indexPath = indexPath
+        _cell._setDict(__dict)
+        
+        
+        
+        
         _cell._parentDelegate = self
         if indexPath .isEqual(_selectedIndex){
             _cell._changeToHeight(self.view.frame.height)
@@ -172,7 +181,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             _cell._changeToHeight(_cellHeight)
             _cell._close()
         }
-        _cell._setPic(MainAction._imageUrl(__dict.objectForKey("image") as! String))
+        
         
         return _cell
     }

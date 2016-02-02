@@ -10,8 +10,7 @@ import Foundation
 import UIKit
 
 protocol InfoPanel_delegate:NSObjectProtocol{
-    func _share_this()
-    func _report_this(__des:String)
+    func _moreAction()
 }
 
 class InfoPanel:UIView {
@@ -22,13 +21,13 @@ class InfoPanel:UIView {
     var _clickL:UILabel?
     var _likeL:UILabel?
     weak var _delegate:InfoPanel_delegate?
-    var _btn_share:UIButton?
+    
     
     var _likeNum:Int?
     var _clickNum:Int?
     let _IconW:CGFloat = 14
     
-    var _btn_report:UIButton?
+    var _btn_moreAction:UIButton?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -51,21 +50,13 @@ class InfoPanel:UIView {
         _likeL?.textColor = UIColor.whiteColor()
         
         
-        _btn_share = UIButton(frame: CGRect(x: frame.width-80, y: -10, width: 80, height: _IconW+20))
-        _btn_share?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
-        _btn_share?.titleLabel?.font = UIFont.systemFontOfSize(14)
-        _btn_share?.setTitle("求助", forState: UIControlState.Normal)
-        _btn_share?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
         
-        ///---------
-        _btn_share?.hidden = true
-        
-        _btn_report = UIButton(frame: CGRect(x: frame.width-40, y: 0, width: 40, height: _IconW))
-        _btn_report?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
-        _btn_report?.titleLabel?.font = UIFont.systemFontOfSize(14)
-        _btn_report?.setTitle("举报", forState: UIControlState.Normal)
-        _btn_report?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
+        _btn_moreAction = UIButton(frame: CGRect(x: frame.width-40, y: -15, width: 40, height: 40))
+        _btn_moreAction?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        _btn_moreAction?.titleLabel?.font = UIFont.systemFontOfSize(10)
+        _btn_moreAction?.setTitle("●●●", forState: UIControlState.Normal)
+        _btn_moreAction?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
         //------
         
@@ -76,56 +67,22 @@ class InfoPanel:UIView {
         addSubview(_clickL!)
         addSubview(_icon_like!)
         addSubview(_likeL!)
-        addSubview(_btn_share!)
-        addSubview(_btn_report!)
+        addSubview(_btn_moreAction!)
         
-    }
-    
-    //作为我自己的图列里的样式
-    func _setToMyInfo(){
-        _btn_report?.hidden = true
-        _btn_share?.hidden = false
-        _btn_share?.setTitle("发给朋友", forState: UIControlState.Normal)
     }
     
     
     func btnHander(sender:UIButton){
         
         switch sender{
-        case _btn_share!:
-            _delegate?._share_this()
-            break
-        case _btn_report!:
-            _showAction()
-            
+        case _btn_moreAction!:
+            print("_btn_moreAction")
+            _delegate?._moreAction()
             break
         default:
             break
         }
     }
-    
-    func _showAction(){
-        //let rateMenu = UIAlertController(title: "新建相册", message: "选择一种新建方式", preferredStyle: UIAlertControllerStyle.ActionSheet)
-        let menu=UIAlertController()
-        let action1 = UIAlertAction(title: "举报", style: UIAlertActionStyle.Default, handler: _actionHander)
-        let action2 = UIAlertAction(title: "取消", style: UIAlertActionStyle.Cancel, handler: nil)
-        menu.addAction(action1)
-        menu.addAction(action2)
-        
-        ViewController._self?.presentViewController(menu, animated: true, completion: nil)
-        //self.presentViewController(menu, animated: true, completion: nil)
-    }
-    func _actionHander(_action:UIAlertAction){
-        switch _action.title!{
-        case "举报":
-            _delegate?._report_this("举报")
-            break
-        default:
-            break
-        }
-        
-    }
-    
     func _setTime(__timer:String){
         _timeL?.text=__timer
     }

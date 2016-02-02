@@ -16,7 +16,7 @@ protocol InfoForImage_delegate:NSObjectProtocol{
 class InfoForImage:UIView,UITextViewDelegate{
     var _userImg:PicView?
     var _imageH:CGFloat = 60
-    
+    var _btn_userImg:UIButton?
     weak var _delegate:InfoForImage_delegate?
     var _dialogBoxView:UIView?
     var _boxV:UIView?
@@ -50,6 +50,12 @@ class InfoForImage:UIView,UITextViewDelegate{
         _userImg?._imgView?.layer.borderWidth = 2
         
         
+        _btn_userImg = UIButton(frame: CGRect(x: 0, y: -10, width: _imageH, height: _imageH))
+        _btn_userImg?.clipsToBounds = true
+        _btn_userImg?.layer.cornerRadius = _imageH/2
+        _btn_userImg?.layer.borderColor = UIColor.whiteColor().CGColor
+        _btn_userImg?.layer.borderWidth = 2
+        _btn_userImg?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
         
 //        _nameLabel = UILabel(frame: CGRect(x: _imageH+12, y: 0, width: frame.width-_imageH-12, height: 20))
@@ -99,7 +105,7 @@ class InfoForImage:UIView,UITextViewDelegate{
         _dialogBoxView?.addSubview(_arrowV!)
         _dialogBoxView?.addSubview(_boxV!)
         
-       addSubview(_userImg!)
+       addSubview(_btn_userImg!)
         addSubview(_dialogBoxView!)
         //addSubview(_nameLabel!)
      
@@ -113,7 +119,15 @@ class InfoForImage:UIView,UITextViewDelegate{
         _sayText?.resignFirstResponder()
     }
     
-    
+    func btnHander(sender:UIButton){
+        switch sender{
+        case _btn_userImg!:
+            ViewController._self?._showLeft()
+            break
+        default:
+            break
+        }
+    }
     
     //----文字输入代理
     
@@ -145,7 +159,7 @@ class InfoForImage:UIView,UITextViewDelegate{
     
     func _setPic(__pic:String){
         _userImg?._setPic(NSDictionary(objects: [__pic,"file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
-            
+            self._btn_userImg?.setImage(self._userImg?._imgView?.image, forState: UIControlState.Normal)
         })
     }
 //    func _setName(__set:String){

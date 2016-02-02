@@ -4,7 +4,7 @@
 <array>
 	<dict>
 		<key>type</key>
-		<string>text</string>
+		<string>message</string>
 		<key>image</key>
 		<string>Bingome-logo</string>
 		<key>uid</key>
@@ -12,7 +12,7 @@
 		<key>nickname</key>
 		<string>BingoMe</string>
 		<key>content</key>
-		<string>hi,欢迎加入BingoMe</string>
+		<string>Hi,一起 BingoMe</string>
 	</dict>
 </array>
 </plist>

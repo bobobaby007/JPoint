@@ -18,7 +18,7 @@ protocol Log_Main_delegate:NSObjectProtocol{
 class Log_Main: UIViewController {
     
     var _inited:Bool = false
-    
+    var _hided:Bool = false
     var _navigateController:UINavigationController?
     
     var _log_home:Log_home?
@@ -57,8 +57,8 @@ class Log_Main: UIViewController {
         if _delegate != nil{
             _delegate?._logHided()
         }
-        self.dismissViewControllerAnimated(false) { () -> Void in
-            
+        self.dismissViewControllerAnimated(true) { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(MainAction._Notification_logOk, object: nil)
         }
     }
 }

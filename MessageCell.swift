@@ -21,9 +21,9 @@ class MessageCell: UITableViewCell {
     var _timeLabel:UILabel?
     var _type:String?
     var _frame:CGRect?
-    var _matchImg:PicView?
-    var _matchLabel:UILabel?
-    var _matchBackG:UIView?
+    
+    var _bingoItem:BingoItem?
+    
     var _message_textView:UITextView?
     
     var _bingoId:String? //-----用于查看bingo详情，未赋值
@@ -33,144 +33,18 @@ class MessageCell: UITableViewCell {
     static let _messageTextPadding:CGFloat = 6
     
     func initWidthFrame(__frame:CGRect,__type:String){
-        
-        
-        clear()
-        
+        _frame = __frame
+        _type = __type
         if inited{
             
-            
         }else{
-            _frame = __frame
-            
-            _type = __type
             
             self.backgroundColor = UIColor.clearColor()
             self.clipsToBounds = false
             //self.selectedBackgroundView = UIView()
             self.selectionStyle = UITableViewCellSelectionStyle.None
-
-            
-            switch _type!{
-            case MessageCell._Type_Bingo:
-                _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
-                _profileImg?.layer.cornerRadius = 30
-                _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-                _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-                _profileImg?.layer.borderWidth = 2
-                addSubview(_profileImg!)
-                _setPic("profile")
-                _matchBackG = UIView(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
-                _matchBackG?.backgroundColor = UIColor(white: 1, alpha: 0.8)
-                _matchBackG?.layer.cornerRadius = 15
-                addSubview(_matchBackG!)
-                
-                let _uv:UIImageView = UIImageView(image: UIImage(named: "icon_bing_at_message.png"))
-                _uv.frame = CGRect(x: 0, y: 0, width: 200, height: 70)
-                _uv.contentMode = UIViewContentMode.ScaleAspectFit
-                
-                _matchBackG?.addSubview(_uv)
-                
-                _matchImg = PicView(frame:CGRect(x: 10, y: 80, width: 100, height: 100))
-                _matchImg?.layer.cornerRadius = 12
-                _matchImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-                _matchBackG?.addSubview(_matchImg!)
-                
-                _matchLabel = UILabel(frame: CGRect(x: 120, y: 80, width: 60, height: 100))
-                _matchLabel?.numberOfLines = 0
-                _matchLabel?.font = UIFont.systemFontOfSize(12)
-                
-                _matchLabel?.lineBreakMode = NSLineBreakMode.ByCharWrapping
-                _matchLabel?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
-                _matchLabel?.textAlignment = NSTextAlignment.Left
-                _matchBackG?.addSubview(_matchLabel!)
-                
-                break
-            case MessageCell._Type_Bingo_By_Me:
-//                _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
-//                _profileImg?.layer.cornerRadius = 30
-//                _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-//                _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-//                _profileImg?.layer.borderWidth = 2
-                //addSubview(_profileImg!)
-                //_setPic("profile")
-                _matchBackG = UIView(frame: CGRect(x: self.frame.width-190-75, y: 0, width: 190, height: 190))
-                _matchBackG?.backgroundColor = UIColor(white: 1, alpha: 0.8)
-                _matchBackG?.layer.cornerRadius = 15
-                addSubview(_matchBackG!)
-                
-                let _uv:UIImageView = UIImageView(image: UIImage(named: "icon_bing_at_message.png"))
-                _uv.frame = CGRect(x: 0, y: 0, width: 200, height: 70)
-                _uv.contentMode = UIViewContentMode.ScaleAspectFit
-                
-                _matchBackG?.addSubview(_uv)
-                
-                _matchImg = PicView(frame:CGRect(x: 10, y: 80, width: 100, height: 100))
-                _matchImg?.layer.cornerRadius = 12
-                _matchImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-                _matchBackG?.addSubview(_matchImg!)
-                
-                _matchLabel = UILabel(frame: CGRect(x: 120, y: 80, width: 60, height: 100))
-                _matchLabel?.numberOfLines = 0
-                _matchLabel?.font = UIFont.systemFontOfSize(12)
-                
-                _matchLabel?.lineBreakMode = NSLineBreakMode.ByCharWrapping
-                _matchLabel?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
-                _matchLabel?.textAlignment = NSTextAlignment.Left
-                _matchBackG?.addSubview(_matchLabel!)
-                
-                break
-            case MessageCell._Type_Message:
-                _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
-                _profileImg?.layer.cornerRadius = 30
-                _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-                _profileImg?.layer.borderWidth = 1
-                _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-                addSubview(_profileImg!)
-                _setPic("profile")
-                _message_textView = UITextView(frame: CGRect(x: 80, y: 0, width:MessageCell._messageTextMaxWidth, height: 50))
-                _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
-                _message_textView?.textColor = UIColor.whiteColor()
-                _message_textView?.textAlignment = NSTextAlignment.Left
-                _message_textView?.layer.cornerRadius = 15
-                _message_textView?.clipsToBounds = true
-                _message_textView?.editable = false
-                _message_textView?.scrollEnabled = false
-                _message_textView?.backgroundColor = UIColor.clearColor()
-                _message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
-                _message_textView?.layer.borderWidth = 1
-                _message_textView?.font = UIFont.systemFontOfSize(MessageCell._messageTextFontSize)
-                addSubview(_message_textView!)
-                
-                break
-            case MessageCell._Type_Message_By_Me:
-                _message_textView = UITextView(frame: CGRect(x:_frame!.width-280, y: 0, width: MessageCell._messageTextMaxWidth, height: 50))
-                _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
-                _message_textView?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
-                _message_textView?.textAlignment = NSTextAlignment.Left
-                _message_textView?.layer.cornerRadius = 15
-                _message_textView?.backgroundColor = UIColor(white: 1, alpha: 0.8)
-                _message_textView?.clipsToBounds = true
-                _message_textView?.font = UIFont.systemFontOfSize(MessageCell._messageTextFontSize)
-                _message_textView?.editable = false
-                _message_textView?.scrollEnabled = false
-                addSubview(_message_textView!)
-                break
-            case MessageCell._Type_Time:
-                _timeLabel = UILabel(frame: CGRect(x: 0, y: 0, width: _frame!.width, height: 25))
-                _timeLabel?.font = UIFont.systemFontOfSize(12)
-                _timeLabel?.textColor = UIColor(white: 1, alpha: 0.5)
-                _timeLabel?.textAlignment = NSTextAlignment.Center
-                addSubview(_timeLabel!)
-                break
-            default:
-                break
-            }
-            
-          //  inited = true
+            inited = true
         }
-        
-        
     }
     override func removeFromSuperview() {
         clear()
@@ -182,44 +56,93 @@ class MessageCell: UITableViewCell {
         if _timeLabel != nil{
             _timeLabel?.removeFromSuperview()
         }
-        if _matchImg != nil{
-            _matchImg?.removeFromSuperview()
-        }
-        if _matchLabel != nil{
-            _matchLabel?.removeFromSuperview()
-        }
-        if _matchBackG != nil{
-            _matchBackG?.removeFromSuperview()
+        if _bingoItem != nil{
+            _bingoItem?.removeFromSuperview()
         }
         if _message_textView != nil{
             _message_textView?.removeFromSuperview()
         }
         _profileImg = nil
         _timeLabel = nil
-        _type = nil
-        _frame = nil
-        _matchImg = nil
-        _matchLabel = nil
-        _matchBackG = nil
+        //_type = nil
+        //_frame = nil
         _message_textView = nil
+    }
+    
+    func reset(){
+        clear()
+        switch _type!{
+        case MessageCell._Type_Bingo:
+            _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
+            _profileImg?.layer.cornerRadius = 30
+            _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
+            _profileImg?.layer.borderWidth = 2
+            addSubview(_profileImg!)
+            break
+            
+        case MessageCell._Type_Bingo_By_Me:
+            
+            break
+        case MessageCell._Type_Message:
+            _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
+            _profileImg?.layer.cornerRadius = 30
+            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
+            _profileImg?.layer.borderWidth = 1
+            _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+            addSubview(_profileImg!)
+            _setPic("profile")
+            _message_textView = UITextView(frame: CGRect(x: 80, y: 0, width:MessageCell._messageTextMaxWidth, height: 50))
+            _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
+            _message_textView?.textColor = UIColor.whiteColor()
+            _message_textView?.textAlignment = NSTextAlignment.Left
+            _message_textView?.layer.cornerRadius = 15
+            _message_textView?.clipsToBounds = true
+            _message_textView?.editable = false
+            _message_textView?.scrollEnabled = false
+            _message_textView?.backgroundColor = UIColor.clearColor()
+            _message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
+            _message_textView?.layer.borderWidth = 1
+            _message_textView?.font = UIFont.systemFontOfSize(MessageCell._messageTextFontSize)
+            addSubview(_message_textView!)
+            break
+        case MessageCell._Type_Message_By_Me:
+            _message_textView = UITextView(frame: CGRect(x:_frame!.width-280, y: 0, width: MessageCell._messageTextMaxWidth, height: 50))
+            _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
+            _message_textView?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
+            _message_textView?.textAlignment = NSTextAlignment.Left
+            _message_textView?.layer.cornerRadius = 15
+            _message_textView?.backgroundColor = UIColor(white: 1, alpha: 0.8)
+            _message_textView?.clipsToBounds = true
+            _message_textView?.font = UIFont.systemFontOfSize(MessageCell._messageTextFontSize)
+            _message_textView?.editable = false
+            _message_textView?.scrollEnabled = false
+            addSubview(_message_textView!)
+            break
+        case MessageCell._Type_Time:
+            _timeLabel = UILabel(frame: CGRect(x: 0, y: 0, width: _frame!.width, height: 25))
+            _timeLabel?.font = UIFont.systemFontOfSize(12)
+            _timeLabel?.textColor = UIColor(white: 1, alpha: 0.5)
+            _timeLabel?.textAlignment = NSTextAlignment.Center
+            addSubview(_timeLabel!)
+            break
+        default:
+            break
+        }
     }
     
     func _setContent(__str:String){
         switch _type!{
         case MessageCell._Type_Bingo:
-            //let fullNameArr = split(__str.characters){$0 == " "}.map(String.init)
-            //-----图片||内容||bingoId
+                self._bingoItem = BingoItem(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
+                self.addSubview(self._bingoItem!)
+                _bingoItem?._setContent(__str)
+            break
             
-            let _array:Array = __str.componentsSeparatedByString("||")
-            _matchImg?._setPic(NSDictionary(objects: [_array[0],"file"], forKeys: ["url","type"]), __block: { (__dict) -> Void in
-                
-            })
-            _matchLabel?.text = _array[1]
-            _matchLabel?.sizeToFit()
-            _matchImg?._refreshView()
-            
-            
-            
+        case MessageCell._Type_Bingo_By_Me:
+            self._bingoItem = BingoItem(frame: CGRect(x: _frame!.width-190-5, y: 0, width: 190, height: 190))
+            self.addSubview(self._bingoItem!)
+            _bingoItem?._setContent(__str)
             break
         case MessageCell._Type_Message:
             _message_textView?.text = __str
@@ -228,8 +151,6 @@ class MessageCell: UITableViewCell {
             if _message_textView?.frame.height < 60{
                 _message_textView?.frame.origin.y =  (60 - _message_textView!.frame.height)/2
             }
-            
-            
             break
         case MessageCell._Type_Message_By_Me:
             _message_textView?.text = __str
@@ -244,6 +165,13 @@ class MessageCell: UITableViewCell {
             break
         }
     }
+    
+    func _setDict(__dict:NSDictionary){
+        reset()
+        _setContent(__dict.objectForKey("content") as! String)
+    }
+    
+    
     func _setPic(__picUrl:String){
         _profileImg?._setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             
@@ -270,6 +198,10 @@ class MessageCell: UITableViewCell {
         
     }
     
+    
+    
+    
+    
     func _animationOfMessageByMe(){
         _message_textView?.frame.origin = CGPoint(x: _frame!.width-5, y: _message_textView!.frame.height)
         _message_textView?.transform = CGAffineTransformMakeScale(0, 0)
@@ -291,6 +223,10 @@ class MessageCell: UITableViewCell {
                 }
         }
     }
+    
+    
+    
+    
     func _animationOfMessage(){
         _message_textView?.frame.origin = CGPoint(x: -80, y: _message_textView!.frame.origin.y)
         _message_textView?.sizeToFit()
@@ -316,7 +252,6 @@ class MessageCell: UITableViewCell {
                 
         }
     }
-    
     static func _getHighByStr(__str:String)->CGFloat{
         //CGSize size = [myLabel sizeThatFits:CGSizeMake(myLabel.frame.size.width, CGFLOAT_MAX)];
         //let _font:UIFont = UIFont.systemFontOfSize(12)

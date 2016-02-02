@@ -230,6 +230,7 @@ class Log_signin: UIViewController{
         MainAction._signup(_txt_mobile!.text!,__code: _txt_smscode!.text!, __pass: _txt_password!.text!) { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
                Log_Main._self?._hide()
+               
             }else{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")

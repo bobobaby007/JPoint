@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_delegate,EditingView_delegate,InfoPanel_delegate{
+class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_delegate,EditingView_delegate,InfoPanel_delegate,MyAlerter_delegate{
     let _gap:CGFloat = 10
     var _bgView:UIImageView?
     var _setuped:Bool = false
@@ -48,7 +48,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _currentIndex:Int = 0
     
    
-    
+    var _alerter:MyAlerter?
     var _infoPanel:InfoPanel?
     var _infoH:CGFloat = 25
     
@@ -70,7 +70,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     var _currentStatus:String = "mainView"// editingPage // showingBtns
     
-    let _defaultQuestions:NSArray = ["猜猜我喜欢哪里","你喜欢哪里呢？","我们会有共同点吗？\n点点图片你就知道","找亮点","点一下，看看跟我的兴趣点一致不","点点图片，bingo me!","猜我的兴趣点在哪里","点图片就对了","我想看看你点哪里","喜欢哪里点哪里，跟我一样有奖励","你的兴趣点在哪里","大家来点点","点一下，没准就bingo上了呢","点一下图片，然后随缘了，哈"]
+    
     
     var _shouldReceivePan:Bool = true //----判断是否可以滑动
     
@@ -180,6 +180,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "_receivedNotification:", name: MainAction._Notification_logOk, object: nil)
         
+        
+        
     }
     
     
@@ -245,10 +247,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     })
                     return
                 }
-                if (__dict.objectForKey("recode") as? Int) == 202{
+                if (__dict.objectForKey("recode") as? Int) == 202{//----未登录
                     dispatch_async(dispatch_get_main_queue(), {
-                        
-                        ViewController._self?._showLogMain()
                         
 //                        MainAction._loginQuick({ (__dict) -> Void in
 //                            self._checkProfile()
@@ -268,6 +268,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     }
                     
                 })
+                
                 
             }
         }
@@ -312,14 +313,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func _refresh(){
         self._removeLoading()
         
-        if _currentPicItem != nil{
-            _currentPicItem?.removeFromSuperview()
-            _currentPicItem = nil
-        }
-        if _nextPicItem != nil{
-            _nextPicItem?.removeFromSuperview()
-            _nextPicItem = nil
-        }
+        
         
         if self._allImages.count <= 0{
             //ViewController._self!._showAlert("没有新图，过一段时间再来看看",__wait: 0.5)
@@ -335,9 +329,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._isFirstLoaded=false
             self._next()
         }else{
-            //self._currentIndex = -1
-            //self._next()
-            self._showIndex(_currentIndex)
+            self._currentIndex = -1
+            self._next()
+            //self._showIndex(_currentIndex)
+            
         }
         switch _currentStatus{
         case "mainView":
@@ -496,11 +491,54 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
         }
     }
+    //----弹出福利选择
+    func _moreAction(){
+        if _alerter == nil{
+            _alerter = MyAlerter()
+            _alerter?._delegate = self
+        }
+        
+        
+        ViewController._self!.addChildViewController(_alerter!)
+        ViewController._self!.view.addSubview(_alerter!.view)
+        
+        _alerter?._setMenus(["举报","分享给微信朋友","分享到微信朋友圈"])
+        
+        _alerter?._show()
+    }
+    //----弹出选择按钮代理
+    func _myAlerterClickAtMenuId(__id: Int) {
+        switch __id{
+        case 0:
+            _report_this("举报")
+            break
+        case 1:
+            sendWXContentUser()
+            break
+        case 2://
+            sendWXContentFriend()
+            break
+        default:
+            break
+        }
+    }
+    
+    
+    func _myAlerterStartToClose(){
+        
+    }
+    func _myAlerterDidClose(){
+        
+    }
+    func _myAlerterDidShow(){
+        
+    }
     
     //----信息工具条代理
     //---举报
     func _report_this(__des:String){
         let _dict:NSDictionary = _currentPicItem!._dict!
+        print("举报内容：",_dict)
         let _author:NSDictionary = _dict.objectForKey("author") as! NSDictionary
         MainAction._report(_author.objectForKey("_id") as! String, __bingoId: _dict.objectForKey("_id") as! String, __description: __des) { (__dict) -> Void in
             let recode:Int = __dict.objectForKey("recode") as! Int
@@ -516,47 +554,38 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             }
         }
     }
-    //---分享求助
-    func _share_this() {
-        sendWXContentUser()
-    }
     func sendWXContentUser() {//分享给朋友！！
+        let _dict:NSDictionary = _currentPicItem!._dict!
         let _image:UIImage = CoreAction._captureImage(_currentPicItem!._imageV!)
-        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
         _thumbImage.image = _image
         let _pic:UIImage = CoreAction._captureImage(_thumbImage)
-        var _ta:String = "她"
-        if _sex == 1 {
-            _ta = "他"
-        }
+        let _ta:String = _nickname
         let message:WXMediaMessage = WXMediaMessage()
-        message.title = "我喜欢"+_ta+"，帮我找找"+_ta+"的兴趣点"
+        message.title = "帮我找找"+_ta+"的兴趣点"
         message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
         message.setThumbImage(_pic);
         let ext:WXWebpageObject = WXWebpageObject();
-        ext.webpageUrl = "http://4view.cn"
+        ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict.objectForKey("_id") as! String)&uid=\(_uid)"
         message.mediaObject = ext
         let resp = GetMessageFromWXResp()
         resp.message = message
         WXApi.sendResp(resp);
     }
-    
     func sendWXContentFriend() {//分享朋友圈
+        let _dict:NSDictionary = _currentPicItem!._dict!
         let _image:UIImage = CoreAction._captureImage(_currentPicItem!._imageV!)
-        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        let _thumbImage:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
         _thumbImage.image = _image
         let _pic:UIImage = CoreAction._captureImage(_thumbImage)
-        var _ta:String = "她"
-        if _sex == 1 {
-            _ta = "他"
-        }
+        let _ta:String = _nickname
         let message:WXMediaMessage = WXMediaMessage()
-        message.title = "我喜欢"+_ta+"，帮我找找"+_ta+"的兴趣点"
+        message.title = "一起找找"+_ta+"的兴趣点"
         message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
         message.setThumbImage(_pic);
         
         let ext:WXWebpageObject = WXWebpageObject();
-        ext.webpageUrl = "http://4view.cn"
+        ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict.objectForKey("_id"))&uid=\(_uid)"
         message.mediaObject = ext
         message.mediaTagName = "Bingo一下"
         let req = SendMessageToWXReq()
@@ -582,7 +611,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //----把刚发布的一条图片添加到最前面
     func _addMyImage(__dict:NSDictionary){
         let _array:NSMutableArray = NSMutableArray(array: _allImages)
-        _array.insertObject(__dict, atIndex: _currentIndex)
+        let _dict:NSMutableDictionary = NSMutableDictionary(dictionary: __dict)
+        _dict.setObject(MainAction._profileDict!, forKey: "author")
+        
+        _array.insertObject(_dict, atIndex: _currentIndex)
         //print("原来：－－－－－－",_allImages.objectAtIndex(_currentIndex))
         _allImages = _array
         //print("后来：－－－－－－",_allImages.objectAtIndex(_currentIndex))
@@ -654,6 +686,17 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
 
         })
     }
+    
+    func _bingoByMySelf(){
+        _waitingForNext = true
+        ViewController._self?._showAlertThen("自己不用点自己哈", __wait: 1, __then: { () -> Void in
+            if self._waitingForNext == true{
+                self._next()
+            }
+            
+        })
+    }
+
     //=--------bingo成功
     func _bingo(__x:Int,__y:Int){
         MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right:"yes") { (__dict) -> Void in
@@ -910,7 +953,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     func _getQuestionByString(__str:String)->String{
         if __str == ""||__str == "问题"{
             //let _n:Int = _defaultQuestions.count
-            let _str:String =  _defaultQuestions[random()%_defaultQuestions.count] as! String
+            let _str:String =  MainAction._defaultQuestions[random()%MainAction._defaultQuestions.count] as! String
             return    _str
         }
         return __str

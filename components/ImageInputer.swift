@@ -19,8 +19,13 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
     static var _ImageType_photo:String = "photo"
     static var _ImageType_camera:String = "camera"
     
+    static var _ShowingType_fullSize:String = "fullSize"
+    static var _ShowingType_cut:String = "cut"
+    
     var _imageW:CGFloat = 50
     var _imageType:String = ""
+    
+    var _showingType:String = ""
     
     var  _btnW:CGFloat = 50
     
@@ -134,6 +139,34 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
     func _hideBtns(){
         _btn_camera?.hidden = true
         _btn_photo?.hidden = true
+    }
+    
+    func _setType(__type:String){
+        _showingType = __type
+        switch _showingType{
+        case ImageInputer._ShowingType_cut:
+            _bgImageV?.frame = CGRect(x: 0, y: 0, width: _imageW, height: _imageW)
+            _bgImageV?.backgroundColor = UIColor(white: 0, alpha: 0.3)
+            _bgImageV?._scaleType = PicView._ScaleType_Full
+            
+            _bgImageV?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2)
+            
+            _bordV?.layer.borderWidth = 1
+            break
+        case ImageInputer._ShowingType_fullSize:
+            _bgImageV?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
+            
+            _bgImageV?.backgroundColor = UIColor(white: 0, alpha: 0.3)
+            
+            _bgImageV?._scaleType = PicView._ScaleType_Fit
+            
+            
+            _bordV?.layer.borderWidth = 0
+            break
+        default:
+            break
+            
+        }
     }
     func _openCamera(){
         _imageType = ImageInputer._ImageType_camera
@@ -264,6 +297,10 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         _imagePicker?.dismissViewControllerAnimated(true, completion:nil)
         _delegate?._imageInputer_canceled()
     }
+    func _originalImage()->UIImage{
+        return _bgImageV!._imgView!.image!
+    }
+    
     func _captureBgImage()->UIImage{
         //let _scale:CGFloat = 2*UIScreen.mainScreen().scale
         
