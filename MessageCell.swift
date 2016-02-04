@@ -14,6 +14,7 @@ class MessageCell: UITableViewCell {
     var inited:Bool = false
     var _profileImg:PicView?
     static let _Type_Bingo:String = "bingo"
+    static let _Type_Welfare:String = "welfare"
     static let _Type_Bingo_By_Me = "_Type_Bingo_By_Me"
     static let _Type_Message:String = "message"
     static let _Type_Message_By_Me:String = "me"
@@ -23,6 +24,7 @@ class MessageCell: UITableViewCell {
     var _frame:CGRect?
     
     var _bingoItem:BingoItem?
+    var _welfareItem:WelfareItem?
     
     var _message_textView:UITextView?
     
@@ -59,6 +61,9 @@ class MessageCell: UITableViewCell {
         if _bingoItem != nil{
             _bingoItem?.removeFromSuperview()
         }
+        if _welfareItem != nil{
+            _welfareItem?.removeFromSuperview()
+        }
         if _message_textView != nil{
             _message_textView?.removeFromSuperview()
         }
@@ -88,7 +93,7 @@ class MessageCell: UITableViewCell {
             _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
             _profileImg?.layer.cornerRadius = 30
             _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-            _profileImg?.layer.borderWidth = 1
+            _profileImg?.layer.borderWidth = 2
             _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
             addSubview(_profileImg!)
             _setPic("profile")
@@ -130,22 +135,46 @@ class MessageCell: UITableViewCell {
             break
         }
     }
-    
-    func _setContent(__str:String){
+    func _setSex(__set:Int){
+        if _profileImg == nil{
+            return
+        }
+        switch __set{
+        case 0:
+            _profileImg?.layer.borderColor = Config._color_sex_female.CGColor
+            _message_textView?.layer.borderColor = Config._color_sex_female.CGColor
+            break
+        case 1:
+            _profileImg?.layer.borderColor = Config._color_sex_male.CGColor
+            _message_textView?.layer.borderColor = Config._color_sex_male.CGColor
+            break
+            
+        default:
+            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
+            _message_textView?.layer.borderColor = UIColor.whiteColor().CGColor
+            break
+        }
+    }
+    func _setContent(__dict:NSDictionary){
         switch _type!{
         case MessageCell._Type_Bingo:
                 self._bingoItem = BingoItem(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
                 self.addSubview(self._bingoItem!)
-                _bingoItem?._setContent(__str)
+                _bingoItem?._setContent(__dict.objectForKey("message") as! String)
+            break
+        case MessageCell._Type_Welfare:
+                self._welfareItem = WelfareItem(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
+                self.addSubview(self._welfareItem!)
+                _welfareItem?._setContent(__dict.objectForKey("message") as! String)
             break
             
         case MessageCell._Type_Bingo_By_Me:
             self._bingoItem = BingoItem(frame: CGRect(x: _frame!.width-190-5, y: 0, width: 190, height: 190))
             self.addSubview(self._bingoItem!)
-            _bingoItem?._setContent(__str)
+            _bingoItem?._setContent(__dict.objectForKey("message") as! String)
             break
         case MessageCell._Type_Message:
-            _message_textView?.text = __str
+            _message_textView?.text = __dict.objectForKey("message") as! String
             //_message_textView?.sizeThatFits(CGSize(width: 100, height: CGFloat.max))
             _message_textView?.sizeToFit()
             if _message_textView?.frame.height < 60{
@@ -153,22 +182,30 @@ class MessageCell: UITableViewCell {
             }
             break
         case MessageCell._Type_Message_By_Me:
-            _message_textView?.text = __str
+            _message_textView?.text = __dict.objectForKey("message") as! String
             _message_textView?.sizeToFit()
             _message_textView?.frame.origin = CGPoint(x: _frame!.width-_message_textView!.frame.width-5, y: 0)
             //_message_textView?.sizeThatFits(CGSize(width: 100, height: CGFloat.max))
             break
         case MessageCell._Type_Time:
-            _timeLabel?.text = CoreAction._dateDiff(__str)
+            _timeLabel?.text = CoreAction._dateDiff(__dict.objectForKey("time") as! String)
             break
         default:
             break
         }
+        
+        if let _from:NSDictionary = __dict.objectForKey("author") as? NSDictionary{
+            _setSex(MainAction._sex(_from))
+        }
     }
     
     func _setDict(__dict:NSDictionary){
+        
+        print("我的消息：",__dict)
         reset()
-        _setContent(__dict.objectForKey("content") as! String)
+        
+        _setContent(__dict.objectForKey("content") as! NSDictionary)
+        
     }
     
     

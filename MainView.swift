@@ -312,8 +312,19 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     //---刷新显示
     func _refresh(){
         self._removeLoading()
-        
-        
+        switch _currentStatus{
+        case "mainView":
+            _showMainPage()
+            
+        case "editingPage":
+            _showEdtingPage()
+            break
+        case "showingBtns":
+            _showBtns()
+        default:
+            break
+        }
+
         
         if self._allImages.count <= 0{
             //ViewController._self!._showAlert("没有新图，过一段时间再来看看",__wait: 0.5)
@@ -330,21 +341,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._next()
         }else{
             self._currentIndex = -1
-            self._next()
-            //self._showIndex(_currentIndex)
             
+            //self._showIndex(_currentIndex)
+            self._next()
         }
-        switch _currentStatus{
-        case "mainView":
-            _showMainPage()
-        case "editingPage":
-            _showEdtingPage()
-            break
-        case "showingBtns":
-            _showMainPage()
-        default:
-            break
-        }
+        
     }
     //-----处理一下获取到的数据,跟之前的去重
     func _dealWidthArray(__array:NSArray)->NSArray{
@@ -501,7 +502,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         ViewController._self!.addChildViewController(_alerter!)
         ViewController._self!.view.addSubview(_alerter!.view)
-        
+        ViewController._self!._shouldPan = false
         _alerter?._setMenus(["举报","分享给微信朋友","分享到微信朋友圈"])
         
         _alerter?._show()
@@ -522,16 +523,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             break
         }
     }
-    
-    
-    func _myAlerterStartToClose(){
-        
-    }
     func _myAlerterDidClose(){
-        
-    }
-    func _myAlerterDidShow(){
-        
+        ViewController._self!._shouldPan = true
+        _alerter = nil
     }
     
     //----信息工具条代理
@@ -674,17 +668,21 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     
     func _bingoFailed(__x:Int,__y:Int){
-        MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right: "no") { (__dict) ->
-        Void in
-            
-        }
-        _waitingForNext = true
-        ViewController._self?._showAlertThen("(>_<) 很遗憾！你没能猜中！", __wait: 1, __then: { () -> Void in
-            if self._waitingForNext == true{
-                self._next()
+        if __x>=0{
+            MainAction._sentBingo(_currentPicItem!._dict!.objectForKey("_id") as! String, __x: __x, __y: __y,__right: "no") { (__dict) ->
+                Void in
+                
             }
-
-        })
+            _waitingForNext = true
+            ViewController._self?._showAlertThen("(>_<) 很遗憾！你没能猜中！", __wait: 1, __then: { () -> Void in
+                if self._waitingForNext == true{
+                    self._next()
+                }
+                
+            })
+        }else{//------答案没加载成功就点击了
+             ViewController._self?._showAlert("Bingo 失败!", __wait: 1)
+        }
     }
     
     func _bingoByMySelf(){
@@ -768,7 +766,6 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             if self._nextPicItem != nil{
                 self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._CentralY)
             }
-            
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: -self._btnW)
             self._btn_list?.center = CGPoint(x: 50, y: -self._btnW)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: -self._btnW)
@@ -776,10 +773,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             //self._thirdPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY-self._bottomOut)
         }) { (finished) -> Void in
-            
-                self.didMoveStop()
-            
-            
+            self.didMoveStop()
         }
     }
     //---向上移动完成
@@ -853,6 +847,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //print("展示：",_currentIndex,(self._allImages[_currentIndex] as! NSDictionary).objectForKey("question"))
         //----- _currentPicItem 实际是在下方准备要上来的item
         
+        
         if _currentPicItem != nil{
             
             _currentPicItem?._ready()
@@ -870,28 +865,32 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _infoPanel?._setBingo(_dict.objectForKey("over") as! Int)//--点中次数
             self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH)
             self._profilePanel?.alpha = 0
-            
+            print("列表单个详情：",_dict)
             if let _author:NSDictionary = _dict.objectForKey("author") as? NSDictionary{//----来自别人
                 _uid = _author.objectForKey("_id") as! String
-                if _dict.objectForKey("sex") as? Int == 1{
-                    _sex = 1
-                }else{
-                    _sex = 0
-                }
+                
+                _sex = MainAction._sex(_author)
+                
                 _avator = MainAction._avatar(_author)
                 _nickname = MainAction._nickName(_author)
+                
             }else{//---来自自己
                 _avator =  MainAction._avatar(MainAction._profileDict!)
                 _nickname =  MainAction._nickName(MainAction._profileDict!)
+                _sex = MainAction._sex(MainAction._profileDict!)
             }
             _profilePanel?._setPic(_avator)
             _profilePanel?._setName(_nickname)
             _profilePanel?._setSay(_getQuestionByString(_dict.objectForKey("question") as! String))
-            self._profilePanel?.alpha = 0
+            _profilePanel?._setSex(_sex)
             
+            //self._profilePanel?.alpha = 0
             
+            self._isMoving = true
             
-            UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            //工具条部分动画
+            
+            UIView.animateWithDuration(0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:self._currentPicItem!.center.y + self._picItemW/2 + self._gap + self._infoH/2)
                 self._infoPanel?.alpha = 1
                 self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
@@ -901,7 +900,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     
             }
         }
-        self._isMoving = true
+        
+        //----图片部分动画
+        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._CentralY)
             self._nextPicItem?.center = CGPoint(x: self.view.frame.width/2, y: self._bottomY-self._bottomOut)
@@ -1017,7 +1018,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             UIView.beginAnimations("go", context: nil)
             
             _infoPanel?.center = CGPoint(x: _center_infoPanel.x,y:_center_infoPanel.y+_offset.y*0.9)
-            self._profilePanel?.center = CGPoint(x: _center_profilePanel.x, y: _center_profilePanel.y+_offset.y*0.8)
+            _profilePanel?.center = CGPoint(x: _center_profilePanel.x, y: _center_profilePanel.y+_offset.y*0.8)
             
             if _currentPicItem != nil{
                 _currentPicItem?.center = CGPoint(x: _currentPicItem!.center.x, y: _center_currentPicItem.y+_offset.y)
@@ -1032,6 +1033,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._editingViewC?.view.frame = CGRect(x: 0, y: _editingViewCY+_offset.y*0.6, width: self.view.frame.width, height: self.view.frame.height)
             
             UIView.commitAnimations()
+            
             return
         case UIGestureRecognizerState.Ended:
             if _offset.y < -120{ //向上拉
@@ -1098,6 +1100,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _btnsIn = false
         self._editingViewC?._reset()
         
+        _isMoving = true
+        
         UIView.animateWithDuration(0.4, animations: { () -> Void in
              self._infoPanel?.center = CGPoint(x: self.view.frame.width/2,y:self._CentralY + self._picItemW/2 + self._gap + self._infoH/2)
             self._profilePanel?.center = CGPoint(x: self.self.view.frame.width/2, y: self._CentralY-self._picItemW/2-self._profielH)
@@ -1122,7 +1126,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }) { (complete) -> Void in
             //self._removeEditePage()
            // self.view.addGestureRecognizer(self._panGesture!)
-            
+            self._isMoving = false
             self._shouldReceivePan = true
         }
     }
@@ -1136,6 +1140,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         let _btnToY:CGFloat = _btnY
         let _toY:CGFloat = _CentralY+1.5*_btnW
         _btnsIn=true
+        
+        _isMoving = true
+
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
@@ -1164,7 +1171,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                 self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY)
             
             }) { (array) -> Void in
-                
+                self._isMoving = true
+   
             }
         }
     }
@@ -1218,12 +1226,17 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self._editingViewC?._btn_closeH = _btnToY
         self._editingViewC?._show()
 
+        _isMoving = true
+        
         UIView.animateWithDuration(1, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_love?.center = CGPoint(x: self.view.frame.width-50, y: _btnToY)
             self._btn_list?.center = CGPoint(x: 50, y: _btnToY)
             self._btn_plus?.center = CGPoint(x: self.view.frame.width/2, y: _btnToY)
             self._editingViewC?.view.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             }) { (array) -> Void in
+                
+                self._isMoving = false
+
         }
         
         

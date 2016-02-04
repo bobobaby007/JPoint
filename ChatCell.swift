@@ -74,17 +74,25 @@ class ChatCell: UITableViewCell {
     func _setDict(_dict:NSDictionary){
         let _type:String = _dict.objectForKey("type") as! String
         
-        var _content:String = _dict.objectForKey("content") as! String
-        _bingoIcon?.hidden = true
         
+        _bingoIcon?.hidden = true
+        var _content:String = ""
         
         switch _type{
+        
+        case MessageCell._Type_Message:
+            _content = _dict.objectForKey("content") as! String
+            break
+        case MessageCell._Type_Message_By_Me:
+            _content = _dict.objectForKey("content") as! String
+            break
         case MessageCell._Type_Bingo:
-            _content = ""
             _bingoIcon?.hidden = false
             break
         case MessageCell._Type_Bingo_By_Me:
-            _content = ""
+            _bingoIcon?.hidden = false
+            break
+        case MessageCell._Type_Welfare:
             _bingoIcon?.hidden = false
             break
         default:

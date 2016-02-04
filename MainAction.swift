@@ -60,6 +60,7 @@ class MainAction {
     static let _URL_Signup:String = "sign/up/" //----注册地址
     static let _URL_Login:String = "sign/in/"//登录地址
     static let _URL_Sms:String = "sign/sms/"//获取验证码
+    static let _URL_changePassword:String = "sign/changePassword/"//修改密码
     static let _URL_CheckNewMessage:String = "message/unread/"//获取未读消息
     static let _URL_ChatHistory:String = "message/log/"//聊天记录
     static let _URL_BingoHistoryOfFriend:String = "message/bingo/"//好友对我的bingo记录
@@ -96,7 +97,7 @@ class MainAction {
     
     static var _MyColor:UIColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 1)
     
-    
+    static var _locationPoint:CGPoint = CGPoint(x:40.0425210400253, y:116.407341003954) //--默认地理位置  loc = lng,lat
     
     //----一般处理访问链接错误相应
     static func _checkRespon(__dict:NSDictionary)->Bool{
@@ -153,6 +154,15 @@ class MainAction {
             __block(__dict)
         }
     }
+    
+    //-----修改密码
+    static func _changePassword(__mob:String,__code:String, __pass:String,__block:(NSDictionary)->Void){
+        CoreAction._sendToUrl("type=default&mobile=\(__mob)&password=\(__pass)&code=\(__code)", __url: _BasicDomain+"/"+_Version+"/"+_URL_changePassword) { (__dict) -> Void in
+            print("修改密码:",__dict)
+            __block(__dict)
+        }
+    }
+    
     //----退出登录
     static func _logOut(){
         _token = ""
@@ -179,9 +189,10 @@ class MainAction {
         return _str
     }
     //-----获取验证码
-    static func _getSms(__mob:String){
-        CoreAction._sendToUrl("mobile=\(__mob)", __url: _BasicDomain+"/"+_Version+"/"+_URL_Sms ) { (__dict) -> Void in
+    static func _getSms(__mob:String,__type:String,__block:(NSDictionary)->Void){
+        CoreAction._sendToUrl("mobile=\(__mob)&type=\(__type)", __url: _BasicDomain+"/"+_Version+"/"+_URL_Sms ) { (__dict) -> Void in
             print("获取验证码：",__dict)
+            __block(__dict)
         }
     }
     
@@ -271,7 +282,7 @@ class MainAction {
     //-----获取首页列表
     static func _getBingoList(__block:(NSDictionary)->Void){
         let url = _BasicDomain + "/" + _Version + "/" +  _URL_BingoList
-        let postString : String = "token=" + _token
+        let postString : String = "token=" + _token + "&loc=\(MainAction._locationPoint.x),\(MainAction._locationPoint.y)"
         CoreAction._sendToUrl(postString, __url: url) { (__dict) -> Void in
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
@@ -279,6 +290,7 @@ class MainAction {
             }else{
              
             }
+            print("首页列表:",__dict)
             __block(__dict)
         }
     }
@@ -429,8 +441,7 @@ class MainAction {
     }
     //---提交新的图片
     static func _postNewBingo(__image:UIImage,__question:String,__answer:UIImage,__type:String,__block:(NSDictionary)->Void){
-        var postString : String = "token=" + _token
-        postString = postString.stringByAppendingFormat("&image=%@&question=%@&answer=%@&type=%@&lng=%d&lat=%d",CoreAction._imageToString(__image),__question,CoreAction._imageToString_PNG(__answer),__type,7,7)
+        let postString : String = "token=" + _token + "&image=\(CoreAction._imageToString(__image))&question=\(__question)&answer=\(CoreAction._imageToString_PNG(__answer))&type=\(__type)&lng=\(MainAction._locationPoint.x)&lat=\(MainAction._locationPoint.y)"
         let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_PostBingo
         CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
             //print(__dict)
@@ -515,7 +526,6 @@ class MainAction {
             
             __block(__dict)
         }
-        
     }
     //------bingo列表某用户设置成已读
     static func _readedAtFriend(__uid:String){
@@ -533,10 +543,8 @@ class MainAction {
         NSNotificationCenter.defaultCenter().postNotificationName(_Notification_chatChanged, object: nil, userInfo:nil)
     }
     
-    //------添加到bingo列表------
+    //------添加到bingo联系人列表------
     static func _addToBingoList(__uid:String,__type:String,__content:String,__nickname:String,__avatar:String,__isNew:Bool){
-        
-        
         
         let _dict:NSDictionary = NSDictionary(objects: [__uid,__type,__content,__nickname,__avatar,__isNew], forKeys: ["uid","type","content","nickname","image","isnew"])
         
@@ -594,15 +602,15 @@ class MainAction {
     //-----发送一条聊天记录
     static func _sentOneChat(__dict:NSDictionary){
         print(__dict)
+        
+        let _content:NSDictionary = __dict.objectForKey("content") as! NSDictionary
+        
         if _socket != nil{
-            _socket!.emit("message",NSDictionary(objects: [__dict.objectForKey("uid")!,MessageCell._Type_Message,__dict.objectForKey("content")!], forKeys: ["to","type","content"]))
+            _socket!.emit("message",NSDictionary(objects: [__dict.objectForKey("uid")!,MessageCell._Type_Message,_content.objectForKey("message")!], forKeys: ["to","type","content"]))
            // print(_socket)
         }
         //_saveOneChat(NSDictionary(objects: [__dict.objectForKey("uid")!,__dict.objectForKey("type")!,__dict.objectForKey("content")!,CoreAction._timeStrOfCurrent()], forKeys: ["uid","type","content","time"]))
     }
-    
-    
-    
     //－－－－保存一条记录到本地---作废
     static func _saveOneChat(__dict:NSDictionary){
         //---字典格式 ： ["uid","type","content","time"]
@@ -809,6 +817,15 @@ class MainAction {
         }
         return _url
     }
+    //-----通过用户字典返回性别
+    static func _sex(__dict:NSDictionary)->Int {
+            if let _sex = __dict.objectForKey("sex") as? Int{
+                return _sex
+            }else{
+               return -1
+            }
+    }
+
     //-----通过用户字典返回昵称
     static func _nickName(__dict:NSDictionary)->String{
         if let __nickName = __dict.objectForKey("nickname") as? String{

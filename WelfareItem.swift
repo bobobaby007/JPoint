@@ -9,19 +9,15 @@
 import Foundation
 import UIKit
 
-class BingoItem: UIView {
+class WelfareItem: UIView {
     
     var _matchImg:PicView?
     var _matchLabel:UILabel?
     var _matchBackG:UIView?
     var _message_textView:UITextView?
     
-    var _bingoId:String? //-----用于查看bingo详情，未赋值
-    var _uv:UIImageView?
-    
     var _tapG:UITapGestureRecognizer?
     var _isOpen:Bool = false
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -30,16 +26,11 @@ class BingoItem: UIView {
         _matchBackG?.layer.cornerRadius = 15
         addSubview(_matchBackG!)
         
-        _uv = UIImageView(image: UIImage(named: "icon_bing_at_message.png"))
-        _uv?.backgroundColor = UIColor.clearColor()
-        _uv?.frame = CGRect(x: 0, y: 0, width: 200, height: 70)
-        _uv?.contentMode = UIViewContentMode.ScaleAspectFit
         
-        _matchBackG?.addSubview(_uv!)
-        
-        _matchImg = PicView(frame:CGRect(x: 10, y: 80, width: 100, height: 100))
+        _matchImg = PicView(frame: CGRect(x: 0, y: 0, width: frame.width, height: frame.height))
         _matchImg?.layer.cornerRadius = 12
         _matchImg?._scaleType = PicView._ScaleType_Full
+        
         _matchImg?.backgroundColor = UIColor(white: 0, alpha: 1)
         _matchBackG?.addSubview(_matchImg!)
         
@@ -55,8 +46,6 @@ class BingoItem: UIView {
         _matchLabel?.textAlignment = NSTextAlignment.Left
         _matchBackG?.addSubview(_matchLabel!)
     }
-    
-    
     func tapHander(sender:UITapGestureRecognizer){
         if _isOpen{
             _closeImage()
@@ -66,9 +55,8 @@ class BingoItem: UIView {
         
     }
     func _openImage(){
-        
-        _matchImg?._scaleType = PicView._ScaleType_Fit
         UIApplication.sharedApplication().statusBarHidden = true
+        _matchImg?._scaleType = PicView._ScaleType_Fit
         _matchImg?._move(_matchBackG!, __fromRect: _matchImg!.frame, __toView: MessageWindow._self!.view, __toRect: MessageWindow._self!.view.frame, __then: { () -> Void in
             self._matchImg?.layer.cornerRadius = 0
             self._matchImg!.scrollEnabled = true
@@ -76,42 +64,41 @@ class BingoItem: UIView {
         })
     }
     func _closeImage(){
-        
-        _matchImg?._scaleType = PicView._ScaleType_Full
         UIApplication.sharedApplication().statusBarHidden = false
-        _matchImg?._back(MessageWindow._self!.view, __toView: _matchBackG!, __toRect: CGRect(x: 10, y: 80, width: 100, height: 100), __then: { () -> Void in
+        _matchImg?._scaleType = PicView._ScaleType_Full
+        _matchImg?._back(MessageWindow._self!.view, __toView: _matchBackG!, __toRect: CGRect(x: 0, y: 0, width: frame.width, height: frame.height), __then: { () -> Void in
             self._matchImg?.layer.cornerRadius = 12
             self._matchImg!.scrollEnabled = false
             self._isOpen = false
         })
     }
-    //-----是bingo情况下下载bingo
-    func _getBingo(__bingoId:String){
-        MainAction._getBingoInfo(__bingoId) { (__dict) -> Void in
-                        
-            let recode:Int = __dict.objectForKey("recode") as! Int
-            if recode == 200{
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    let _dict:NSDictionary = __dict.objectForKey("info") as! NSDictionary
-                    let _bingo:NSDictionary = _dict.objectForKey("bingo") as! NSDictionary
-                    self._setDict(_bingo)
-                })
-            }else{
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-
-                    self._setToBroken(__dict.objectForKey("reason") as! String)
-                })
-            }
-        }
-    }
     func _setContent(__str:String){
-        let index = __str.startIndex.advancedBy(7) //swift 2.0+
-        let index2 = __str.endIndex.advancedBy(-1) //swift 2.0+
-        let range = Range<String.Index>(start: index,end: index2)
-        if let _str:String = __str.substringWithRange(range){
-            _getBingo(_str)
-        }
         
+        let _arr:[String] = __str.componentsSeparatedByString(",")
+        let _str_1:String = _arr[0]
+        let _str_2:String = _arr[1]
+        
+        
+        
+        let index = _str_1.startIndex.advancedBy(9) //swift 2.0+
+        let index2 = _str_1.endIndex.advancedBy(0)
+        
+        let range_type = Range<String.Index>(start: index,end: index2)
+        
+        
+        let _type:String = _str_1.substringWithRange(range_type)
+        
+        if _type == "image"{
+            let index3 = _str_2.startIndex.advancedBy(0) //swift 2.0+
+            let index4 = _str_2.endIndex.advancedBy(-1)
+            
+            let range_url = Range<String.Index>(start: index3,end: index4)
+            let _url:String = _str_2.substringWithRange(range_url)
+            
+            print("福利图地址：",_url)
+            self._matchImg?._loadImage(MainAction._imageUrl(_url))
+        }
+
     }
     //-----设置成加载有问题样式
     func _setToBroken(__str:String){

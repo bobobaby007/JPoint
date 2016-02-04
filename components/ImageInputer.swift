@@ -51,7 +51,7 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
     
     weak var _delegate:ImageInputerDelegate?
     
-    
+    var _buttonBg:UIView?
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -111,19 +111,26 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         _bordV?.layer.borderColor = UIColor.whiteColor().CGColor
         _bordV?.layer.borderWidth = 1
         
-        _btn_save = UIButton(frame: CGRect(x: self.view.frame.width - 100 - 10, y: self.view.frame.height - 50, width: 100, height: 40))
+        _btn_save = UIButton(frame: CGRect(x: self.view.frame.width - 100 - 10, y: 0, width: 100, height: 50))
         _btn_save?.titleLabel?.textAlignment = NSTextAlignment.Right
         _btn_save?.setTitle("确认", forState: UIControlState.Normal)
         _btn_save?.hidden = true
         
         _btn_save?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
-        _btn_cancel = UIButton(frame: CGRect(x: 10, y: self.view.frame.height - 50, width: 100, height: 40))
+        _btn_cancel = UIButton(frame: CGRect(x: 10, y: 0, width: 100, height: 50))
         _btn_cancel?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         _btn_cancel?.setTitle("取消", forState: UIControlState.Normal)
         _btn_cancel?.titleLabel?.textAlignment = NSTextAlignment.Left
         
+        
+        _buttonBg = UIView(frame: CGRect(x: 0, y: self.view.frame.height - 50, width: self.view.frame.width, height: 50))
+        _buttonBg?.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        
+        _buttonBg?.addSubview(_btn_save!)
+        _buttonBg?.addSubview(_btn_cancel!)
+        
         self.view.addSubview(_bg!)
-        self.view.addSubview(_btn_cancel!)
+        self.view.addSubview(_buttonBg!)
         self.view.addSubview(_btn_camera!)
         self.view.addSubview(_btn_photo!)
         
@@ -213,7 +220,7 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
         case _btn_cancel!:
             if _imageIned{
                 self.view.addSubview(_bg!)
-                self.view.addSubview(_btn_cancel!)
+                self.view.addSubview(_buttonBg!)
                 self.view.addSubview(_btn_camera!)
                 self.view.addSubview(_btn_photo!)
                 
@@ -270,26 +277,19 @@ class ImageInputer:UIViewController,UIImagePickerControllerDelegate,UINavigation
             
             self.view.addSubview(_bg!)
             
-            self.view.addSubview(_btn_cancel!)
+            
             self.view.addSubview(_bgImageV!)
             self.view.addSubview(_bordV!)
-            self.view.addSubview(_btn_save!)
+            self.view.addSubview(_buttonBg!)
             
         }else{
             _imagePicker!.view.addSubview(_bg!)
-            _imagePicker!.view.addSubview(_btn_cancel!)
             _imagePicker!.view.addSubview(_bgImageV!)
             _imagePicker!.view.addSubview(_bordV!)
-            _imagePicker!.view.addSubview(_btn_save!)
-            
+            _imagePicker!.view.addSubview(_buttonBg!)
             _imageIned = true
         }
-        
         _btn_save?.hidden = false
-        
-     
-       
-        
         _hideBtns()        
     }
     

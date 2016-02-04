@@ -29,6 +29,8 @@ class InfoPanel:UIView {
     
     var _btn_moreAction:UIButton?
     
+    var _label_distance:UILabel?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         _icon_time = UIImageView(image: UIImage(named: "time_icon.png"))

@@ -207,15 +207,19 @@ class Log_signin: UIViewController{
         _currentSecond += 1
         _btn_getSmscode?.setTitle(String(60-_currentSecond)+"s", forState: UIControlState.Normal)
         if _currentSecond>=60{
-//            _btn_getSmscode?.titleLabel?.font = _font_cell_title_normal
-            _btn_getSmscode?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
-            _btn_getSmscode?.setTitle("获取验证码", forState: UIControlState.Normal)
-            _btn_getSmscode?.enabled = true
-            _btn_getSmscode?.layer.borderColor = UIColor.whiteColor().CGColor
-            _currentSecond = 0
-            _timer?.invalidate()
-            _timer = nil
+            _stopTimer()
         }
+    }
+    func _stopTimer(){
+        //            _btn_getSmscode?.titleLabel?.font = _font_cell_title_normal
+        _btn_getSmscode?.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        _btn_getSmscode?.setTitle("获取验证码", forState: UIControlState.Normal)
+        _btn_getSmscode?.enabled = true
+        _btn_getSmscode?.layer.borderColor = UIColor.whiteColor().CGColor
+        _currentSecond = 0
+        _timer?.invalidate()
+        _timer = nil
+
     }
     func _checkPhone()->Bool{
         let _str:String = _txt_mobile!.text!
@@ -233,6 +237,7 @@ class Log_signin: UIViewController{
                
             }else{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    
                     let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
                     _alerter.show()
 
@@ -251,7 +256,19 @@ class Log_signin: UIViewController{
             _timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "timerHander:", userInfo: nil, repeats: true)
             _timer?.fire()
         }
-        MainAction._getSms(_txt_mobile!.text!)
+        
+        MainAction._getSms(_txt_mobile!.text!,__type: "") { (__dict) -> Void in
+            if __dict.objectForKey("recode") as! Int == 200{
+                
+            }else{
+                self._stopTimer()
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
+                    _alerter.show()
+                    
+                })
+            }
+        }
     }
     
     func _refreshView(){

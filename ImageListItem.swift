@@ -431,9 +431,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         
         print("信息条代理")
         
-       MyImageList._self!.addChildViewController(_alerter!)
-       MyImageList._self!.view!.addSubview(_alerter!.view)
-        
+       ViewController._self!.addChildViewController(_alerter!)
+       ViewController._self!.view!.addSubview(_alerter!.view)
+       ViewController._self!._shouldPan = false
         _alerter?._setMenus(["分享图片给朋友","发给朋友来玩","分享到微信朋友圈","删除图片"])
         
         _alerter?._show()
@@ -457,16 +457,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             break
         }
     }
-    
-    
-    func _myAlerterStartToClose(){
-        
-    }
     func _myAlerterDidClose(){
-        
-    }
-    func _myAlerterDidShow(){
-        
+        ViewController._self!._shouldPan = true
+        _alerter = nil
     }
     //---微信分享
     func sendWXImageToUser() {//分享给朋友！图片！
@@ -578,12 +571,12 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
     func _setDict(__dict:NSDictionary){
         _dict = __dict
         _id = __dict.objectForKey("_id") as! String
-        _setInfos(CoreAction._dateDiff(__dict.objectForKey("create_at") as! String), __clickNum: __dict.objectForKey("view") as! Int, __bingoNum: __dict.objectForKey("over") as! Int)
+        _setInfos(CoreAction._dateDiff(__dict.objectForKey("create_at") as! String), __clickNum: __dict.objectForKey("like") as! Int, __bingoNum: __dict.objectForKey("over") as! Int)
         _setText(__dict.objectForKey("question") as! String)
         _setPic(MainAction._imageUrl(__dict.objectForKey("image") as! String))
     }
     
-    func _setInfos(__time:String,__clickNum:Int,__bingoNum:Int){
+    func _setInfos(__time:String,__clickNum:Int,__bingoNum:Int){//view 查看次数，click 点击次数，over点中次数
         _infoPanel?._setClick(__clickNum)
         _infoPanel?._setBingo(__bingoNum)//-----点中次数
         _infoPanel?._setTime(__time)

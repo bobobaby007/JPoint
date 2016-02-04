@@ -25,6 +25,7 @@ class PicItem: UIView {
     var _clickSign:ClickSign?
     let _cornerRadius:CGFloat = 10
     var _dict:NSDictionary?
+    var _answerinded:Bool = false//----答案是否加载进来
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -63,6 +64,13 @@ class PicItem: UIView {
     }
     
     func tapHander(__sender:UITapGestureRecognizer){
+        if _answerinded{
+            
+        }else{
+            _delegate?._bingoFailed(-10,__y: -10)
+            return
+        }
+        
         let _location:CGPoint = __sender.locationInView(_imageV)
         if _location.y > _imageV?.frame.height{
             return
@@ -158,10 +166,14 @@ class PicItem: UIView {
         
     }
     func _setAnswer(__set:String){
+        _answerinded =  false
         _answerV?._setPic(NSDictionary(objects: [__set,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             if dict.objectForKey("info") as! String == "failed"{
                 print("答案图加载失败")
+            }else{
+                self._answerinded = true
             }
+            
         })
     }
     required init?(coder aDecoder: NSCoder) {

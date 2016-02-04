@@ -16,6 +16,10 @@ class Config:AnyObject {
     static let _statusBarH:CGFloat = 20
     
     
+    
+    static let _color_sex_female:UIColor = UIColor(red: 254/255, green: 187/255, blue: 255/255, alpha: 1)
+    static let _color_sex_male:UIColor = UIColor(red: 135/255, green: 219/255, blue: 255/255, alpha: 1)
+    
     static let _color_bg_gray:UIColor = UIColor(red: 242/255, green: 242/255, blue: 242/255, alpha: 1)//----背景灰色
     
     ///

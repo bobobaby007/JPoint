@@ -12,9 +12,7 @@ import UIKit
 
 protocol MyAlerter_delegate:NSObjectProtocol{
     func _myAlerterClickAtMenuId(__id:Int)
-    func _myAlerterStartToClose()
     func _myAlerterDidClose()
-    func _myAlerterDidShow()
 }
 
 class MyAlerter: UIViewController {
@@ -135,11 +133,9 @@ class MyAlerter: UIViewController {
             
             }) { (stop) -> Void in
                 self._bg!.addGestureRecognizer(self._tap!)
-                self._delegate?._myAlerterDidShow()
         }
     }
     func _close(){
-        _delegate?._myAlerterStartToClose()
         _isOpened = false
         self._bg!.removeGestureRecognizer(self._tap!)
         

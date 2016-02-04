@@ -222,9 +222,13 @@ class Log_resetPassw: UIViewController{
     
     //----注册
     func _go(){
-        MainAction._signup(_txt_mobile!.text!,__code: _txt_smscode!.text!, __pass: _txt_password!.text!) { (__dict) -> Void in
+        MainAction._changePassword(_txt_mobile!.text!,__code: _txt_smscode!.text!, __pass: _txt_password!.text!) { (__dict) -> Void in
             if __dict.objectForKey("recode") as! Int == 200{
-                Log_Main._self?._hide()
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self.navigationController?.popViewControllerAnimated(true)
+                    let _alerter:UIAlertView = UIAlertView(title: "", message: "修改密码成功，请重新登录", delegate: nil, cancelButtonTitle: "确定")
+                    _alerter.show()
+                })
             }else{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
@@ -245,7 +249,17 @@ class Log_resetPassw: UIViewController{
             _timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "timerHander:", userInfo: nil, repeats: true)
             _timer?.fire()
         }
-        MainAction._getSms(_txt_mobile!.text!)
+        MainAction._getSms(_txt_mobile!.text!,__type: "changepassword") { (__dict) -> Void in
+            if __dict.objectForKey("recode") as! Int == 200{
+                
+            }else{
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let _alerter:UIAlertView = UIAlertView(title: "", message: __dict.objectForKey("reason") as? String, delegate: nil, cancelButtonTitle: "确定")
+                    _alerter.show()
+                    
+                })
+            }
+        }
     }
     
     func _refreshView(){

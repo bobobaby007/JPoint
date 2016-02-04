@@ -28,7 +28,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     var _cornerRadius:CGFloat = 20
     var _btn_camera:UIButton?
     var _btn_photo:UIButton?
-    var _btn_welfare:UIButton?
+    var _btn_welfare:UIButton?//----福利按钮
     
     var _hasWelfare:Bool = false
     
@@ -175,7 +175,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btn_welfare?.layer.borderColor = UIColor.whiteColor().CGColor
         _btn_welfare?.layer.borderWidth = 1
         
-        
+        _btn_welfare?.contentMode = UIViewContentMode.ScaleToFill
         _btn_welfare?.setTitle("福利", forState: UIControlState.Normal)
         _btn_welfare?.titleLabel?.font = UIFont.systemFontOfSize(10)
         _btn_welfare?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -258,9 +258,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _alerter?._delegate = self
         }
         
-        
+                 
         ViewController._self!.addChildViewController(_alerter!)
         ViewController._self!.view.addSubview(_alerter!.view)
+        ViewController._self!._shouldPan = false
         if _hasWelfare{
             _alerter?._setMenus(["替换图片","清除图片"])
         }else{
@@ -289,15 +290,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
         }
     }
-    
-    func _myAlerterStartToClose(){
-        
-    }
     func _myAlerterDidClose(){
-        
-    }
-    func _myAlerterDidShow(){
-        
+        ViewController._self?._shouldPan = true
+        _alerter = nil
     }
     
     func _showEULA(){
@@ -552,8 +547,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
                 
                 didImageIn()
             break
-            case "setWelfare":
-                _welfareImg = _imageInputer?._originalImage()
+            case "setWelfare"://--------福利图片，有限定大小
+                _welfareImg = CoreAction._fixImage(_imageInputer!._originalImage(), __toSize: CGSize(width: 800, height: 1000))
                 _btn_welfare?.setImage(_welfareImg!, forState: UIControlState.Normal)
                 _btn_welfare?.setTitle("", forState: UIControlState.Normal)
                 _imageInputer?.view.removeFromSuperview()

@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import CoreLocation
 
-class ViewController: UIViewController,UIAlertViewDelegate {
+class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDelegate{
     var _mainView:MainView?
     var _leftPanel:LeftPanel?
     var _rightPanel:RightPanel?
@@ -32,6 +33,9 @@ class ViewController: UIViewController,UIAlertViewDelegate {
     var _alertType:String = "newVersion"//    newVersion/setupProfile
     
     static var _self:ViewController?
+    
+    var _shouldPan:Bool = true
+    let _locationManager:CLLocationManager = CLLocationManager()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -65,6 +69,12 @@ class ViewController: UIViewController,UIAlertViewDelegate {
             return
         }
         ViewController._self = self
+        
+        _locationManager.delegate = self
+        _locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        _locationManager.requestAlwaysAuthorization()
+        _refershLoaction()
+        
         _mainView = MainView()
         self.view.backgroundColor = UIColor.blackColor()
         self.addChildViewController(_mainView!)
@@ -135,7 +145,9 @@ class ViewController: UIViewController,UIAlertViewDelegate {
     func panHander(sender:UIPanGestureRecognizer){
 
         //return
-        
+        if !_shouldPan{
+            return
+        }
         
         let _offset:CGPoint = sender.translationInView(self.view)
        // println(_offset.x)
@@ -446,6 +458,27 @@ class ViewController: UIViewController,UIAlertViewDelegate {
                 
         }
     }
+    
+    
+    //---刷新位置
+    
+    func _refershLoaction(){
+        
+        _locationManager.startUpdatingLocation()
+    }
+    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let _loction:CLLocation = manager.location!
+//        if(_loction.horizontalAccuracy > 0){
+//           _loction.coordinate.latitude
+//            _loction.coordinate.longitude
+//            manager.stopUpdatingLocation()
+//        }
+        MainAction._locationPoint.x = CGFloat(_loction.coordinate.longitude)
+        MainAction._locationPoint.y = CGFloat(_loction.coordinate.latitude)
+       // print(MainAction._locationPoint)
+        //print(_loction.coordinate.latitude,_loction.coordinate.longitude)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

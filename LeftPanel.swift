@@ -34,8 +34,8 @@ class LeftPanel: UIViewController,MyImageList_delegate {
         
         self.view.backgroundColor = UIColor.whiteColor()
         _bgImg = PicView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
-        _bgImg._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-        _bgImg._refreshView()
+        _bgImg._scaleType = PicView._ScaleType_Full// ._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+        
         //var _uiV:UIVisualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.Light))
         
         self.view.addSubview(_bgImg)
