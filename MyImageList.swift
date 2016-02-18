@@ -40,7 +40,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     
     weak var _delegate:MyImageList_delegate?
     
-    static var _self:MyImageList?
+    static weak var _self:MyImageList?
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -247,6 +247,17 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         _selectedIndex = NSIndexPath(forItem: -1, inSection: 0)
         
         _tableView?.deleteRowsAtIndexPaths([index], withRowAnimation: UITableViewRowAnimation.Left)
+        
+        UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.LightContent
+        UIApplication.sharedApplication().statusBarHidden=false
+        
+        UIView.animateWithDuration(0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._tableView?.frame = CGRect(x: 0, y: self._barH, width: self.view.frame.width, height: self.view.frame.height-self._barH)
+            self._topView?.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self._barH)
+            }, completion: { (complete) -> Void in
+                
+        })
+        
         
         _ifHasImages()
         if _imagesArray.count <= 0{

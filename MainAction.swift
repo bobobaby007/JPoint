@@ -33,7 +33,7 @@ class MainAction {
         }
     }
     
-    static let _versionString:String = "1.06" //-----本地app版本号，注意更新，以便提醒用户更新
+    static let _versionString:String = "1.13" //-----本地app版本号，注意更新，以便提醒用户更新
     
     //static let _BasicDomain:String = "http://192.168.1.108:9999" //"http://192.168.1.108:9999" // "http://bingome.giccoo.com"//---
     static let _BasicDomain:String = "http://bingome.giccoo.com"
@@ -97,7 +97,7 @@ class MainAction {
     
     static var _MyColor:UIColor = UIColor(red: 198/255, green: 1/255, blue: 255/255, alpha: 1)
     
-    static var _locationPoint:CGPoint = CGPoint(x:40.0425210400253, y:116.407341003954) //--默认地理位置  loc = lng,lat
+    static var _locationPoint:CGPoint = CGPoint(x:116.407341003954, y:40.0425210400253) //--默认地理位置  loc = lng,lat
     
     //----一般处理访问链接错误相应
     static func _checkRespon(__dict:NSDictionary)->Bool{
@@ -570,12 +570,13 @@ class MainAction {
     //-----收到一条聊天记录
     static func _receiveOneChat(__dict:NSDictionary){
         //
-        if let ___dict:NSDictionary = NSDictionary(objects: [__dict.objectForKey("from")!,MessageCell._Type_Message,__dict.objectForKey("content")!,__dict.objectForKey("date")!], forKeys: ["uid","type","content","time"]){
+        if let _type:String = __dict.objectForKey("type") as? String{
             //_saveOneChat(___dict)
             print("收到消息：",__dict)
-            _addToBingoList(__dict.objectForKey("from") as! String, __type: MessageCell._Type_Message, __content: __dict.objectForKey("content") as! String, __nickname:MainAction._nickName(__dict), __avatar: MainAction._avatar(__dict),__isNew: true)
             
-            NSNotificationCenter.defaultCenter().postNotificationName(_Notification_new_chat, object: nil, userInfo:___dict as [NSObject : AnyObject])
+            _addToBingoList(__dict.objectForKey("from") as! String, __type: __dict.objectForKey("type") as! String, __content: __dict.objectForKey("content") as! String, __nickname:MainAction._nickName(__dict), __avatar: MainAction._avatar(__dict),__isNew: true)
+            
+            NSNotificationCenter.defaultCenter().postNotificationName(_Notification_new_chat, object: nil, userInfo:nil)
         }
     }
     //-----收到一条bingo消息

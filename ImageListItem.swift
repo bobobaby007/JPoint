@@ -431,9 +431,9 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         
         print("信息条代理")
         
-       ViewController._self!.addChildViewController(_alerter!)
-       ViewController._self!.view!.addSubview(_alerter!.view)
-       ViewController._self!._shouldPan = false
+       MyImageList._self!.addChildViewController(_alerter!)
+       MyImageList._self!.view!.addSubview(_alerter!.view)
+       
         _alerter?._setMenus(["分享图片给朋友","发给朋友来玩","分享到微信朋友圈","删除图片"])
         
         _alerter?._show()
@@ -458,7 +458,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
         }
     }
     func _myAlerterDidClose(){
-        ViewController._self!._shouldPan = true
+        
         _alerter = nil
     }
     //---微信分享

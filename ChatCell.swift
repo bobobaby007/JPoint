@@ -19,6 +19,7 @@ class ChatCell: UITableViewCell {
     var _alertSign:UIView?
     var _myFrame:CGRect?
     var _bingoIcon:UIImageView?
+    var _welfareIcon:UIImageView?
     func initWidthFrame(__frame:CGRect){
         if inited{
             
@@ -63,6 +64,13 @@ class ChatCell: UITableViewCell {
             _bingoIcon?.contentMode = UIViewContentMode.ScaleAspectFit
             
             addSubview(_bingoIcon!)
+            
+            
+            _welfareIcon = UIImageView(image: UIImage(named: "welfare_icon_sign"))
+            _welfareIcon?.frame = CGRect(x: 154, y: 58, width: 0.4*45.5, height: 0.4*77)
+            _welfareIcon?.userInteractionEnabled = false
+            
+            addSubview(_welfareIcon!)
             //_setPic("profile")
             inited = true
         }
@@ -76,6 +84,7 @@ class ChatCell: UITableViewCell {
         
         
         _bingoIcon?.hidden = true
+        _welfareIcon?.hidden = true
         var _content:String = ""
         
         switch _type{
@@ -89,11 +98,9 @@ class ChatCell: UITableViewCell {
         case MessageCell._Type_Bingo:
             _bingoIcon?.hidden = false
             break
-        case MessageCell._Type_Bingo_By_Me:
-            _bingoIcon?.hidden = false
-            break
         case MessageCell._Type_Welfare:
             _bingoIcon?.hidden = false
+            _welfareIcon?.hidden = false
             break
         default:
             break

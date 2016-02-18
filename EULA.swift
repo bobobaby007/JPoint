@@ -29,6 +29,9 @@ class EULA:UIViewController{
     let _central_w:CGFloat = 250
     
     var _contentText:UITextView?
+    
+    var _needButton:Bool = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
@@ -98,11 +101,22 @@ class EULA:UIViewController{
         _btn_cancel?.addTarget(self, action: "btnHander:", forControlEvents: UIControlEvents.TouchUpInside)
         
         
+        if !_needButton{
+            _contentText = UITextView(frame: CGRect(x: 10, y: _barH + 10, width: self.view.frame.width - 20, height: self.view.frame.height - _barH - 40))
+            self.view.addSubview(_contentText!)
+        }else{
+            _contentText = UITextView(frame: CGRect(x: 10, y: _barH + 10, width: self.view.frame.width - 20, height: self.view.frame.height - _barH - 120))
+            self.view.addSubview(_contentText!)
+            self.view.addSubview(_btn_cancel!)
+            self.view.addSubview(_btn_accept!)
+        }
         
-        _contentText = UITextView(frame: CGRect(x: 10, y: _barH + 10, width: self.view.frame.width - 20, height: self.view.frame.height - _barH - 120))
+        
         _contentText?.backgroundColor = UIColor.clearColor() // UIColor(white: 1, alpha: 0.4)
         _contentText?.textColor = UIColor.whiteColor()
         
+        _contentText?.editable = false
+        _contentText?.selectable = false
         
         
         
@@ -118,9 +132,8 @@ class EULA:UIViewController{
         }
         
         
-        self.view.addSubview(_contentText!)
-        self.view.addSubview(_btn_cancel!)
-        self.view.addSubview(_btn_accept!)
+        
+        
         
         
         _setuped=true
@@ -138,7 +151,7 @@ class EULA:UIViewController{
             self.dismissViewControllerAnimated(true, completion: { () -> Void in
                 
             })
-            _delegate!._EULA_accepted()
+            _delegate?._EULA_accepted()
             break
         case _btn_cancel!:
             self.dismissViewControllerAnimated(true, completion: { () -> Void in

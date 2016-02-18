@@ -62,7 +62,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _btnsIn:Bool = false
     
     var _profilePanel:ProfilePanel?
-    var _profielH:CGFloat = 80
+    var _profielH:CGFloat = 90
     
     var _editingViewC:EditingView?
     
@@ -90,7 +90,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     var _btn_needTo:UIButton?
     var _needTo:Int = 0 //----需要做的动作
     
-    static var _self:MainView?
+    static weak var _self:MainView?
     
     
     var _allImages:NSArray = []//----展示的图片
@@ -159,7 +159,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         self.view.addSubview(_infoPanel!)
         
         
-        _profilePanel = ProfilePanel(frame: CGRect(x: _gap, y: 60, width: self.view.frame.width-2*_gap, height: 30))
+        _profilePanel = ProfilePanel(frame: CGRect(x: _gap, y: 60, width: self.view.frame.width-2*_gap, height: _profielH))
         _profilePanel?.alpha = 0
         self.view.addSubview(_profilePanel!)
         
@@ -233,7 +233,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                     //self._getFriendsList()
                     self._getNewMessages()
                     //----------清除查看记录 上线需注释掉
-                    MainAction._clearMyReadRecord()
+                    //MainAction._clearMyReadRecord()
                 })
             }else{
 //                dispatch_async(dispatch_get_main_queue(), {
@@ -283,11 +283,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         _isloading = true
         _showLoadingV()
         MainAction._getBingoList { (__dict) -> Void in
-            self._removeLoading()
+            //self._removeLoading()
             self._isloading = false
             
             self._listLoaded = true
             // self._showIndex(self._currentIndex)
+            
             if __dict.objectForKey("recode") as! Int == 200{
                 self._allImages = self._dealWidthArray(MainAction._BingoList)
                 self._currentIndex = 0
@@ -311,30 +312,30 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     
     //---刷新显示
     func _refresh(){
-        self._removeLoading()
+        
+        if self._allImages.count <= 0{
+            //ViewController._self!._showAlert("没有新图，过一段时间再来看看",__wait: 0.5)
+            //self._needTo = 1
+            //self._showNeedTo("目前周围没有更多图片了\n[现在点击刷新看看]")
+            return
+        }else{
+            self._removeLoading()
+            //self._timer?.invalidate()
+            //self._timer = nil
+        }
+        
         switch _currentStatus{
         case "mainView":
             _showMainPage()
-            
         case "editingPage":
-            _showEdtingPage()
+            //_showEdtingPage()
             break
         case "showingBtns":
             _showBtns()
         default:
             break
         }
-
         
-        if self._allImages.count <= 0{
-            //ViewController._self!._showAlert("没有新图，过一段时间再来看看",__wait: 0.5)
-            self._needTo = 1
-            self._showNeedTo("目前周围没有更多图片了\n[现在点击刷新看看]")
-            return
-        }else{
-            //self._timer?.invalidate()
-            //self._timer = nil
-        }
         if self._isFirstLoaded{
             self._showMainPage()
             self._isFirstLoaded=false
@@ -462,8 +463,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _lable.text = "搜寻中.."
             _lable.textColor = UIColor.whiteColor()
             _lable.alpha = 0.8
-            _loadingV?.addSubview(_heart)
             _loadingV?.addSubview(_lable)
+            _loadingV?.addSubview(_heart)
+            
             _heart._show()
             _loadingV?.center = CGPoint(x:self.view.frame.width/2, y: _CentralY)
         }
@@ -503,7 +505,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         ViewController._self!.addChildViewController(_alerter!)
         ViewController._self!.view.addSubview(_alerter!.view)
         ViewController._self!._shouldPan = false
-        _alerter?._setMenus(["举报","分享给微信朋友","分享到微信朋友圈"])
+        _alerter?._setMenus(["举报","发给微信朋友","发到朋友圈"])
         
         _alerter?._show()
     }
@@ -557,7 +559,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         let _ta:String = _nickname
         let message:WXMediaMessage = WXMediaMessage()
         message.title = "帮我找找"+_ta+"的兴趣点"
-        message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
+        message.description = (_profilePanel?._sayText?.text)!
         message.setThumbImage(_pic);
         let ext:WXWebpageObject = WXWebpageObject();
         ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict.objectForKey("_id") as! String)&uid=\(_uid)"
@@ -575,11 +577,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         let _ta:String = _nickname
         let message:WXMediaMessage = WXMediaMessage()
         message.title = "一起找找"+_ta+"的兴趣点"
-        message.description = _nickname + "说:" + (_profilePanel?._sayText?.text)!
+        message.description = (_profilePanel?._sayText?.text)!
         message.setThumbImage(_pic);
         
         let ext:WXWebpageObject = WXWebpageObject();
-        ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict.objectForKey("_id"))&uid=\(_uid)"
+        ext.webpageUrl = "http://bingome.giccoo.com/v1/share/?bingo=\(_dict.objectForKey("_id") as! String)&uid=\(_uid)"
         message.mediaObject = ext
         message.mediaTagName = "Bingo一下"
         let req = SendMessageToWXReq()
@@ -612,7 +614,13 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //print("原来：－－－－－－",_allImages.objectAtIndex(_currentIndex))
         _allImages = _array
         //print("后来：－－－－－－",_allImages.objectAtIndex(_currentIndex))
-        _refreshAtIndex(_currentIndex)
+        //_refresh()
+        if _allImages.count<2{
+            _refresh()
+        }else{
+          _refreshAtIndex(_currentIndex)
+        }
+        
     }
 
     
@@ -701,7 +709,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    MainAction._addToBingoList(self._uid, __type: MessageCell._Type_Bingo_By_Me, __content: "[bingo]", __nickname: self._nickname, __avatar: self._avator,__isNew: true)
+                    MainAction._addToBingoList(self._uid, __type: MessageCell._Type_Bingo, __content: "[bingo]", __nickname: self._nickname, __avatar: self._avator,__isNew: true)
                 })
             }else{
                 ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
@@ -863,7 +871,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _infoPanel?._setTime(CoreAction._dateDiff(_dict.objectForKey("create_at") as! String))
             _infoPanel?._setClick(_dict.objectForKey("like") as! Int)//点击次数
             _infoPanel?._setBingo(_dict.objectForKey("over") as! Int)//--点中次数
-            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH)
+            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2+_profielH/2)
             self._profilePanel?.alpha = 0
             print("列表单个详情：",_dict)
             if let _author:NSDictionary = _dict.objectForKey("author") as? NSDictionary{//----来自别人
@@ -893,7 +901,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             UIView.animateWithDuration(0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:self._currentPicItem!.center.y + self._picItemW/2 + self._gap + self._infoH/2)
                 self._infoPanel?.alpha = 1
-                self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
+                self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: (self._currentPicItem!.center.y-self._picItemW/2+12)/2)
                 self._profilePanel?.alpha = 1
                 
                 }) { (finished) -> Void in
@@ -918,15 +926,21 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }
     }
     
-    //---直接刷新图片和信息，没有动画,只是自己刚发布的
+    //---直接刷新图片和信息，没有动画,只是自己刚发布的----目前有bug，慎用
     func _refreshAtIndex(__index:Int){
+        
+        if _currentPicItem != nil{
+            
+        }else{
+            
+            return
+        }
+        
+        _removeLoading()
+        
         let _dict:NSDictionary = self._allImages[__index] as! NSDictionary
         
-        
-        
-        _currentPicItem!._dict = _dict
-        _currentPicItem!._setPic(MainAction._imageUrl(_dict.objectForKey("image") as! String))
-        _currentPicItem!._setAnswer(MainAction._imageUrl(_dict.objectForKey("answer") as! String))
+        _currentPicItem!._setDict(_dict)
         
         _infoPanel?._setTime(CoreAction._dateDiff(_dict.objectForKey("create_at") as! String))
         _infoPanel?._setClick(_dict.objectForKey("like") as! Int)//点击次数
@@ -942,10 +956,17 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             return
         }
         
+        if _nextPicItem == nil{
+            return
+        }
+        
         let _dict_2:NSDictionary = self._allImages[__index+1] as! NSDictionary
-        _nextPicItem!._dict = _dict
-        _nextPicItem!._setPic(MainAction._imageUrl(_dict_2.objectForKey("image") as! String))
-        _nextPicItem!._setAnswer(MainAction._imageUrl(_dict_2.objectForKey("answer") as! String))
+        _nextPicItem!._setDict(_dict_2)
+
+        
+//        _nextPicItem!._dict = _dict
+//        _nextPicItem!._setPic(MainAction._imageUrl(_dict_2.objectForKey("image") as! String))
+//        _nextPicItem!._setAnswer(MainAction._imageUrl(_dict_2.objectForKey("answer") as! String))
         
         
         
@@ -968,9 +989,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             let _item:PicItem =  PicItem(frame: CGRect(x: 20, y: _bottomY+10, width: _picItemW, height: _picItemW))
             let _dict:NSDictionary = self._allImages[__index] as! NSDictionary
             //print("ddddd:",_dict)
-            _item._dict = _dict
-            _item._setPic(MainAction._imageUrl(_dict.objectForKey("image") as! String))
-            _item._setAnswer(MainAction._imageUrl(_dict.objectForKey("answer") as! String))
+            
+            
+            _item._setDict(_dict)
+//            _item._dict = _dict
+//            _item._setPic(MainAction._imageUrl(_dict.objectForKey("image") as! String))
+//            _item._setAnswer(MainAction._imageUrl(_dict.objectForKey("answer") as! String))
             _item._delegate = self
             
             MainAction._readedBingo(_dict.objectForKey("_id") as! String, __block: { (__dict) -> Void in
@@ -1104,7 +1128,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         
         UIView.animateWithDuration(0.4, animations: { () -> Void in
              self._infoPanel?.center = CGPoint(x: self.view.frame.width/2,y:self._CentralY + self._picItemW/2 + self._gap + self._infoH/2)
-            self._profilePanel?.center = CGPoint(x: self.self.view.frame.width/2, y: self._CentralY-self._picItemW/2-self._profielH)
+            self._profilePanel?.center = CGPoint(x: self.self.view.frame.width/2, y: (self._CentralY-self._picItemW/2+12)/2)
             if self._currentPicItem != nil{
                 self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._CentralY)
             }
@@ -1124,7 +1148,8 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._btn_plus?.backgroundColor =  UIColor(red: 129/255, green: 255/255, blue: 36/255, alpha: 1)
             self._editingViewC?.view.frame = CGRect(x: 0, y:-self.view.frame.height, width: self.view.frame.width, height: self.view.frame.height)
         }) { (complete) -> Void in
-            //self._removeEditePage()
+            
+           // self._removeEditePage()
            // self.view.addGestureRecognizer(self._panGesture!)
             self._isMoving = false
             self._shouldReceivePan = true
@@ -1166,7 +1191,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                 self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY)
                 self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:_toY + self._picItemW/2 + self._gap + self._infoH/2)
                 //self._infoPanel?.alpha = 0
-                self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._currentPicItem!.center.y-self._picItemW/2-self._profielH)
+                self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: (self._currentPicItem!.center.y-self._picItemW/2+_btnToY+self._btnW/2)/2)
                 //self._profilePanel?.alpha=1
                 self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY)
             
@@ -1268,7 +1293,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:_toY + self._picItemW/2 + self._gap + self._infoH/2)
             //self._infoPanel?.alpha = 0
             self._nextPicItem?.center = CGPoint(x: self._nextPicItem!.center.x, y: self._bottomY+self._picItemW)
-            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY-self._picItemW/2-self._profielH)
+            self._profilePanel?.center = CGPoint(x: self._currentPicItem!.center.x, y: _toY-self._picItemW/2+self._profielH)
             
             }) { (array) -> Void in
                 

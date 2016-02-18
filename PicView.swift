@@ -15,6 +15,9 @@ class PicView: UIScrollView,UIScrollViewDelegate{
     var _id:Int = 0
     static var _ScaleType_Fit:String = "Fit" //----显示全部
     static var _ScaleType_Full:String = "Full"//----满屏显示
+    
+    var _isThumb:Bool = false
+    
     var _scaleType:String = "Full"
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,7 +49,15 @@ class PicView: UIScrollView,UIScrollViewDelegate{
             
             _al.assetForURL(NSURL(string: __pic.objectForKey("url") as! String)! , resultBlock: { (asset:ALAsset!) -> Void in
                 if asset != nil {
-                    self._setImageByImage(UIImage(CGImage: asset.defaultRepresentation().fullScreenImage().takeUnretainedValue()))
+                    if self._isThumb{
+                        if asset.thumbnail() != nil{
+                            self._setImageByImage(UIImage(CGImage:asset.thumbnail().takeUnretainedValue()))
+                        }else{
+                            print("缩略图还没成功：",asset)
+                        }
+                    }else{
+                       self._setImageByImage(UIImage(CGImage: asset.defaultRepresentation().fullScreenImage().takeUnretainedValue()))
+                    }
                 }else{
                     self._setImage("entroLogo")//----用户删除时
                 }
@@ -155,8 +166,9 @@ class PicView: UIScrollView,UIScrollViewDelegate{
    
     
     func _refreshView(){
-        let _scaleW = self.frame.width/self._imgView!.image!.size.width
-        let _scaleH = self.frame.height/self._imgView!.image!.size.width
+        
+        let _scaleW = self.bounds.width/self._imgView!.image!.size.width
+        let _scaleH = self.bounds.height/self._imgView!.image!.size.height
         
         var _scale = max(_scaleW,_scaleH)
         switch self._scaleType{
@@ -170,6 +182,8 @@ class PicView: UIScrollView,UIScrollViewDelegate{
             
             break
         }
+        
+        //print("刷新图片：",self._scaleType,_scale,_scaleW,_scaleH)
         self.zoomScale = 1
         self._imgView!.frame = CGRect(x: 0, y: 0, width:self._imgView!.image!.size.width*_scale, height: self._imgView!.image!.size.height*_scale)
         
@@ -186,7 +200,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         let _fromP:CGPoint = __toView.convertPoint(__fromRect.origin, fromView: __fromView)
         self.frame.origin = _fromP
         __toView.addSubview(self)
-        UIImageView.animateWithDuration(0.4, animations: { () -> Void in
+        UIImageView.animateWithDuration(0.3, animations: { () -> Void in
             self.frame = __toRect
             self._refreshView()
             }) { (Comparable) -> Void in
@@ -196,7 +210,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
     }
     func _back(__fromView:UIView,__toView:UIView,__toRect:CGRect,__then:()->Void){
         let _toP:CGPoint = __fromView.convertPoint(__toRect.origin, fromView: __toView)
-        UIImageView.animateWithDuration(0.4, animations: { () -> Void in
+        UIImageView.animateWithDuration(0.3, animations: { () -> Void in
             self.frame = CGRect(origin: _toP, size: __toRect.size)
             self._refreshView()
             }) { (Comparable) -> Void in

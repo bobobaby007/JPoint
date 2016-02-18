@@ -92,9 +92,10 @@ class ProfilePanel:UIView {
         _dialogBoxView?.addSubview(_arrowV!)
         _dialogBoxView?.addSubview(_boxV!)
         
-        addSubview(_userImg!)
+        
         addSubview(_dialogBoxView!)
         addSubview(_nameLabel!)
+        addSubview(_userImg!)
         
     }
     func _setPic(__pic:String){
@@ -137,7 +138,7 @@ class ProfilePanel:UIView {
         })
     }
     
-    
+    //------点击头像图片打开查看大图
     
     func tapHander(sender:UITapGestureRecognizer){
         if _isOpen{
@@ -153,9 +154,12 @@ class ProfilePanel:UIView {
         _userImg?._scaleType = PicView._ScaleType_Fit
         ViewController._self?._shouldPan = false
         _userImg?._imgView?.layer.borderWidth = 0
-        self._userImg!._imgView!.layer.cornerRadius = 0
+        self._userImg!.layer.cornerRadius = self._imageH/2
+        
         _userImg?._move(self, __fromRect: _userImg!.frame, __toView: ViewController._self!.view, __toRect: ViewController._self!.view.frame, __then: { () -> Void in
-            
+            self._userImg!.layer.cornerRadius = self._imageH/2
+            self._userImg!._imgView!.layer.cornerRadius = 0
+            self._userImg!.layer.cornerRadius = 0
             self._userImg!.scrollEnabled = true
             self._isOpen = true
         })
@@ -164,8 +168,9 @@ class ProfilePanel:UIView {
         UIApplication.sharedApplication().statusBarHidden = false
         _userImg?.backgroundColor = UIColor.clearColor()
         _userImg?._scaleType = PicView._ScaleType_Full
+        self._userImg!._imgView!.layer.cornerRadius = self._imageH/2
         _userImg?._back(ViewController._self!.view, __toView: self, __toRect: CGRect(x: 0, y: 0, width: _imageH, height: _imageH), __then: { () -> Void in
-            self._userImg!._imgView!.layer.cornerRadius = self._imageH/2
+            
             self._userImg!.scrollEnabled = false
             self._userImg!._imgView!.layer.borderWidth = 2
             self._isOpen = false

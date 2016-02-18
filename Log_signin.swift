@@ -28,7 +28,7 @@ class Log_signin: UIViewController{
     var _btn_go:UIButton?
     var _btn_Contenter:UIView?
     var _btn_getSmscode:UIButton?
-    
+    var _btn_rule:UIButton?
     var _timer:NSTimer?
     var _currentSecond:Int = 0
     
@@ -114,6 +114,21 @@ class Log_signin: UIViewController{
         
         
         
+        let _label:UILabel = UILabel(frame: CGRect(x: _gap, y: _barH+_gap+3*_buttonH, width: 90, height: _buttonH))
+        _label.font = UIFont.systemFontOfSize(12)
+        _label.textAlignment = NSTextAlignment.Left
+        _label.textColor = UIColor(white: 0.8, alpha: 0.8)
+        _label.text = "＊注册代表同意"
+        self.view.addSubview(_label)
+        
+        _btn_rule = UIButton(frame: CGRect(x: _gap+85, y: _barH+_gap+3*_buttonH, width: 300, height: _buttonH))
+        _btn_rule?.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+        _btn_rule?.titleLabel?.font = UIFont.systemFontOfSize(12)
+        _btn_rule?.titleLabel?.textAlignment = NSTextAlignment.Left
+        _btn_rule?.setTitleColor(UIColor(white: 1, alpha: 0.8), forState: UIControlState.Normal)
+        _btn_rule?.setTitle("《BingoMe 网络服务使用协议》", forState: UIControlState.Normal)
+        _btn_rule?.addTarget(self, action: "clickAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        self.view.addSubview(_btn_rule!)
 
         
         
@@ -300,11 +315,26 @@ class Log_signin: UIViewController{
         case _btn_go!:
             _go()
             break
+        case _btn_rule!:
+            _showEULA()
+            break
         default:
             print(sender)
         }
         
     }
+    
+    
+    //----展示协议
+    
+    func _showEULA(){
+        let _controller:EULA = EULA()
+        _controller._needButton = false
+        self.presentViewController(_controller, animated: true) { () -> Void in
+            
+        }
+    }
+
     override func viewDidAppear(animated: Bool) {
         UIApplication.sharedApplication().statusBarStyle = UIStatusBarStyle.LightContent
         UIApplication.sharedApplication().statusBarHidden=false

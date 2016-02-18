@@ -15,7 +15,6 @@ class MessageCell: UITableViewCell {
     var _profileImg:PicView?
     static let _Type_Bingo:String = "bingo"
     static let _Type_Welfare:String = "welfare"
-    static let _Type_Bingo_By_Me = "_Type_Bingo_By_Me"
     static let _Type_Message:String = "message"
     static let _Type_Message_By_Me:String = "me"
     static let _Type_Time:String = "time"
@@ -27,13 +26,14 @@ class MessageCell: UITableViewCell {
     var _welfareItem:WelfareItem?
     
     var _message_textView:UITextView?
-    
+    var _tapG:UITapGestureRecognizer?
     var _bingoId:String? //-----用于查看bingo详情，未赋值
     
     static let _messageTextFontSize:CGFloat = 14
     static let _messageTextMaxWidth:CGFloat = 220
     static let _messageTextPadding:CGFloat = 6
-    
+    var _myDict:NSDictionary?
+    var _isOpen:Bool=false
     func initWidthFrame(__frame:CGRect,__type:String){
         _frame = __frame
         _type = __type
@@ -45,6 +45,7 @@ class MessageCell: UITableViewCell {
             self.clipsToBounds = false
             //self.selectedBackgroundView = UIView()
             self.selectionStyle = UITableViewCellSelectionStyle.None
+            _tapG = UITapGestureRecognizer(target: self, action: "tapHander:")
             inited = true
         }
     }
@@ -73,30 +74,14 @@ class MessageCell: UITableViewCell {
         //_frame = nil
         _message_textView = nil
     }
-    
+    //-----清空内容便于重来
     func reset(){
         clear()
         switch _type!{
         case MessageCell._Type_Bingo:
-            _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
-            _profileImg?.layer.cornerRadius = 30
-            _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-            _profileImg?.layer.borderWidth = 2
-            addSubview(_profileImg!)
-            break
-            
-        case MessageCell._Type_Bingo_By_Me:
             
             break
         case MessageCell._Type_Message:
-            _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
-            _profileImg?.layer.cornerRadius = 30
-            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
-            _profileImg?.layer.borderWidth = 2
-            _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-            addSubview(_profileImg!)
-            _setPic("profile")
             _message_textView = UITextView(frame: CGRect(x: 80, y: 0, width:MessageCell._messageTextMaxWidth, height: 50))
             _message_textView?.textContainerInset = UIEdgeInsets(top: MessageCell._messageTextPadding, left: MessageCell._messageTextPadding, bottom: MessageCell._messageTextPadding, right: MessageCell._messageTextPadding)
             _message_textView?.textColor = UIColor.whiteColor()
@@ -155,23 +140,41 @@ class MessageCell: UITableViewCell {
             break
         }
     }
+    //--判断用户是否自己,同时设置头像,头像颜色
+    func _userIsMe(__dict:NSDictionary)->Bool{
+        var _is:Bool = false
+        if let _author:NSDictionary = __dict.objectForKey("author") as? NSDictionary{
+            if _author.objectForKey("_id") as! String == MainAction._profileDict?.objectForKey("_id") as! String{
+                _is = true
+            }else{
+                self._setPic(MainAction._avatar(_author))
+            }
+            _setSex(MainAction._sex(_author))
+        }
+        return _is
+    }
     func _setContent(__dict:NSDictionary){
         switch _type!{
         case MessageCell._Type_Bingo:
                 self._bingoItem = BingoItem(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
                 self.addSubview(self._bingoItem!)
                 _bingoItem?._setContent(__dict.objectForKey("message") as! String)
+                if _userIsMe(__dict){
+                    self._bingoItem?.frame.origin.x = _frame!.width-190-5
+                }else{
+                    
+                }
             break
         case MessageCell._Type_Welfare:
+            
                 self._welfareItem = WelfareItem(frame: CGRect(x: 75, y: 0, width: 190, height: 190))
                 self.addSubview(self._welfareItem!)
                 _welfareItem?._setContent(__dict.objectForKey("message") as! String)
-            break
-            
-        case MessageCell._Type_Bingo_By_Me:
-            self._bingoItem = BingoItem(frame: CGRect(x: _frame!.width-190-5, y: 0, width: 190, height: 190))
-            self.addSubview(self._bingoItem!)
-            _bingoItem?._setContent(__dict.objectForKey("message") as! String)
+                if _userIsMe(__dict){
+                    self._welfareItem?.frame.origin.x = _frame!.width-190-5
+                }else{
+                    
+                }
             break
         case MessageCell._Type_Message:
             _message_textView?.text = __dict.objectForKey("message") as! String
@@ -180,11 +183,13 @@ class MessageCell: UITableViewCell {
             if _message_textView?.frame.height < 60{
                 _message_textView?.frame.origin.y =  (60 - _message_textView!.frame.height)/2
             }
+            _userIsMe(__dict)
             break
         case MessageCell._Type_Message_By_Me:
             _message_textView?.text = __dict.objectForKey("message") as! String
             _message_textView?.sizeToFit()
             _message_textView?.frame.origin = CGPoint(x: _frame!.width-_message_textView!.frame.width-5, y: 0)
+            _userIsMe(__dict)
             //_message_textView?.sizeThatFits(CGSize(width: 100, height: CGFloat.max))
             break
         case MessageCell._Type_Time:
@@ -194,27 +199,130 @@ class MessageCell: UITableViewCell {
             break
         }
         
-        if let _from:NSDictionary = __dict.objectForKey("author") as? NSDictionary{
-            _setSex(MainAction._sex(_from))
-        }
     }
+    //----大的字典，type类型包含在外面，由本地生成，content是接受自服务器的消息整个字典
+    /*
+    {
+    content = {
+    time = "2016-02-05T09:38:41.294Z";
+    };
+    height = 30;
+    type = time;
+    }
+    其他
+    {
+    content =     {
+    "__v" = 0;
+    "_id" = 56b46da1e3c33d17001dfa8f;
+    author =         {
+    "_id" = 56ad83466db9cb10003d19f2;
+    avatar = "avatar/image-1454300671510-2047.png";
+    checkbingo = 184;
+    checkl = 0;
+    checkm = 0;
+    checkright = 106;
+    clickme = 32;
+    clickright = 26;
+    "create_at" = "2016-01-31T03:45:10.349Z";
+    "login_at" = "2016-02-05T11:05:40.562Z";
+    nickname = "\U963fB";
+    "online_time" = 0;
+    sendbingo = 14;
+    sex = 1;
+    socket = "";
+    };
+    "create_at" = "2016-02-05T09:38:41.294Z";
+    message = "\U597d\U68d2\U54c8";
+    readed = 1;
+    to =         {
+    "_id" = 56ada84c8ddd2c1400b63326;
+    avatar = "avatar/image-1454297469387-1807.png";
+    checkbingo = 53;
+    checkl = 0;
+    checkm = 0;
+    checkright = 30;
+    clickme = 44;
+    clickright = 38;
+    "create_at" = "2016-01-31T06:23:08.833Z";
+    "login_at" = "2016-02-05T11:26:01.782Z";
+    nickname = Marry;
+    "online_time" = 0;
+    sendbingo = 12;
+    sex = 0;
+    socket = qbqITV2m2qKfvzObAABN;
+    };
+    type = message;
+    };
+    height = 80;
+    type = message;
+    }
+
+    */
     
     func _setDict(__dict:NSDictionary){
-        
+        _myDict = __dict
         print("我的消息：",__dict)
         reset()
-        
         _setContent(__dict.objectForKey("content") as! NSDictionary)
         
+
     }
     
     
     func _setPic(__picUrl:String){
+        if _profileImg == nil{
+            _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
+            _profileImg?.layer.cornerRadius = 30
+            _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+            _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
+            _profileImg?.layer.borderWidth = 2
+            _profileImg?.addGestureRecognizer(_tapG!)
+        }
+        addSubview(_profileImg!)
         _profileImg?._setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
             
         })
         //_profileImg?._refreshView()
     }
+    
+    //------点击头像图片打开查看大图
+    
+    func tapHander(sender:UITapGestureRecognizer){
+        if _isOpen{
+            _closeImage()
+        }else{
+            _openImage()
+        }
+        
+    }
+    func _openImage(){
+        UIApplication.sharedApplication().statusBarHidden = true
+        _profileImg?.backgroundColor = UIColor.blackColor()
+        _profileImg?._scaleType = PicView._ScaleType_Fit
+        ViewController._self?._shouldPan = false
+        _profileImg?.layer.borderWidth = 0
+        _profileImg?._move(self, __fromRect: _profileImg!.frame, __toView: MessageWindow._self!.view, __toRect: MessageWindow._self!.view.frame, __then: { () -> Void in
+            self._profileImg!.layer.cornerRadius = 0
+            self._profileImg!.scrollEnabled = true
+            self._isOpen = true
+        })
+    }
+    func _closeImage(){
+        UIApplication.sharedApplication().statusBarHidden = false
+        _profileImg?.backgroundColor = UIColor.clearColor()
+        _profileImg?._scaleType = PicView._ScaleType_Full
+        self._profileImg!.layer.cornerRadius = 30
+        _profileImg?._back(MessageWindow._self!.view, __toView: self, __toRect: CGRect(x: 10, y: 0, width: 60, height: 60), __then: { () -> Void in
+            
+            self._profileImg!.scrollEnabled = false
+            self._profileImg!.layer.borderWidth = 2
+            self._isOpen = false
+            ViewController._self?._shouldPan = true
+        })
+    }
+    
+    
+    
     func _justSent(){
         switch _type!{
         case MessageCell._Type_Bingo:

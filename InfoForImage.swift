@@ -159,7 +159,10 @@ class InfoForImage:UIView,UITextViewDelegate{
     
     func _setPic(__pic:String){
         _userImg?._setPic(NSDictionary(objects: [__pic,"file"], forKeys: ["url","type"]), __block: { (_dict) -> Void in
-            self._btn_userImg?.setImage(self._userImg?._imgView?.image, forState: UIControlState.Normal)
+            
+            dispatch_async(dispatch_get_main_queue()) { () -> Void in
+               self._btn_userImg?.setImage(self._userImg?._imgView?.image, forState: UIControlState.Normal)
+            }
         })
     }
 //    func _setName(__set:String){

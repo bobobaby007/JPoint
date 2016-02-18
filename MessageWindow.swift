@@ -44,7 +44,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
     
     var _hasNewMessage:Bool = false
     
-    static var _self:MessageWindow?
+    static weak var _self:MessageWindow?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -189,14 +189,9 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             }
             
             if _from.objectForKey("_id") as! String == MainAction._profileDict?.objectForKey("_id") as! String{
-                
                 if  _mssageType == MessageCell._Type_Message{
                     _mssageType = MessageCell._Type_Message_By_Me
                 }
-                if  _mssageType == MessageCell._Type_Bingo{
-                    _mssageType = MessageCell._Type_Bingo_By_Me
-                }
-                
             }
             
             
@@ -256,8 +251,6 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
             _h = 200
         case MessageCell._Type_Welfare:
             _h = 200
-        case MessageCell._Type_Bingo_By_Me:
-            _h = 200
         case MessageCell._Type_Message:
             _h = max(80,MessageCell._getHighByStr(__content.objectForKey("message") as! String))
         case MessageCell._Type_Message_By_Me:
@@ -298,28 +291,7 @@ class MessageWindow:UIViewController,UITableViewDataSource,UITableViewDelegate,I
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60),__type: _type)
         _cell._setDict(_dict)
         
-        switch _type{
-        case MessageCell._Type_Time:
-            break
-        case MessageCell._Type_Bingo:
-            _cell._setPic(_profileImageUrl)
-            break
-        case MessageCell._Type_Welfare:
-            _cell._setPic(_profileImageUrl)
-            break
-        case MessageCell._Type_Bingo_By_Me:
-            _cell._setPic(_profileImageUrl)
-            break
-        case MessageCell._Type_Message:
-            //print(_profileImageUrl)
-            _cell._setPic(_profileImageUrl)
-        case MessageCell._Type_Message_By_Me:
-            break
-        default:
-            
-            break
-        }
-        
+               
         
         return _cell
     }

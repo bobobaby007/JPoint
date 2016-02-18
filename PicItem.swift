@@ -26,6 +26,9 @@ class PicItem: UIView {
     let _cornerRadius:CGFloat = 10
     var _dict:NSDictionary?
     var _answerinded:Bool = false//----答案是否加载进来
+    
+    var _sign:UIImageView?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -39,6 +42,11 @@ class PicItem: UIView {
         _imageV?._imgView!.contentMode = UIViewContentMode.ScaleAspectFill
         _imageV?._imgView!.layer.cornerRadius = _cornerRadius
         
+        
+        _sign = UIImageView(image: UIImage(named: "welfare_icon_sign"))
+        _sign?.frame = CGRect(x: _imageV!.frame.origin.x+_imageV!.frame.width-18, y: -2, width: 0.6*45.5, height: 0.6*77)
+        _sign?.userInteractionEnabled = false
+        _sign?.hidden=true
         //_imageV?._setImage("noPic.jpg")
         
         _answerV = PicView(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.width))
@@ -57,12 +65,44 @@ class PicItem: UIView {
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        
         addSubview(_imageV!)
+        addSubview(_sign!)
         //addSubview(_answerV!)
     }
     func _ready(){
         self.addGestureRecognizer(_tapG!)
     }
     
+    
+    func _setDict(__dict:NSDictionary){
+        _dict = __dict
+        _setPic(MainAction._imageUrl(_dict!.objectForKey("image") as! String))
+        _setAnswer(MainAction._imageUrl(_dict!.objectForKey("answer") as! String))
+        if let _welfare = _dict!.objectForKey("welfare") as? String{
+            if _welfare==""{
+                _setSign("")
+            }else{
+                _setSign("welfare")
+            }
+        }else{
+            _setSign("")
+        }
+    }
+    
+    //----设置标志
+    func _setSign(__type:String){
+        switch __type{
+            case "":
+                _sign?.hidden = true
+            break
+            case "welfare":
+                _sign?.hidden = false
+            break
+        default:
+            _sign?.hidden = true
+            break
+        }
+            
+    }
     func tapHander(__sender:UITapGestureRecognizer){
         if _answerinded{
             

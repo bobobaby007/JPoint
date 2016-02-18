@@ -32,7 +32,7 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
     
     var _alertType:String = "newVersion"//    newVersion/setupProfile
     
-    static var _self:ViewController?
+    static weak var _self:ViewController?
     
     var _shouldPan:Bool = true
     let _locationManager:CLLocationManager = CLLocationManager()
@@ -475,7 +475,7 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
 //        }
         MainAction._locationPoint.x = CGFloat(_loction.coordinate.longitude)
         MainAction._locationPoint.y = CGFloat(_loction.coordinate.latitude)
-       // print(MainAction._locationPoint)
+        //print(MainAction._locationPoint)
         //print(_loction.coordinate.latitude,_loction.coordinate.longitude)
     }
     

@@ -24,7 +24,7 @@ class Log_Main: UIViewController {
     var _log_home:Log_home?
     weak var _delegate:Log_Main_delegate?
     
-    static var _self:Log_Main?
+    static weak var _self:Log_Main?
     
     override func viewDidLoad() {
         _init()

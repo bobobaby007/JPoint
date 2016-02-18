@@ -25,10 +25,12 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     let _gap:CGFloat = 10
     let _btnW:CGFloat = 60
     var _setuped:Bool = false
-    var _cornerRadius:CGFloat = 20
+    var _cornerRadius:CGFloat = 10
     var _btn_camera:UIButton?
     var _btn_photo:UIButton?
+    var _btn_more:UIButton?
     var _btn_welfare:UIButton?//----福利按钮
+    var _welfare_icon:UIImageView?//---福利icon
     
     var _hasWelfare:Bool = false
     
@@ -79,7 +81,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btn_camera?.layer.cornerRadius = _btnW/2
         //_btn_camera?.backgroundColor = UIColor(red: 255/255, green: 204/255, blue: 116/255, alpha: 1)
         _btn_camera?.backgroundColor = UIColor(white: 0, alpha: 0.5)
-        _btn_camera?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
+        _btn_camera?.center = CGPoint(x: self.view.frame.width/2-_gap-_btnW, y: self.view.frame.height/2+20)
         _btn_camera?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_photo = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
@@ -91,6 +93,15 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         
         _btn_photo?.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
         _btn_photo?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        _btn_more = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
+        _btn_more?.layer.borderWidth = 2
+        _btn_more?.layer.borderColor = UIColor(white: 1, alpha: 0.9).CGColor
+        _btn_more?.layer.cornerRadius = _btnW/2
+        _btn_more?.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        
+        _btn_more?.center = CGPoint(x: self.view.frame.width/2+_gap+_btnW, y: self.view.frame.height/2+20)
+        _btn_more?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
         _btn_clear = UIButton(frame:CGRect(x: 0, y: 0, width: _btnW, height: _btnW))
         //_btn_clear?.setImage(UIImage(named: "resetIt"), forState: UIControlState.Normal)
@@ -110,9 +121,11 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         
         self._btn_clear!.transform = CGAffineTransformMakeScale(0, 0)
         self._btn_send!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_camera!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_photo!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_more!.transform = CGAffineTransformMakeScale(0, 0)
         
-        _btn_camera!.alpha=0
-        _btn_photo!.alpha=0
+        
         _btn_clear!.alpha=0
         _btn_send!.alpha=0
         
@@ -128,6 +141,12 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _btn_photo!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
         UIGraphicsEndImageContext()
         
+        _img = UIImage(named: "morephoto_icon.png")!
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
+        _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
+        _btn_more!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
+        UIGraphicsEndImageContext()
+        
         
         _img = UIImage(named: "okgo")!
         UIGraphicsBeginImageContextWithOptions(CGSize(width: _btnW*2, height: _btnW*2), false, 1)
@@ -140,6 +159,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _img.drawInRect(CGRect(x: _btnW/2, y: _btnW/2, width: _btnW, height: _btnW))
         _btn_clear!.setImage(UIGraphicsGetImageFromCurrentImageContext(), forState: UIControlState.Normal)
         UIGraphicsEndImageContext()
+        
+        
+        
         
         
         _imageW = self.view.frame.width-2*_gap
@@ -168,15 +190,20 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _infoForImage?.center = CGPoint(x: self.view.frame.width/2, y: (self.view.frame.height-_imageW)/4+_infoForImage!.frame.height/2)
         
         
-        _btn_welfare = UIButton(frame:CGRect(x: _imageContainer!.frame.origin.x+_imageContainer!.frame.width-_btnW/2-5, y: _imageContainer!.frame.origin.y+5, width: _btnW/2, height: _btnW/2))
+        _welfare_icon = UIImageView(frame:CGRect(x: _imageContainer!.frame.origin.x+_imageContainer!.frame.width-39+2, y: _imageContainer!.frame.origin.y-2, width: 39, height: 39))
+        _welfare_icon?.image = UIImage(named: "welfare_icon_btn")
+        
+        
+        _welfare_icon?.userInteractionEnabled = false
+        
+        _btn_welfare = UIButton(frame:CGRect(x: _imageContainer!.frame.origin.x+_imageContainer!.frame.width-39+2+4, y: _imageContainer!.frame.origin.y-2+4, width: 30, height: 30))
         _btn_welfare?.clipsToBounds = true
-        _btn_welfare?.layer.cornerRadius = _btnW/4
-        _btn_welfare?.backgroundColor = UIColor(white: 0, alpha: 0.6)
-        _btn_welfare?.layer.borderColor = UIColor.whiteColor().CGColor
-        _btn_welfare?.layer.borderWidth = 1
+        _btn_welfare?.layer.cornerRadius = 30/2
+        _btn_welfare?.backgroundColor = UIColor.clearColor()
+       
         
         _btn_welfare?.contentMode = UIViewContentMode.ScaleToFill
-        _btn_welfare?.setTitle("福利", forState: UIControlState.Normal)
+        //_btn_welfare?.setTitle("福利", forState: UIControlState.Normal)
         _btn_welfare?.titleLabel?.font = UIFont.systemFontOfSize(10)
         _btn_welfare?.addTarget(self, action: "buttonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         
@@ -186,9 +213,11 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         
         self.view.addSubview(_btn_camera!)
         self.view.addSubview(_btn_photo!)
+        self.view.addSubview(_btn_more!)
         self.view.addSubview(_btn_send!)
         self.view.addSubview(_btn_clear!)
         self.view.addSubview(_infoForImage!)
+        self.view.addSubview(_welfare_icon!)
         self.view.addSubview(_btn_welfare!)
         
         self.view.layer.shadowColor = UIColor.blackColor().CGColor
@@ -213,6 +242,13 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _imageInputer?._setType(ImageInputer._ShowingType_cut)
             _imageInputer?._hideBtns()
             _imageInputer?._openPhotoLibrary()
+            break
+        case _btn_more!:
+            _imageAction = "setPic"
+            _openImageInputer()
+            _imageInputer?._setType(ImageInputer._ShowingType_cut)
+            _imageInputer?._hideBtns()
+            _imageInputer?._openImagesPicker()
             break
         case _btn_clear!:
             _drawingBoard?._clear()
@@ -250,6 +286,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
         }
     }
+    
+    
     
     //----弹出福利选择
     func _openWelfareAction(){
@@ -295,6 +333,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _alerter = nil
     }
     
+    
+    //----展示协议
+    
     func _showEULA(){
         let _controller:EULA = EULA()
         _controller._delegate = self
@@ -307,6 +348,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _ud.setObject(true, forKey: "EULA_accepted")
         self._sentBingo()
     }
+    
+    
     
     func _sentBingo(){
         
@@ -325,7 +368,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             if __dict.objectForKey("recode") as! Int == 200{
                 dispatch_async(dispatch_get_main_queue(), {
                     
-                    self._sentDict = __dict.objectForKey("info") as! NSDictionary
+                    self._sentDict = __dict.objectForKey("info") as? NSDictionary
                     
                     self._checkWelfare()
                 })
@@ -350,6 +393,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             MainAction._uploadWelfareOfPic(_welfareImg!, __bingoId: _sentDict?.objectForKey("_id") as! String, __block: { (__dict) -> Void in
                 if __dict.objectForKey("recode") as! Int == 200{
                     dispatch_async(dispatch_get_main_queue(), {
+                        
                         self._sentOk()
                     })
                 }else{
@@ -362,7 +406,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
                     }
                     dispatch_async(dispatch_get_main_queue(), {
                         ViewController._self!._showAlert("上传失败，请重试",__wait: 3.5)
-                        
                         print("上传失败，请重试:",__dict)
                     })
                 }
@@ -427,6 +470,10 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW)
         self._label_cancel?.alpha = 0
         
+        
+        
+        
+        
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._btn_clear!.center = CGPoint(x: 60, y: self._btn_closeH!)
             self._btn_send!.center = CGPoint(x: self.view.frame.width-60, y: self._btn_closeH!)
@@ -440,7 +487,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             
             self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW/2+15)
             self._label_cancel?.alpha = 1
-             self._btn_clear!.transform = CGAffineTransformMakeRotation(2*3.14)
+            self._btn_clear!.transform = CGAffineTransformMakeRotation(2*3.14)
             self._btn_clear!.transform = CGAffineTransformMakeScale(1, 1)
             self._btn_send!.transform = CGAffineTransformMakeScale(1, 1)
             self._btn_clear!.alpha=1
@@ -493,12 +540,28 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW)
         self._label_cancel?.alpha = 0
         
+        self._btn_camera!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_photo!.transform = CGAffineTransformMakeScale(0, 0)
+        self._btn_more!.transform = CGAffineTransformMakeScale(0, 0)
+        
+        UIView.animateWithDuration(0.3, delay: 0.3, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._btn_camera?.transform = CGAffineTransformMakeScale(1, 1)
+            }) { (Comparable) -> Void in
+                
+        }
+        UIView.animateWithDuration(0.3, delay: 0.4, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._btn_photo?.transform = CGAffineTransformMakeScale(1, 1)
+            }) { (Comparable) -> Void in
+                
+        }
+        UIView.animateWithDuration(0.3, delay: 0.5, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            self._btn_more?.transform = CGAffineTransformMakeScale(1, 1)
+            }) { (Comparable) -> Void in
+                
+        }
+        
+        
         UIView.animateWithDuration(0.6, delay: 0.4, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2-self._btnW/2-20, y: self.view.frame.height/2+20)
-            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2+self._btnW/2+20, y: self.view.frame.height/2+20)
-            self._btn_camera!.alpha=1
-            self._btn_photo!.alpha=1
-            
             self._label_cancel?.center = CGPoint(x: self.view.frame.width/2, y: self._btn_closeH!+self._btnW/2+15)
             self._label_cancel?.alpha = 1
         }) { (stoped) -> Void in
@@ -508,10 +571,12 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     func _btnsHide(){
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
-            self._btn_camera!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
-            self._btn_photo!.center = CGPoint(x: self.view.frame.width/2, y: self.view.frame.height/2+20)
-            self._btn_camera!.alpha=0
-            self._btn_photo!.alpha=0
+            self._btn_camera?.transform = CGAffineTransformMakeScale(0, 0)
+            self._btn_photo?.transform = CGAffineTransformMakeScale(0, 0)
+            self._btn_more?.transform = CGAffineTransformMakeScale(0, 0)
+            
+            
+            
             self._label_cancel?.alpha = 0
             }) { (stoped) -> Void in
                 
@@ -549,7 +614,8 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
             case "setWelfare"://--------福利图片，有限定大小
                 _welfareImg = CoreAction._fixImage(_imageInputer!._originalImage(), __toSize: CGSize(width: 800, height: 1000))
-                _btn_welfare?.setImage(_welfareImg!, forState: UIControlState.Normal)
+                _btn_welfare?.setImage(_welfareImg, forState: UIControlState.Normal)
+                
                 _btn_welfare?.setTitle("", forState: UIControlState.Normal)
                 _imageInputer?.view.removeFromSuperview()
                 _imageInputer?.removeFromParentViewController()
@@ -596,7 +662,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             _drawingBoard?.removeFromParentViewController()
             _drawingBoard = nil
         }
-        
     }
     
     func _shouldBeClosed()->Bool{
@@ -625,9 +690,12 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
     
     //----清除福利
     func _clearWelfare(){
+        
         _btn_welfare?.setImage(UIImage(), forState: UIControlState.Normal)
-        _btn_welfare?.setTitle("福利", forState: UIControlState.Normal)
-        _welfareImg = nil
+        if _welfareImg != nil{
+            _welfareImg = nil
+        }
+        
         _hasWelfare = false
     }
     //---截取背景图
@@ -647,6 +715,7 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         _drawingBoardIn()
         _drawingBoard!._setEnabled(true)
         
+        self.view.addSubview(_welfare_icon!)
         self.view.addSubview(_btn_welfare!)
         _showTips("在图片上涂鸦你的兴趣点")
     }

@@ -18,6 +18,7 @@ class WelfareItem: UIView {
     
     var _tapG:UITapGestureRecognizer?
     var _isOpen:Bool = false
+    var _sign:UIImageView?
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -37,6 +38,13 @@ class WelfareItem: UIView {
         _tapG = UITapGestureRecognizer(target: self, action: "tapHander:")
         _matchImg?.addGestureRecognizer(_tapG!)
         
+        
+        _sign = UIImageView(image: UIImage(named: "welfare_icon_sign"))
+        _sign?.frame = CGRect(x: _matchImg!.frame.origin.x+_matchImg!.frame.width-18, y: -2, width: 0.6*45.5, height: 0.6*77)
+        _sign?.userInteractionEnabled = false
+        
+        _matchBackG?.addSubview(_sign!)
+        
         _matchLabel = UILabel(frame: CGRect(x: 120, y: 80, width: 60, height: 100))
         _matchLabel?.numberOfLines = 0
         _matchLabel?.font = UIFont.systemFontOfSize(12)
@@ -45,6 +53,8 @@ class WelfareItem: UIView {
         _matchLabel?.textColor = UIColor(red: 138/255, green: 120/255, blue: 200/255, alpha: 1)
         _matchLabel?.textAlignment = NSTextAlignment.Left
         _matchBackG?.addSubview(_matchLabel!)
+        
+        
     }
     func tapHander(sender:UITapGestureRecognizer){
         if _isOpen{
@@ -69,6 +79,7 @@ class WelfareItem: UIView {
         _matchImg?._back(MessageWindow._self!.view, __toView: _matchBackG!, __toRect: CGRect(x: 0, y: 0, width: frame.width, height: frame.height), __then: { () -> Void in
             self._matchImg?.layer.cornerRadius = 12
             self._matchImg!.scrollEnabled = false
+            self._matchBackG?.addSubview(self._sign!)
             self._isOpen = false
         })
     }
