@@ -19,6 +19,9 @@ class PicView: UIScrollView,UIScrollViewDelegate{
     var _isThumb:Bool = false
     
     var _scaleType:String = "Full"
+    
+    var _myUrl:String = ""
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.maximumZoomScale = 5
@@ -43,11 +46,19 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         //self.clipsToBounds = false
     }
     func _setPic(__pic:NSDictionary,__block:(NSDictionary)->Void){
+        let _url:String = __pic.objectForKey("url") as! String
+        
+        if _myUrl == _url{
+            return
+        }else{
+            _myUrl = _url
+        }
+        
         switch __pic.objectForKey("type") as! String{
         case "alasset":
             let _al:ALAssetsLibrary=ALAssetsLibrary()
             
-            _al.assetForURL(NSURL(string: __pic.objectForKey("url") as! String)! , resultBlock: { (asset:ALAsset!) -> Void in
+            _al.assetForURL(NSURL(string: _myUrl)!, resultBlock: { (asset:ALAsset!) -> Void in
                 if asset != nil {
                     if self._isThumb{
                         if asset.thumbnail() != nil{
@@ -56,7 +67,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                             print("缩略图还没成功：",asset)
                         }
                     }else{
-                       self._setImageByImage(UIImage(CGImage: asset.defaultRepresentation().fullScreenImage().takeUnretainedValue()))
+                        self._setImageByImage(UIImage(CGImage: asset.defaultRepresentation().fullScreenImage().takeUnretainedValue()))
                     }
                 }else{
                     self._setImage("entroLogo")//----用户删除时
@@ -69,22 +80,22 @@ class PicView: UIScrollView,UIScrollViewDelegate{
             })
             
         case "file":
-            let _str = __pic.objectForKey("url") as! String
-            let _range = _str.rangeOfString("http")
+            
+            let _range = _myUrl.rangeOfString("http")
             if _range?.count != nil{
                 
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = true
                 
                 _imgView?.image = UIImage(named: "noPic.jpg")
                 
-                ImageLoader.sharedLoader.imageForUrl(__pic.objectForKey("url") as! String, completionHandler: { (image, url) -> () in
+                ImageLoader.sharedLoader.imageForUrl(_myUrl, completionHandler: { (image, url) -> () in
                     // _setImage(image)
                     //println("")
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
                     
                     if image==nil{
                         //--加载失败
-                        print("图片加载失败:",__pic.objectForKey("url"))
+                        print("图片加载失败:",self._myUrl)
                         __block(NSDictionary(objects: ["failed"], forKeys: ["info"]))
                         return
                     }
@@ -98,7 +109,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                     
                 })
             }else{
-                self._setImage(__pic.objectForKey("url") as! String)
+                self._setImage(_myUrl)
                 __block(NSDictionary())
             }
             
@@ -163,7 +174,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         
         _refreshView()
     }
-   
+    
     
     func _refreshView(){
         
@@ -192,7 +203,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         self.setContentOffset(CGPoint(x: (self._imgView!.frame.width-self.frame.width)/2, y: (self._imgView!.frame.height-self.frame.height)/2), animated: false)
         //_imgView?.frame = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height)
     }
-
+    
     
     //------
     
