@@ -284,17 +284,18 @@ class ProfilePage:UIViewController,ImageInputerDelegate,UITextFieldDelegate{
         let _img:UIImage = _imageInputer!._captureBgImage()
         MainAction._changeAvatar(_img) { (__dict) -> Void in
            // self._updateProfielOnline()
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                self._uploadAvatarAsBingo(_img)
-            })
+//            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                self._uploadAvatarAsBingo(_img)
+//            })
         }
         self._btn_profile!.setImage(self._imageInputer!._captureBgImage(), forState: UIControlState.Normal)
         self._imageInputer!.view.removeFromSuperview()
         self._imageInputer!.removeFromParentViewController()
         self._imageInputer = nil
     }
-    
+    //---提交头像作为bingo－－取消
     func _uploadAvatarAsBingo(__image:UIImage){
+        
         let _answer:UIImage = UIImage(named: "avatar_answer.png")!
         MainAction._postNewBingo(__image, __question: "我新换的头像，喜欢吗", __answer: _answer, __type: MainAction._Post_Type_Media ,__block: { (__dict) -> Void in
         })

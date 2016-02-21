@@ -105,10 +105,10 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }
         MainView._self = self
         
-        self.view.layer.shadowColor = UIColor.blackColor().CGColor
-        self.view.layer.shadowOpacity = 0.5
-        self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
-        self.view.layer.shadowRadius = 15
+//        self.view.layer.shadowColor = UIColor.blackColor().CGColor
+//        self.view.layer.shadowOpacity = 0.5
+//        self.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+//        self.view.layer.shadowRadius = 15
         
         _bgView = UIImageView(image: UIImage(named: "bg.jpg"))
         _bgView?.contentMode = UIViewContentMode.ScaleToFill
@@ -602,6 +602,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
     }
     func _editingSent(__dict:NSDictionary){
         _addMyImage(__dict)
+        
     }
     
     //----把刚发布的一条图片添加到最前面
@@ -616,9 +617,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         //print("后来：－－－－－－",_allImages.objectAtIndex(_currentIndex))
         //_refresh()
         if _allImages.count<2{
-            _refresh()
+           //_refresh()
+           // _showEdtingPage()
+            //_checkItems()
+            _refreshAtIndex(_currentIndex)
         }else{
-          _refreshAtIndex(_currentIndex)
+           _refreshAtIndex(_currentIndex)
         }
         
     }
@@ -898,6 +902,11 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             
             //工具条部分动画
             
+            if _currentStatus == "editingPage"{
+                return
+            }
+            
+            
             UIView.animateWithDuration(0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 self._infoPanel?.center = CGPoint(x: self._currentPicItem!.center.x,y:self._currentPicItem!.center.y + self._picItemW/2 + self._gap + self._infoH/2)
                 self._infoPanel?.alpha = 1
@@ -910,6 +919,9 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         }
         
         //----图片部分动画
+        if _currentStatus == "editingPage"{
+            return
+        }
         
         UIView.animateWithDuration(0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
             self._currentPicItem?.center = CGPoint(x: self._currentPicItem!.center.x, y: self._CentralY)
@@ -932,8 +944,14 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         if _currentPicItem != nil{
             
         }else{
+            //_currentPicItem = _picInAtIndex(_currentIndex)
             
-            return
+            _checkItems()
+            
+            
+           
+            
+            //return
         }
         
         _removeLoading()

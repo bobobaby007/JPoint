@@ -194,7 +194,7 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
                     if _currentPage=="rightPanel"{
                        _toTranMain = CGAffineTransformTranslate(_startTransOfMainView!, _offset.x, 0)
                         
-                       _rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape+_offset.x/6, height: 0)
+                       //_rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape+_offset.x/6, height: 0)
                         
                         _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, min(_offset.x*1.04,self.view.frame.width), 0)
                     }
@@ -211,7 +211,7 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
                             _offRight = -self.view.frame.width+self._distanceToSwape/2
                         }
                         
-                        _rightPanel?.view.layer.shadowOffset = CGSize(width: _offset.x, height: 0)
+                        //_rightPanel?.view.layer.shadowOffset = CGSize(width: _offset.x, height: 0)
                         
                         
                        _toTranRight = CGAffineTransformTranslate(_startTransOfRightView!, _offRight, 0)
@@ -314,10 +314,10 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
             _rightPanel?._parentView = self
             self.addChildViewController(_rightPanel!)
             _rightPanel?.view.frame = CGRect(x: self.view.frame.width, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-            _rightPanel?.view.layer.shadowColor = UIColor.blackColor().CGColor
-            _rightPanel?.view.layer.shadowOpacity = 0.4
-            _rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
-            _rightPanel?.view.layer.shadowRadius = 15
+            //_rightPanel?.view.layer.shadowColor = UIColor.blackColor().CGColor
+            //_rightPanel?.view.layer.shadowOpacity = 0.4
+            //_rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+            //_rightPanel?.view.layer.shadowRadius = 15
             self.view.addSubview(_rightPanel!.view)
             self._rightPanel?._getDatas()
         }
@@ -356,7 +356,7 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
             
             if self._rightPanel != nil{
                 self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(-self.view.frame.width+self._distanceToSwape/2, 0)
-                self._rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape, height: 0)
+                //self._rightPanel?.view.layer.shadowOffset = CGSize(width: -self._distanceToSwape, height: 0)
             }
             }) { (complete) -> Void in
             
@@ -380,7 +380,7 @@ class ViewController: UIViewController,UIAlertViewDelegate,CLLocationManagerDele
             
                 if self._rightPanel != nil{
                     self._rightPanel?.view.transform = CGAffineTransformMakeTranslation(50, 0)
-                    self._rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
+                    //self._rightPanel?.view.layer.shadowOffset = CGSize(width: 0, height: 0)
                 }
             
             }) { (com) -> Void in

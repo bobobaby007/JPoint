@@ -30,7 +30,7 @@ class ProfilePanel:UIView {
     
     var _tapG:UITapGestureRecognizer?
     var _isOpen:Bool = false
-
+    var _userPic:String?
     var _boxW:CGFloat?{
         didSet{
            
@@ -46,9 +46,9 @@ class ProfilePanel:UIView {
         _userImg?.maximumZoomScale = 1
         _userImg?.minimumZoomScale = 1
         _userImg?._scaleType = PicView._ScaleType_Full
-        _userImg?.layer.shadowRadius = 5
-        _userImg?.layer.shadowColor = UIColor.blackColor().CGColor
-        _userImg?.layer.shadowOpacity = 0.2
+//        _userImg?.layer.shadowRadius = 5
+//        _userImg?.layer.shadowColor = UIColor.blackColor().CGColor
+//        _userImg?.layer.shadowOpacity = 0.2
         _userImg?._imgView?.layer.borderColor = UIColor.whiteColor().CGColor
         _userImg?._imgView?.layer.borderWidth = 2
         
@@ -63,9 +63,9 @@ class ProfilePanel:UIView {
         
         
         _dialogBoxView = UIView(frame: CGRect(x: _imageH+12, y: 20, width: 30, height: 30))
-        _dialogBoxView?.layer.shadowRadius = 5
-        _dialogBoxView?.layer.shadowColor = UIColor.blackColor().CGColor
-        _dialogBoxView?.layer.shadowOpacity = 0.2
+//        _dialogBoxView?.layer.shadowRadius = 5
+//        _dialogBoxView?.layer.shadowColor = UIColor.blackColor().CGColor
+//        _dialogBoxView?.layer.shadowOpacity = 0.2
         _dialogBoxView?.backgroundColor = UIColor.clearColor()
         
         
@@ -99,10 +99,12 @@ class ProfilePanel:UIView {
         
     }
     func _setPic(__pic:String){
+        _userPic = __pic
+        
         _userImg?._setImage("noPic.jpg")
-        _userImg?._setPic(NSDictionary(objects: [__pic,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
-            //self._userImg?.hidden = false
-        })
+        
+        _userImg?._loadImage(_userPic!+"@!small")
+        
 //        _userImg?._setPic(NSDictionary(objects: ["noPic.jpg","file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
 //            
 //        })
@@ -146,7 +148,6 @@ class ProfilePanel:UIView {
         }else{
             _openImage()
         }
-        
     }
     func _openImage(){
         UIApplication.sharedApplication().statusBarHidden = true
@@ -155,7 +156,7 @@ class ProfilePanel:UIView {
         ViewController._self?._shouldPan = false
         _userImg?._imgView?.layer.borderWidth = 0
         self._userImg!.layer.cornerRadius = self._imageH/2
-        
+        _userImg?._loadImage(_userPic!)
         _userImg?._move(self, __fromRect: _userImg!.frame, __toView: ViewController._self!.view, __toRect: ViewController._self!.view.frame, __then: { () -> Void in
             self._userImg!.layer.cornerRadius = self._imageH/2
             self._userImg!._imgView!.layer.cornerRadius = 0

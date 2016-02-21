@@ -34,6 +34,7 @@ class MessageCell: UITableViewCell {
     static let _messageTextPadding:CGFloat = 6
     var _myDict:NSDictionary?
     var _isOpen:Bool=false
+    var _picUrl:String?
     func initWidthFrame(__frame:CGRect,__type:String){
         _frame = __frame
         _type = __type
@@ -270,6 +271,7 @@ class MessageCell: UITableViewCell {
     
     
     func _setPic(__picUrl:String){
+        _picUrl = __picUrl
         if _profileImg == nil{
             _profileImg = PicView(frame:CGRect(x: 10, y: 0, width: 60, height: 60))
             _profileImg?.layer.cornerRadius = 30
@@ -279,9 +281,10 @@ class MessageCell: UITableViewCell {
             _profileImg?.addGestureRecognizer(_tapG!)
         }
         addSubview(_profileImg!)
-        _profileImg?._setPic(NSDictionary(objects: [__picUrl,"file"], forKeys: ["url","type"]), __block: { (dict) -> Void in
-            
-        })
+        
+        _profileImg?._loadImage(_picUrl!+"@!small")
+        
+        
         //_profileImg?._refreshView()
     }
     
@@ -301,6 +304,9 @@ class MessageCell: UITableViewCell {
         _profileImg?._scaleType = PicView._ScaleType_Fit
         ViewController._self?._shouldPan = false
         _profileImg?.layer.borderWidth = 0
+        
+        _profileImg?._loadImage(_picUrl!)
+        
         _profileImg?._move(self, __fromRect: _profileImg!.frame, __toView: MessageWindow._self!.view, __toRect: MessageWindow._self!.view.frame, __then: { () -> Void in
             self._profileImg!.layer.cornerRadius = 0
             self._profileImg!.scrollEnabled = true

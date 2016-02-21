@@ -86,7 +86,7 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                 
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = true
                 
-                _imgView?.image = UIImage(named: "noPic.jpg")
+                //_imgView?.image = UIImage(named: "noPic.jpg")
                 
                 ImageLoader.sharedLoader.imageForUrl(_myUrl, completionHandler: { (image, url) -> () in
                     // _setImage(image)
@@ -169,10 +169,10 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         //self.addSubview(_imgView!)
     }
     func _setImageByImage(_img:UIImage){
-        
-        _imgView?.image=_img
-        
-        _refreshView()
+        do{
+            self._imgView?.image=_img
+            self._refreshView()
+        }
     }
     
     

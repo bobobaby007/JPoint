@@ -19,6 +19,7 @@ class WelfareItem: UIView {
     var _tapG:UITapGestureRecognizer?
     var _isOpen:Bool = false
     var _sign:UIImageView?
+    var _imageUrl:String?
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -67,6 +68,8 @@ class WelfareItem: UIView {
     func _openImage(){
         UIApplication.sharedApplication().statusBarHidden = true
         _matchImg?._scaleType = PicView._ScaleType_Fit
+        
+        _matchImg?._loadImage(MainAction._imageUrl(_imageUrl!))
         _matchImg?._move(_matchBackG!, __fromRect: _matchImg!.frame, __toView: MessageWindow._self!.view, __toRect: MessageWindow._self!.view.frame, __then: { () -> Void in
             self._matchImg?.layer.cornerRadius = 0
             self._matchImg!.scrollEnabled = true
@@ -104,10 +107,11 @@ class WelfareItem: UIView {
             let index4 = _str_2.endIndex.advancedBy(-1)
             
             let range_url = Range<String.Index>(start: index3,end: index4)
-            let _url:String = _str_2.substringWithRange(range_url)
             
-            print("福利图地址：",_url)
-            self._matchImg?._loadImage(MainAction._imageUrl(_url))
+            _imageUrl = _str_2.substringWithRange(range_url)
+            
+           
+            self._matchImg?._loadImage(MainAction._imageUrl(_imageUrl!)+"@!small")
         }
 
     }
@@ -125,10 +129,11 @@ class WelfareItem: UIView {
     }
     
     func _setDict(__bingo:NSDictionary){
+       
         if _matchImg != nil{
             addSubview(_matchImg!)
         }
-        self._matchImg?._loadImage(MainAction._imageUrl(__bingo.objectForKey("image") as! String))
+        self._matchImg?._loadImage(MainAction._imageUrl(__bingo.objectForKey("image") as! String)+"@!small")
         self._matchLabel?.text = __bingo.objectForKey("question") as? String
         self._matchLabel?.sizeToFit()
     }

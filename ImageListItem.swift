@@ -52,17 +52,17 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             self.clipsToBounds = false
             
             //self.selectedBackgroundView = UIView()
-            self.layer.shadowColor = UIColor.blackColor().CGColor
-            self.layer.shadowOpacity = 0.3
-            self.layer.shadowOffset = CGSize(width: 0, height: 0)
-            self.layer.shadowRadius = 5
+//            self.layer.shadowColor = UIColor.blackColor().CGColor
+//            self.layer.shadowOpacity = 0.3
+//            self.layer.shadowOffset = CGSize(width: 0, height: 0)
+//            self.layer.shadowRadius = 5
             
            _bgImg = PicView(frame:CGRect(x: _imageInset, y: _imageInset, width: __frame.width-2*_imageInset, height: __frame.height-_imageInset))
             _bgImg?.layer.cornerRadius = _cornerRadius
             _bgImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
-            _bgImg?.layer.shadowColor = UIColor.blackColor().CGColor
-            _bgImg?.layer.shadowOpacity = 0.2
-            _bgImg?.layer.shadowRadius = 5
+//            _bgImg?.layer.shadowColor = UIColor.blackColor().CGColor
+//            _bgImg?.layer.shadowOpacity = 0.2
+//            _bgImg?.layer.shadowRadius = 5
             
             addSubview(_bgImg!)
             _bgImg?.userInteractionEnabled = false

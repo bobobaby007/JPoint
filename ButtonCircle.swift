@@ -24,9 +24,9 @@ class ButtonCircle: UIButton {
         }
         self.contentMode=UIViewContentMode.Center
         self.layer.cornerRadius = self.frame.width/2
-        self.layer.shadowColor = UIColor.blackColor().CGColor
-        self.layer.shadowOpacity = 0.2
-        self.layer.shadowRadius = 5
+//        self.layer.shadowColor = UIColor.blackColor().CGColor
+//        self.layer.shadowOpacity = 0.2
+//        self.layer.shadowRadius = 5
         
         _setuped = true
     }

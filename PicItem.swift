@@ -57,10 +57,10 @@ class PicItem: UIView {
         _answerV?._imgView!.contentMode = UIViewContentMode.ScaleAspectFill
         _answerV?._imgView!.layer.cornerRadius = _cornerRadius
         
-        self.layer.shadowColor = UIColor.blackColor().CGColor
-        self.layer.shadowOpacity = 0.3
-        self.layer.shadowOffset = CGSize(width: 0, height: 0)
-        self.layer.shadowRadius = 5
+//        self.layer.shadowColor = UIColor.blackColor().CGColor
+//        self.layer.shadowOpacity = 0.3
+//        self.layer.shadowOffset = CGSize(width: 0, height: 0)
+//        self.layer.shadowRadius = 5
         
         
         _tapG = UITapGestureRecognizer(target: self, action: Selector("tapHander:"))        

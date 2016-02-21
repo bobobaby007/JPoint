@@ -17,6 +17,7 @@ class BingoItem: UIView {
     var _message_textView:UITextView?
     
     var _bingoId:String? //-----用于查看bingo详情，未赋值
+    var _bingoDict:NSDictionary?
     var _uv:UIImageView?
     
     var _tapG:UITapGestureRecognizer?
@@ -68,11 +69,14 @@ class BingoItem: UIView {
     func _openImage(){
         
         _matchImg?._scaleType = PicView._ScaleType_Fit
+        self._matchImg?._loadImage(MainAction._imageUrl(self._bingoDict!.objectForKey("image") as! String))
         UIApplication.sharedApplication().statusBarHidden = true
         _matchImg?._move(_matchBackG!, __fromRect: _matchImg!.frame, __toView: MessageWindow._self!.view, __toRect: MessageWindow._self!.view.frame, __then: { () -> Void in
             self._matchImg?.layer.cornerRadius = 0
             self._matchImg!.scrollEnabled = true
+            
             self._isOpen = true
+            
         })
     }
     func _closeImage(){
@@ -127,10 +131,13 @@ class BingoItem: UIView {
     }
     
     func _setDict(__bingo:NSDictionary){
+        _bingoDict = __bingo
         if _matchImg != nil{
             addSubview(_matchImg!)
         }
-        self._matchImg?._loadImage(MainAction._imageUrl(__bingo.objectForKey("image") as! String))
+        self._matchImg?._setImage("noPic.jpg")
+        
+        self._matchImg?._loadImage(MainAction._imageUrl(_bingoDict!.objectForKey("image") as! String)+"@!small")
         self._matchLabel?.text = __bingo.objectForKey("question") as? String
         self._matchLabel?.sizeToFit()
     }

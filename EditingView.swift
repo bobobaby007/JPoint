@@ -220,9 +220,9 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
         self.view.addSubview(_welfare_icon!)
         self.view.addSubview(_btn_welfare!)
         
-        self.view.layer.shadowColor = UIColor.blackColor().CGColor
-        self.view.layer.shadowOpacity = 0.2
-        self.view.layer.shadowRadius = 5
+//        self.view.layer.shadowColor = UIColor.blackColor().CGColor
+//        self.view.layer.shadowOpacity = 0.2
+//        self.view.layer.shadowRadius = 5
 
         //_setProfilePic("profile")
     }
@@ -286,8 +286,6 @@ class EditingView:UIViewController,UIImagePickerControllerDelegate,UINavigationC
             break
         }
     }
-    
-    
     
     //----弹出福利选择
     func _openWelfareAction(){

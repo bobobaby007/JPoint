@@ -788,7 +788,7 @@ class MainAction {
     static func _imageUrl(__str:String)->String{
         //let _url:String = _BasicDomain + "/uploadDir/" + __str
         
-        let _url:String = "http://disk.giccoo.com/BingoMe/" + __str
+        let _url:String = "http://image.giccoo.com/BingoMe/" + __str
         
         return _url
     }
