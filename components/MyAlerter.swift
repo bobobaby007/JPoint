@@ -116,7 +116,7 @@ class MyAlerter: UIViewController {
         for i in 0...self._menus!.count-1{
             let _v:UIButton = self._container?.viewWithTag(100+i) as! UIButton
             
-            UIView.animateWithDuration(0.2+Double(i)*0.1, delay: Double(_menus!.count-i)*0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.3, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+            UIView.animateWithDuration(Double(i)*0.01, delay: Double(_menus!.count-i)*0.05, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
                 _v.frame.origin.y = CGFloat(i)*(self._gap+self._buttonH)
                 _v.alpha = 1
                 }, completion: { (comp) -> Void in

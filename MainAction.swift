@@ -33,7 +33,7 @@ class MainAction {
         }
     }
     
-    static let _versionString:String = "1.13" //-----本地app版本号，注意更新，以便提醒用户更新
+    static let _versionString:String = "1.15" //-----本地app版本号，注意更新，以便提醒用户更新
     
     //static let _BasicDomain:String = "http://192.168.1.108:9999" //"http://192.168.1.108:9999" // "http://bingome.giccoo.com"//---
     static let _BasicDomain:String = "http://bingome.giccoo.com"
@@ -68,6 +68,7 @@ class MainAction {
     static let _URL_ChangeMyProfile:String = "my/info/"
     static let _URL_ChangeMyAvatar:String = "my/avatar/"//----修改头像
     static let _URL_Report:String = "report/bingo/"//---举报
+    static let _URL_BlockUser:String = "report/blacklist/"//---拉黑
     static let _URL_FriendsList:String = "my/friends/"//获取好友列表
     
     
@@ -467,6 +468,17 @@ class MainAction {
         }
     }
     
+    //---拉黑
+    static func _blockUser(__to:String,__block:(NSDictionary)->Void){
+        var postString : String = "token=" + _token
+        postString = postString.stringByAppendingFormat("&to=%@",__to)
+        let _url:String = _BasicDomain + "/" + _Version + "/" +  _URL_BlockUser
+        CoreAction._sendToUrl(postString, __url:_url) { (__dict) -> Void in
+            //print(__dict)
+            __block(__dict)
+        }
+    }
+    
     //------获取本地bingos联系人聊天列表
     static func _getBingoChats(__block:(NSArray)->Void){
         if _ChatsList != nil{
@@ -567,6 +579,23 @@ class MainAction {
         NSNotificationCenter.defaultCenter().postNotificationName(_Notification_chatChanged, object: nil, userInfo:_dict as [NSObject : AnyObject])
         
     }
+    
+    //------删除某条bingo联系人------
+    static func _removeBingoListAt(__uid:String){
+               _getBingoChats { (array) -> Void in
+            let _array:NSMutableArray = NSMutableArray(array: _ChatsList!)
+            // var _has:Bool = false
+            for var i:Int = 0 ; i < _array.count ; ++i {
+                let _item:NSMutableDictionary = NSMutableDictionary(dictionary: _array.objectAtIndex(i) as! NSDictionary)
+                if _item.objectForKey("uid") as! String == __uid{
+                    _array.removeObjectAtIndex(i)
+                    break
+                }
+            }
+            _ChatsList = _array
+            CoreAction._saveArrayToFile(_ChatsList!, __fileName: _Name_BingoChatsList)
+        }
+    }
     //-----收到一条聊天记录
     static func _receiveOneChat(__dict:NSDictionary){
         //
@@ -643,7 +672,6 @@ class MainAction {
     static func _deleteChatHistory(__uid:String)->Void{
         CoreAction._deleteFile(_Prefix_Chat + __uid)
     }
-    
     //-----通过id获取一定数的聊天记录-----本地－－－作废了
     static func _getChatHistory(__uid:String,__num:Int)->NSArray?{
         if _hasChatHistory(__uid){
@@ -689,7 +717,6 @@ class MainAction {
             }
             
         }
- 
     }
     
     //------本地个人资料

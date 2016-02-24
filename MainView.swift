@@ -505,7 +505,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
         ViewController._self!.addChildViewController(_alerter!)
         ViewController._self!.view.addSubview(_alerter!.view)
         ViewController._self!._shouldPan = false
-        _alerter?._setMenus(["举报","发给微信朋友","发到朋友圈"])
+        _alerter?._setMenus(["举报","拉黑","发给微信朋友","发到朋友圈"])
         
         _alerter?._show()
     }
@@ -516,9 +516,12 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             _report_this("举报")
             break
         case 1:
+            _block_this("拉黑")
+            break
+        case 2:
             sendWXContentUser()
             break
-        case 2://
+        case 3://
             sendWXContentFriend()
             break
         default:
@@ -546,6 +549,25 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
                 })
+                //
+            }
+        }
+    }
+    //---拉黑
+    func _block_this(__des:String){
+        let _dict:NSDictionary = _currentPicItem!._dict!
+        print("举报内容：",_dict)
+        let _author:NSDictionary = _dict.objectForKey("author") as! NSDictionary
+        MainAction._blockUser(_author.objectForKey("_id") as! String) { (__dict) -> Void in
+            let recode:Int = __dict.objectForKey("recode") as! Int
+            if recode == 200{
+//                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                    ViewController._self!._showAlert("感谢您的举报，我们会尽快处理！", __wait: 3)
+//                })
+            }else{
+//                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                    ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
+//                })
                 //
             }
         }

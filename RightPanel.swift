@@ -136,6 +136,52 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 90
     }
+    
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    //----左滑
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+    }
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+        
+        let blockAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "拉黑", handler: actionHander)
+        blockAction.backgroundColor = UIColor(white: 0.5, alpha: 0.2)
+        
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "删除", handler: actionHander)
+        deleteAction.backgroundColor = UIColor(white: 0.8, alpha: 0.2)
+        let nonAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "", handler: actionHander)
+
+        nonAction.backgroundColor = UIColor.clearColor()
+        
+        return [nonAction,deleteAction,blockAction]
+        
+    }
+    
+    //---左滑动作
+    func actionHander(action:UITableViewRowAction!,index:NSIndexPath!)->Void{
+        // print(action, index.row)
+        switch action.title as String! {
+        case "拉黑":
+            let _dict:NSDictionary = MainAction._ChatsList!.objectAtIndex(index.row) as! NSDictionary
+            MainAction._removeBingoListAt(_dict.objectForKey("uid") as! String)
+            _tableView?.deleteRowsAtIndexPaths([index], withRowAnimation: UITableViewRowAnimation.Left)
+            MainAction._blockUser(_dict.objectForKey("uid") as! String, __block: { (__dict) -> Void in
+                
+            })
+            break
+        case "删除":
+            let _dict:NSDictionary = MainAction._ChatsList!.objectAtIndex(index.row) as! NSDictionary
+            MainAction._removeBingoListAt(_dict.objectForKey("uid") as! String)
+            _tableView?.deleteRowsAtIndexPaths([index], withRowAnimation: UITableViewRowAnimation.Left)
+            break
+        default :
+            
+            break
+        }
+    }
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let _cell:ChatCell = _tableView?.dequeueReusableCellWithIdentifier("ChatCell") as! ChatCell
         _cell.initWidthFrame(CGRect(x: 0, y: 0, width: self.view.frame.width, height: 60))
@@ -178,6 +224,11 @@ class RightPanel: UIViewController,UITableViewDelegate,UITableViewDataSource,Mes
 //            
 //        })
     }
+    
+    
+    
+    
+    
     //-----聊天窗口代理
     func _messageWindow_close() {
         _refresh()

@@ -117,7 +117,7 @@ class Log_signin: UIViewController{
         let _label:UILabel = UILabel(frame: CGRect(x: _gap, y: _barH+_gap+3*_buttonH, width: 90, height: _buttonH))
         _label.font = UIFont.systemFontOfSize(12)
         _label.textAlignment = NSTextAlignment.Left
-        _label.textColor = UIColor(white: 0.8, alpha: 1)
+        _label.textColor = UIColor(white: 0.9, alpha: 1)
         _label.text = "＊注册代表同意"
         self.view.addSubview(_label)
         
