@@ -47,7 +47,7 @@ class Config:AnyObject {
     
     
     static let _font_cell_title:UIFont = UIFont.systemFontOfSize(17)// UIFont(name: "PingFangSC-Regular", size: 17)! //UIFont.systemFontOfSize(17, weight: 0)//---首页相册条标题字体
-    static let _font_cell_title_normal:UIFont = UIFont(name: "PingFangSC-Regular", size: 16)!//UIFont.systemFontOfSize(16, weight: 0)//---一般的cell标题字体
+    static let _font_cell_title_normal:UIFont = UIFont.systemFontOfSize(16)//UIFont(name: "PingFangSC-Regular", size: 16)!//UIFont.systemFontOfSize(16, weight: 0)//---一般的cell标题字体
     
     
     static let _font_cell_subTitle:UIFont = UIFont.systemFontOfSize(14)//UIFont(name: "PingFangSC-Regular", size: 14)!// UIFont.systemFontOfSize(14, weight: 0)//---首页相册条副标题字体

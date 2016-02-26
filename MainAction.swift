@@ -33,7 +33,7 @@ class MainAction {
         }
     }
     
-    static let _versionString:String = "1.15" //-----本地app版本号，注意更新，以便提醒用户更新
+    static let _versionString:String = "1.16" //-----本地app版本号，注意更新，以便提醒用户更新
     
     //static let _BasicDomain:String = "http://192.168.1.108:9999" //"http://192.168.1.108:9999" // "http://bingome.giccoo.com"//---
     static let _BasicDomain:String = "http://bingome.giccoo.com"

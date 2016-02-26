@@ -196,11 +196,13 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         
         //print("刷新图片：",self._scaleType,_scale,_scaleW,_scaleH)
         self.zoomScale = 1
-        self._imgView!.frame = CGRect(x: 0, y: 0, width:self._imgView!.image!.size.width*_scale, height: self._imgView!.image!.size.height*_scale)
+        _imgView?.frame = CGRect(x: 0, y: 0, width:self._imgView!.image!.size.width*_scale, height: self._imgView!.image!.size.height*_scale)
+        do{
+            self.contentSize = self._imgView!.frame.size
+            
+            self.setContentOffset(CGPoint(x: (self._imgView!.frame.width-self.frame.width)/2, y: (self._imgView!.frame.height-self.frame.height)/2), animated: false)
+        }
         
-        self.contentSize = self._imgView!.frame.size
-        
-        self.setContentOffset(CGPoint(x: (self._imgView!.frame.width-self.frame.width)/2, y: (self._imgView!.frame.height-self.frame.height)/2), animated: false)
         //_imgView?.frame = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height)
     }
     

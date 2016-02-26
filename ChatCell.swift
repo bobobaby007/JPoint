@@ -42,18 +42,21 @@ class ChatCell: UITableViewCell {
             _profileImg?.layer.borderColor = UIColor.whiteColor().CGColor
             _profileImg?.layer.borderWidth = 2
             _profileImg?._imgView?.contentMode = UIViewContentMode.ScaleAspectFill
+            _profileImg?.userInteractionEnabled = false
             
             addSubview(_profileImg!)
             
             _nameLabel = UILabel(frame: CGRect(x: 90, y: 30, width: __frame.width, height: 22))
             _nameLabel?.textColor = UIColor.whiteColor()
             _nameLabel?.font = UIFont.boldSystemFontOfSize(16)
+            _nameLabel?.userInteractionEnabled = false
             
             addSubview(_nameLabel!)
             
             _contentLabel = UILabel(frame: CGRect(x: 90, y: 60, width: __frame.width-90-60, height: 20))
             _contentLabel?.textColor = UIColor.whiteColor()
             _contentLabel?.font = UIFont.systemFontOfSize(13)
+            _contentLabel?.userInteractionEnabled = false
             addSubview(_contentLabel!)
             
             
@@ -62,6 +65,8 @@ class ChatCell: UITableViewCell {
             _bingoIcon?.backgroundColor = UIColor.clearColor()
             _bingoIcon?.frame = CGRect(x: 45, y: 38, width: 160, height: 50)
             _bingoIcon?.contentMode = UIViewContentMode.ScaleAspectFit
+            _bingoIcon?.userInteractionEnabled = false
+            
             
             addSubview(_bingoIcon!)
             
@@ -127,6 +132,7 @@ class ChatCell: UITableViewCell {
                 _alertSign?.layer.borderWidth = 2
                 _alertSign?.layer.cornerRadius = 10
                 _alertSign?.center = CGPoint(x: _myFrame!.width-60, y: _profileImg!.center.y)
+                _alertSign?.userInteractionEnabled = false
             }
             addSubview(_alertSign!)
         }else{

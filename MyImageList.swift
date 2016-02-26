@@ -18,7 +18,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     var _tableView:UITableView?
     var _btn_back:UIButton?
     let _cellHeight:CGFloat = 140
-    var _selectedIndex:NSIndexPath?
+    var _selectedIndex:NSIndexPath = NSIndexPath(forRow: 0, inSection: -1)
     var _imagesArray:NSArray = []
     var _bgImg:PicView!
     var _blurV:UIVisualEffectView?
@@ -115,9 +115,10 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
             if recode == 200{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                     self._imagesArray = __dict.objectForKey("info")  as! NSArray//MainAction._MyImageList
-                    //self._imagesArray = []
+                    
                     self._tableView!.reloadData()
                     self._ifHasImages()
+                    
                 })
             }else{
                 
@@ -170,11 +171,10 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
         _cell._indexPath = indexPath
         _cell._setDict(__dict)
         
-        
-        
-        
         _cell._parentDelegate = self
-        if indexPath .isEqual(_selectedIndex){
+                
+        if indexPath.isEqual(_selectedIndex){
+            
             _cell._changeToHeight(self.view.frame.height)
             _cell._open()
         }else{
@@ -269,7 +269,7 @@ class MyImageList:UIViewController,UITableViewDataSource,UITableViewDelegate,Bin
     }
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if indexPath .isEqual(_selectedIndex){ //---恢复
-           _selectedIndex = nil
+           _selectedIndex = NSIndexPath(forRow: 0, inSection: -1)
             //UIApplication.sharedApplication().statusBarHidden = false
             
             UIApplication.sharedApplication().statusBarStyle=UIStatusBarStyle.LightContent

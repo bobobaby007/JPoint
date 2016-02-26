@@ -136,7 +136,7 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
             _bgImg?.frame = CGRect(x: _imageInset, y: _imageInset, width: _rect!.width-2*_imageInset, height: __height-_imageInset)
             
         }
-        _bgImg?._refreshView()
+//        _bgImg?._refreshView()
         
     }
     //-----载入bingo中的人的圈圈位置
@@ -416,6 +416,8 @@ class ImageListItem: UITableViewCell,BingoUserItemAtMyList_delegate,InfoPanel_de
            // _textBubble?.transform = CGAffineTransformMakeScale(0, 0)
             _textBubble?.removeFromSuperview()
         }
+        
+        
         
         _infoPanel!.frame = CGRect(x: _imageInset+5, y: _bgImg!.frame.height+_imageInset-30, width: _rect!.width-2*_imageInset-10, height: 30)
         
