@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import AssetsLibrary
+//import Haneke
 
 class PicView: UIScrollView,UIScrollViewDelegate{
     var _imgView:UIImageView?
@@ -21,6 +22,8 @@ class PicView: UIScrollView,UIScrollViewDelegate{
     var _scaleType:String = "Full"
     
     var _myUrl:String = ""
+    
+    //let cache = Shared.imageCache
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -86,28 +89,62 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                 
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = true
                 
-                //_imgView?.image = UIImage(named: "noPic.jpg")
                 
-                ImageLoader.sharedLoader.imageForUrl(_myUrl, completionHandler: { (image, url) -> () in
+                
+                
+                //                let iconFormat = Format<UIImage>(name: "icons", diskCapacity: 10 * 1024 * 1024) { image in
+                //                    return imageByRoundingCornersOfImage(image)
+                //                }
+                //                cache.addFormat(iconFormat)
+                
+                
+                //                _imgView?.hnk_setImageFromURL(NSURL(string: _myUrl)!, placeholder: UIImage(named: "noPic.jpg"), format: nil, failure: { (err) -> () in
+                //                    print("图片加载失败:",self._myUrl)
+                //                    __block(NSDictionary(objects: ["failed"], forKeys: ["info"]))
+                //                    return
+                //                    }, success: { (image) -> () in
+                //
+                //                        if self._imgView != nil{
+                //                            self._setImageByImage(image)
+                //                            //self._imgView?.image=image
+                //                            __block(NSDictionary(objects: ["success"], forKeys: ["info"]))
+                //                        }else{
+                //                            print("out")
+                //                        }
+                //                })
+                
+                
+                
+                
+                _imgView?.image = UIImage(named: "noPic.jpg")
+                
+                ImageLoader.sharedLoader.imageForUrl(_myUrl, completionHandler: {[weak self] (image, url) -> () in
                     // _setImage(image)
                     //println("")
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
                     
+                    
+                    
                     if image==nil{
                         //--加载失败
-                        print("图片加载失败:",self._myUrl)
+                        print("图片加载失败:",self?._myUrl)
                         __block(NSDictionary(objects: ["failed"], forKeys: ["info"]))
                         return
                     }
-                    if self._imgView != nil{
-                        self._setImageByImage(image!)
+                    if self?._imgView != nil{
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            self?._setImageByImage(image!)
+                        })
+                        
                         //self._imgView?.image=image
                         __block(NSDictionary(objects: ["success"], forKeys: ["info"]))
                     }else{
                         print("out")
                     }
                     
-                })
+                    })
+                
+                
             }else{
                 self._setImage(_myUrl)
                 __block(NSDictionary())
@@ -169,15 +206,21 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         //self.addSubview(_imgView!)
     }
     func _setImageByImage(_img:UIImage){
-        do{
-            self._imgView?.image=_img
+        if self._imgView == nil{
+            return
+        }
+        if let _imageV = self._imgView{
+            _imageV.image = _img
             self._refreshView()
         }
+        
     }
     
     
     func _refreshView(){
-        
+        if self._imgView!.image == nil{
+            return
+        }
         let _scaleW = self.bounds.width/self._imgView!.image!.size.width
         let _scaleH = self.bounds.height/self._imgView!.image!.size.height
         
@@ -196,13 +239,11 @@ class PicView: UIScrollView,UIScrollViewDelegate{
         
         //print("刷新图片：",self._scaleType,_scale,_scaleW,_scaleH)
         self.zoomScale = 1
-        _imgView?.frame = CGRect(x: 0, y: 0, width:self._imgView!.image!.size.width*_scale, height: self._imgView!.image!.size.height*_scale)
-        do{
-            self.contentSize = self._imgView!.frame.size
-            
-            self.setContentOffset(CGPoint(x: (self._imgView!.frame.width-self.frame.width)/2, y: (self._imgView!.frame.height-self.frame.height)/2), animated: false)
-        }
+        self._imgView!.frame = CGRect(x: 0, y: 0, width:self._imgView!.image!.size.width*_scale, height: self._imgView!.image!.size.height*_scale)
         
+        self.contentSize = self._imgView!.frame.size
+        
+        self.setContentOffset(CGPoint(x: (self._imgView!.frame.width-self.frame.width)/2, y: (self._imgView!.frame.height-self.frame.height)/2), animated: false)
         //_imgView?.frame = CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height)
     }
     
