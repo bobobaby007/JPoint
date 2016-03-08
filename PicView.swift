@@ -116,15 +116,12 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                 
                 
                 
-                _imgView?.image = UIImage(named: "noPic.jpg")
+                //_imgView?.image = UIImage(named: "noPic.jpg")
                 
                 ImageLoader.sharedLoader.imageForUrl(_myUrl, completionHandler: {[weak self] (image, url) -> () in
                     // _setImage(image)
                     //println("")
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-                    
-                    
-                    
                     if image==nil{
                         //--加载失败
                         print("图片加载失败:",self?._myUrl)
@@ -132,19 +129,16 @@ class PicView: UIScrollView,UIScrollViewDelegate{
                         return
                     }
                     if self?._imgView != nil{
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            self?._setImageByImage(image!)
-                        })
                         
+                        self?._setImageByImage(image!)
                         //self._imgView?.image=image
                         __block(NSDictionary(objects: ["success"], forKeys: ["info"]))
                     }else{
-                        print("out")
+                        print("self out")
+                        __block(NSDictionary(objects: ["failed"], forKeys: ["info"]))
                     }
                     
                     })
-                
-                
             }else{
                 self._setImage(_myUrl)
                 __block(NSDictionary())

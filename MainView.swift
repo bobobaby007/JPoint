@@ -735,7 +735,7 @@ class MainView:UIViewController,PicItemDelegate,profilePanelDelegate,BingoView_d
             let recode:Int = __dict.objectForKey("recode") as! Int
             if recode == 200{
                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    MainAction._addToBingoList(self._uid, __type: MessageCell._Type_Bingo, __content: "[bingo]", __nickname: self._nickname, __avatar: self._avator,__isNew: true)
+                    MainAction._addToBingoList(self._uid, __type: MessageCell._Type_Bingo, __content: "[bingo]", __nickname: self._nickname, __avatar: self._avator,__isNew: false)
                 })
             }else{
                 ViewController._self!._showAlert("网络似乎不太给力..", __wait: 3)
